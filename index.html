@@ -1,0 +1,2066 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>宝可梦共鸣测试</title>
+  <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20312c;
+      --muted: #687872;
+      --line: #d7e3dc;
+      --paper: #fffef9;
+      --leaf: #2d7d55;
+      --leaf-dark: #205e40;
+      --sun: #f4c95d;
+      --sky: #dff1f4;
+      --danger: #b84949;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100svh;
+      color: var(--ink);
+      background: #eef6ed;
+      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app-shell {
+      width: min(100%, 920px);
+      min-height: 100svh;
+      margin: 0 auto;
+      background: var(--paper);
+      border-inline: 1px solid var(--line);
+    }
+    .screen {
+      display: none;
+      min-height: 100svh;
+      padding: 24px;
+    }
+    .screen.is-active { display: grid; }
+    .input-screen {
+      place-items: center;
+      background: #f7fff8;
+    }
+    .input-layout { width: min(100%, 520px); }
+    .brand-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: var(--leaf-dark);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .pokeball {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: #e7615c;
+      position: relative;
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+    .pokeball::before {
+      content: "";
+      position: absolute;
+      inset: 43% 0 0;
+      border-top: 4px solid var(--ink);
+      background: #fff;
+    }
+    .pokeball::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      inset: 50% auto auto 50%;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: #fff;
+      transform: translate(-50%, -50%);
+    }
+    h1, h2, p { margin-top: 0; }
+    .input-screen h1 {
+      max-width: 460px;
+      margin-bottom: 28px;
+      font-size: clamp(30px, 8vw, 48px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+    .input-form {
+      display: grid;
+      gap: 15px;
+      padding-top: 22px;
+      border-top: 2px solid var(--ink);
+    }
+    .field { display: grid; gap: 7px; }
+    .field label { font-size: 13px; font-weight: 750; }
+    .field input, .field select {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #adbbb3;
+      border-radius: 6px;
+      outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--leaf);
+      box-shadow: 0 0 0 3px rgba(45, 125, 85, .14);
+    }
+    .primary-button, .secondary-button {
+      min-height: 50px;
+      padding: 11px 18px;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+    .primary-button {
+      color: #fff;
+      background: var(--leaf);
+      border: 1px solid var(--leaf-dark);
+      box-shadow: 0 3px 0 var(--leaf-dark);
+    }
+    .primary-button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--leaf-dark); }
+    .primary-button:disabled { opacity: .65; cursor: wait; }
+    .secondary-button {
+      color: var(--leaf-dark);
+      background: #fff;
+      border: 1px solid var(--leaf);
+    }
+    .form-error {
+      min-height: 22px;
+      margin: 0;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .loading-screen {
+      place-items: center;
+      text-align: center;
+      background: var(--sky);
+    }
+    .loading-cluster { width: min(100%, 360px); }
+    .loading-ball { margin: 0 auto 20px; animation: bob 1.1s ease-in-out infinite; }
+    .loading-screen h2 { margin-bottom: 8px; font-size: 24px; letter-spacing: 0; }
+    .loading-dots { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
+    .loading-dots span {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--leaf);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .15s; }
+    .loading-dots span:nth-child(3) { animation-delay: .3s; }
+    .result-screen {
+      align-content: start;
+      gap: 14px;
+      padding: 16px;
+      background: #fffef9;
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .result-kicker { margin: 0; color: var(--leaf-dark); font-size: 12px; font-weight: 800; }
+    .result-layout {
+      display: grid;
+      grid-template-columns: minmax(180px, .75fr) minmax(0, 1.25fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .species-visual {
+      display: grid;
+      place-items: center;
+      min-height: 250px;
+      background: #edf7ef;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .species-visual img {
+      width: min(100%, 240px);
+      aspect-ratio: 1;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .sprite-fallback {
+      display: none;
+      place-items: center;
+      width: 116px;
+      height: 116px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      color: var(--ink);
+      background: #fff;
+      font-size: 42px;
+      font-weight: 900;
+    }
+    .sprite-fallback.is-visible { display: grid; }
+    .species-meta h2 {
+      margin-bottom: 5px;
+      overflow-wrap: anywhere;
+      font-size: clamp(27px, 6vw, 42px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .stage-label { margin-bottom: 10px; color: var(--muted); font-size: 13px; }
+    .badges, .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .type-badge, .chip {
+      padding: 4px 9px;
+      border: 1px solid rgba(32, 49, 44, .22);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .chip { color: var(--leaf-dark); background: #eef7f1; }
+    .explanation {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .explanation h3 { margin: 0 0 8px; font-size: 16px; letter-spacing: 0; }
+    .explanation p { margin-bottom: 7px; color: #45544e; font-size: 13px; line-height: 1.55; }
+    .chain-block { min-width: 0; }
+    .section-label { margin: 0 0 7px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .chain-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 2px 8px;
+      scrollbar-width: thin;
+    }
+    .chain-node {
+      flex: 0 0 94px;
+      min-width: 94px;
+      padding: 6px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .chain-node.is-current {
+      background: #eff9ef;
+      border: 2px solid var(--leaf);
+    }
+    .chain-image-wrap {
+      display: grid;
+      place-items: center;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 3px;
+    }
+    .chain-node img { width: 60px; height: 60px; object-fit: contain; image-rendering: pixelated; }
+    .chain-node .sprite-fallback { width: 44px; height: 44px; border-width: 2px; font-size: 17px; }
+    .chain-name { overflow-wrap: anywhere; font-size: 10px; font-weight: 750; line-height: 1.2; }
+    .result-actions { display: flex; justify-content: center; }
+    .result-actions .secondary-button { width: min(100%, 260px); }
+    .error-panel {
+      display: none;
+      padding: 12px;
+      color: #783737;
+      background: #fff3f1;
+      border: 1px solid #e4b8b2;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .error-panel.is-visible { display: block; }
+    .dev-tools {
+      margin: 12px 16px 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .dev-tools summary { cursor: pointer; }
+    .dev-tools button { margin-top: 8px; padding: 6px 10px; }
+    .dev-tools pre {
+      max-height: 240px;
+      padding: 10px;
+      overflow: auto;
+      background: #f4f6f4;
+      border: 1px solid var(--line);
+      white-space: pre-wrap;
+    }
+    @keyframes bob { 50% { transform: translateY(-7px); } }
+    @keyframes pulse { 50% { opacity: .3; transform: scale(.75); } }
+    @media (max-width: 640px) {
+      .screen { padding: 18px; }
+      .result-screen { padding: 10px 12px 12px; gap: 9px; }
+      .result-header { padding-bottom: 7px; }
+      .result-layout { grid-template-columns: 118px minmax(0, 1fr); gap: 11px; }
+      .species-visual { min-height: 174px; }
+      .species-visual img { width: 150px; }
+      .species-meta h2 { font-size: 26px; }
+      .explanation { margin-top: 10px; padding-top: 9px; }
+      .explanation p { font-size: 12px; line-height: 1.45; }
+      .chain-node { flex-basis: 82px; min-width: 82px; }
+      .chain-name { font-size: 9px; }
+    }
+    @media (max-width: 370px) {
+      .result-layout { grid-template-columns: 100px minmax(0, 1fr); }
+      .species-visual { min-height: 150px; }
+      .species-visual img { width: 128px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section id="screen-input" class="screen input-screen is-active" aria-labelledby="input-title">
+      <div class="input-layout">
+        <div class="brand-line"><span class="pokeball" aria-hidden="true"></span><span>Pokémon Soul</span></div>
+        <h1 id="input-title">输入生日，寻找与你共鸣的宝可梦吧</h1>
+        <form id="resonance-form" class="input-form" novalidate>
+          <div class="field">
+            <label for="birth-date">出生日期</label>
+            <input id="birth-date" name="birth-date" type="date" required>
+          </div>
+          <div class="field">
+            <label for="birth-hour">出生时辰</label>
+            <select id="birth-hour" name="birth-hour">
+              <option value="12">未知 / 默认正午</option>
+              <option value="23">子时 · 23:00</option>
+              <option value="1">丑时 · 01:00</option>
+              <option value="3">寅时 · 03:00</option>
+              <option value="5">卯时 · 05:00</option>
+              <option value="7">辰时 · 07:00</option>
+              <option value="9">巳时 · 09:00</option>
+              <option value="11">午时 · 11:00</option>
+              <option value="13">未时 · 13:00</option>
+              <option value="15">申时 · 15:00</option>
+              <option value="17">酉时 · 17:00</option>
+              <option value="19">戌时 · 19:00</option>
+              <option value="21">亥时 · 21:00</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="birth-timezone">出生时区</label>
+            <select id="birth-timezone" name="birth-timezone" required>
+              <option value="-480">UTC-8 · 北美太平洋时间</option>
+              <option value="-300">UTC-5 · 北美东部时间</option>
+              <option value="0">UTC+0 · 英国 / UTC</option>
+              <option value="60">UTC+1 · 欧洲中部</option>
+              <option value="480" selected>UTC+8 · 北京时间 / 中国标准时间</option>
+              <option value="540">UTC+9 · 日本 / 韩国</option>
+              <option value="600">UTC+10 · 澳大利亚东部</option>
+            </select>
+          </div>
+          <p id="form-error" class="form-error" role="alert" aria-live="polite"></p>
+          <button id="start-resonance" class="primary-button" type="submit">开始共鸣</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="screen-loading" class="screen loading-screen" aria-labelledby="loading-title" aria-live="polite">
+      <div class="loading-cluster">
+        <span class="pokeball loading-ball" aria-hidden="true"></span>
+        <h2 id="loading-title">正在寻找与你共鸣的宝可梦……</h2>
+        <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+    </section>
+
+    <section id="screen-result" class="screen result-screen" aria-labelledby="species-name">
+      <header class="result-header">
+        <p class="result-kicker">你的共鸣伙伴</p>
+        <div id="result-chips" class="chips" aria-label="共鸣标签"></div>
+      </header>
+      <div id="result-error" class="error-panel" role="alert"></div>
+      <div id="result-content">
+        <div class="result-layout">
+          <div class="species-visual">
+            <img id="species-image" alt="">
+            <span id="species-fallback" class="sprite-fallback" aria-hidden="true"></span>
+          </div>
+          <div class="species-meta">
+            <h2 id="species-name"></h2>
+            <p id="stage-label" class="stage-label"></p>
+            <div id="type-badges" class="badges" aria-label="宝可梦属性"></div>
+            <div class="explanation">
+              <h3 id="copy-title"></h3>
+              <div id="copy-paragraphs"></div>
+            </div>
+          </div>
+        </div>
+        <div class="chain-block">
+          <p class="section-label">进化路线</p>
+          <div id="evolution-chain" class="chain-list" aria-label="完整进化路线"></div>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button id="restart-resonance" class="secondary-button" type="button">重新共鸣</button>
+      </div>
+    </section>
+
+    <details class="dev-tools">
+      <summary>开发测试</summary>
+      <button id="run-tests" type="button">运行 Algorithm 自测</button>
+      <button id="run-copy-tests" type="button">运行 Copywriter 自测</button>
+      <button id="run-frontend-tests" type="button">运行 Frontend 自测</button>
+      <pre id="test-output" aria-live="polite">Ready.</pre>
+    </details>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const POKEDEX_URL = "data/pokedex.json";
+      const LEGENDARY_QUALITY_THRESHOLD = 0.88;
+      const UNIQUE_LEGENDARY_COMBO_MIN_QUALITY = 0.84;
+      const SUB_TYPE_SOFTMAX_TEMPERATURE = 0.35;
+      const UTC8_OFFSET_MINUTES = 480;
+      const MIN_TIMEZONE_OFFSET_MINUTES = -720;
+      const MAX_TIMEZONE_OFFSET_MINUTES = 840;
+      const MINUTE_MS = 60 * 1000;
+      const ELEMENTS = ["Wood", "Fire", "Earth", "Metal", "Water"];
+      const STAT_PRIORITY = ["spa", "atk", "spe", "def", "spd", "hp"];
+      const TEN_GOD_TO_STAT = {
+        "食伤": "spa",
+        "财": "atk",
+        "比劫": "spe",
+        "官杀": "def",
+        "印": "spd"
+      };
+      const DOMAIN_MAP = {
+        Wood: ["Grass", "Bug", "Fairy", "Flying"],
+        Fire: ["Fire", "Electric", "Psychic"],
+        Earth: ["Ground", "Rock", "Normal"],
+        Metal: ["Steel", "Fighting", "Dragon", "Poison"],
+        Water: ["Water", "Ice", "Ghost", "Dark"]
+      };
+      const TYPE_AFFINITY = {
+        Grass: "印", Bug: "比劫", Fairy: "食伤", Flying: "比劫",
+        Fire: "财", Electric: "比劫", Psychic: "食伤",
+        Ground: "官杀", Rock: "官杀", Normal: "印",
+        Steel: "官杀", Fighting: "财", Dragon: "食伤", Poison: "财",
+        Water: "印", Ice: "官杀", Ghost: "食伤", Dark: "财"
+      };
+      // Secondary type nuance gives types with the same TYPE_AFFINITY a non-random ordering signal.
+      // It is intentionally low-weight: role/structure remains primary, nuance only prevents hash-only ties.
+      const TYPE_SECONDARY_WEIGHT = {
+        Grass: 0.78, Bug: 0.64, Fairy: 0.72, Flying: 0.68,
+        Fire: 0.82, Electric: 0.74, Psychic: 0.70,
+        Ground: 0.80, Rock: 0.76, Normal: 0.66,
+        Steel: 0.84, Fighting: 0.76, Dragon: 0.72, Poison: 0.68,
+        Water: 0.82, Ice: 0.74, Ghost: 0.70, Dark: 0.66
+      };
+      const STEM_TO_WUXING = {
+        "甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth",
+        "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water"
+      };
+      const BRANCH_HIDDEN_STEMS = {
+        "子": ["癸"], "丑": ["己", "癸", "辛"], "寅": ["甲", "丙", "戊"],
+        "卯": ["乙"], "辰": ["戊", "乙", "癸"], "巳": ["丙", "戊", "庚"],
+        "午": ["丁", "己"], "未": ["己", "丁", "乙"], "申": ["庚", "壬", "戊"],
+        "酉": ["辛"], "戌": ["戊", "辛", "丁"], "亥": ["壬", "甲"]
+      };
+      const HIDDEN_WEIGHTS = [0.6, 0.25, 0.15];
+      const SEASON_BY_BRANCH = {
+        "寅": "Spring", "卯": "Spring", "辰": "Spring",
+        "巳": "Summer", "午": "Summer", "未": "Summer",
+        "申": "Autumn", "酉": "Autumn", "戌": "Autumn",
+        "亥": "Winter", "子": "Winter", "丑": "Winter"
+      };
+      const SEASON_STATES = {
+        Spring: { Wood: "旺", Fire: "相", Water: "休", Metal: "囚", Earth: "死" },
+        Summer: { Fire: "旺", Earth: "相", Wood: "休", Water: "囚", Metal: "死" },
+        Autumn: { Metal: "旺", Water: "相", Earth: "休", Fire: "囚", Wood: "死" },
+        Winter: { Water: "旺", Wood: "相", Metal: "休", Earth: "囚", Fire: "死" }
+      };
+      const SEASON_COEFFICIENTS = { "旺": 0.35, "相": 0.20, "休": -0.10, "囚": -0.20, "死": -0.30 };
+      const CLASH_PAIRS = new Set(["子午", "午子", "丑未", "未丑", "寅申", "申寅", "卯酉", "酉卯", "辰戌", "戌辰", "巳亥", "亥巳"]);
+      const FORBIDDEN_VISIBLE_TERMS = ["八字", "五行", "十神", "用神", "身强", "身弱", "命格"];
+
+      let pokedexCache = null;
+      let pokedexPromise = null;
+
+      function friendlyError(message) {
+        const error = new Error(message);
+        error.name = "PokemonSoulAlgorithmError";
+        return error;
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function round(value, digits = 6) {
+        const factor = 10 ** digits;
+        return Math.round(value * factor) / factor;
+      }
+
+      function fnv1a(text) {
+        let hash = 0x811c9dc5;
+        for (let index = 0; index < text.length; index += 1) {
+          hash ^= text.charCodeAt(index);
+          hash = Math.imul(hash, 0x01000193);
+        }
+        return hash >>> 0;
+      }
+
+      function stableFraction(seed, purpose) {
+        return fnv1a(`${seed}|${purpose}`) / 0xffffffff;
+      }
+
+      function stableSort(items, scoreFn, seed, purpose, descending = true) {
+        return [...items].sort((left, right) => {
+          const delta = scoreFn(left) - scoreFn(right);
+          if (Math.abs(delta) > 1e-12) return descending ? -delta : delta;
+          return fnv1a(`${seed}|${purpose}|${String(left)}`) - fnv1a(`${seed}|${purpose}|${String(right)}`);
+        });
+      }
+
+      function emptyElements() {
+        return Object.fromEntries(ELEMENTS.map((element) => [element, 0]));
+      }
+
+      function normalizeMap(values) {
+        const total = Object.values(values).reduce((sum, value) => sum + value, 0);
+        return Object.fromEntries(Object.entries(values).map(([key, value]) => [key, total ? round(value / total) : 0]));
+      }
+
+      function nextElement(element) {
+        return ELEMENTS[(ELEMENTS.indexOf(element) + 1) % ELEMENTS.length];
+      }
+
+      function previousElement(element) {
+        return ELEMENTS[(ELEMENTS.indexOf(element) + ELEMENTS.length - 1) % ELEMENTS.length];
+      }
+
+      function controlledBy(element) {
+        return { Wood: "Metal", Fire: "Water", Earth: "Wood", Metal: "Fire", Water: "Earth" }[element];
+      }
+
+      function controls(element) {
+        return { Wood: "Earth", Fire: "Metal", Earth: "Water", Metal: "Wood", Water: "Fire" }[element];
+      }
+
+      function relationToTenGod(dmWx, otherWx) {
+        if (otherWx === dmWx) return "比劫";
+        if (otherWx === nextElement(dmWx)) return "食伤";
+        if (otherWx === controls(dmWx)) return "财";
+        if (otherWx === controlledBy(dmWx)) return "官杀";
+        return "印";
+      }
+
+      function parsePillar(pillar) {
+        if (typeof pillar !== "string" || pillar.length < 2) throw friendlyError("Calendar result is incomplete.");
+        return { stem: pillar[0], branch: pillar[1] };
+      }
+
+      function wallTimeUtcMs(parts) {
+        const date = new Date(0);
+        date.setUTCFullYear(parts.year, parts.month - 1, parts.day);
+        date.setUTCHours(parts.hour, 0, 0, 0);
+        return date.getTime();
+      }
+
+      function utcParts(timestamp) {
+        const date = new Date(timestamp);
+        return {
+          year: date.getUTCFullYear(),
+          month: date.getUTCMonth() + 1,
+          day: date.getUTCDate(),
+          hour: date.getUTCHours()
+        };
+      }
+
+      function normalizeToUtc8(original) {
+        const originalWallTimeMs = wallTimeUtcMs(original);
+        const birthInstantUtcMs = originalWallTimeMs - original.timezoneOffsetMinutes * MINUTE_MS;
+        const normalizedToUtc8 = utcParts(birthInstantUtcMs + UTC8_OFFSET_MINUTES * MINUTE_MS);
+        return { birthInstantUtcMs, normalizedToUtc8 };
+      }
+
+      function validateInput(input) {
+        if (!input || typeof input !== "object") throw friendlyError("Please provide a valid birth date.");
+        const original = {
+          year: Number(input.year),
+          month: Number(input.month),
+          day: Number(input.day),
+          hour: input.hour === undefined || input.hour === null || input.hour === "" ? 12 : Number(input.hour),
+          timezoneOffsetMinutes: input.timezoneOffsetMinutes === undefined || input.timezoneOffsetMinutes === null || input.timezoneOffsetMinutes === ""
+            ? UTC8_OFFSET_MINUTES
+            : Number(input.timezoneOffsetMinutes)
+        };
+        const currentYear = input.currentYear === undefined ? new Date().getFullYear() : Number(input.currentYear);
+        const integers = ["year", "month", "day", "hour", "timezoneOffsetMinutes"];
+        if (integers.some((key) => !Number.isInteger(original[key])) || !Number.isInteger(currentYear)) {
+          throw friendlyError("Please provide a valid birth date.");
+        }
+        if (original.hour < 0 || original.hour > 23) throw friendlyError("Please provide an hour between 0 and 23.");
+        if (
+          original.timezoneOffsetMinutes < MIN_TIMEZONE_OFFSET_MINUTES ||
+          original.timezoneOffsetMinutes > MAX_TIMEZONE_OFFSET_MINUTES
+        ) throw friendlyError("Please provide a valid timezone.");
+        const wallTimeMs = wallTimeUtcMs(original);
+        const wallTime = utcParts(wallTimeMs);
+        if (
+          wallTime.year !== original.year ||
+          wallTime.month !== original.month ||
+          wallTime.day !== original.day ||
+          wallTime.hour !== original.hour
+        ) throw friendlyError("Please provide a valid birth date.");
+        const conversion = normalizeToUtc8(original);
+        if (conversion.birthInstantUtcMs > Date.now()) throw friendlyError("Birth date cannot be in the future.");
+        return {
+          original,
+          normalizedToUtc8: conversion.normalizedToUtc8,
+          currentYear
+        };
+      }
+
+      function validatePokedex(data) {
+        if (!Array.isArray(data) || !data.length) throw friendlyError("Pokemon data is unavailable.");
+        const required = ["num", "name", "types", "baseStats", "evos", "prevo", "chainId", "stageIndex", "chainStages", "finalForms", "finalTypeCombo", "isLegendary"];
+        const invalid = data.find((entry) => required.some((key) => !(key in entry)));
+        if (invalid) throw friendlyError(`Pokemon data is incomplete near ${invalid.name || "an unknown entry"}.`);
+
+        const branchInvalid = data.find((entry) => {
+          if (!Array.isArray(entry.finalForms) || !entry.finalForms.length) return true;
+          if (!Array.isArray(entry.finalTypeCombo) || !entry.finalTypeCombo.length) return true;
+          if (entry.finalForms.length <= 1) return false;
+          return !Array.isArray(entry.finalTypeCombos) || entry.finalTypeCombos.length < entry.finalForms.length;
+        });
+        if (branchInvalid) {
+          throw friendlyError(`Pokemon branch data is incomplete near ${branchInvalid.name || "an unknown entry"}.`);
+        }
+        return data;
+      }
+
+      async function loadPokedex() {
+        if (pokedexCache) return pokedexCache;
+        if (!pokedexPromise) {
+          pokedexPromise = fetch(POKEDEX_URL)
+            .then((response) => {
+              if (!response.ok) throw friendlyError("Pokemon data could not be loaded.");
+              return response.json();
+            })
+            .then(validatePokedex)
+            .then((data) => {
+              pokedexCache = data;
+              return data;
+            })
+            .catch((error) => {
+              pokedexPromise = null;
+              if (error.name === "PokemonSoulAlgorithmError") throw error;
+              throw friendlyError("Pokemon data could not be loaded.");
+            });
+        }
+        return pokedexPromise;
+      }
+
+      function getBazi(input) {
+        if (!window.Solar || typeof window.Solar.fromYmdHms !== "function") {
+          throw friendlyError("Calendar service is unavailable. Please try again later.");
+        }
+        try {
+          return window.Solar.fromYmdHms(input.year, input.month, input.day, input.hour, 0, 0).getLunar().getBaZi();
+        } catch (error) {
+          throw friendlyError("The birth date could not be calculated.");
+        }
+      }
+
+      function calculateShares(parsedPillars) {
+        const totals = emptyElements();
+        parsedPillars.forEach((pillar, pillarIndex) => {
+          totals[STEM_TO_WUXING[pillar.stem]] += 1;
+          const monthMultiplier = pillarIndex === 1 ? 1.4 : 1;
+          (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, hiddenIndex) => {
+            totals[STEM_TO_WUXING[stem]] += (HIDDEN_WEIGHTS[hiddenIndex] || 0) * monthMultiplier;
+          });
+        });
+        return normalizeMap(totals);
+      }
+
+      function calculateStructure(parsedPillars, dmWx) {
+        const totals = { "比劫": 0, "食伤": 0, "财": 0, "官杀": 0, "印": 0 };
+        parsedPillars.forEach((pillar, pillarIndex) => {
+          const pillarMultiplier = pillarIndex === 1 ? 1.5 : 1;
+          totals[relationToTenGod(dmWx, STEM_TO_WUXING[pillar.stem])] += pillarMultiplier;
+          (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, hiddenIndex) => {
+            totals[relationToTenGod(dmWx, STEM_TO_WUXING[stem])] += (HIDDEN_WEIGHTS[hiddenIndex] || 0) * pillarMultiplier;
+          });
+        });
+        return normalizeMap(totals);
+      }
+
+      function calculateStrength(shares, dmWx, monthBranch) {
+        const peer = shares[dmWx];
+        const resource = shares[previousElement(dmWx)];
+        const output = shares[nextElement(dmWx)];
+        const wealth = shares[controls(dmWx)];
+        const power = shares[controlledBy(dmWx)];
+        const base = (peer + 0.8 * resource) - (0.9 * power + 0.6 * wealth + 0.4 * output);
+        const season = SEASON_BY_BRANCH[monthBranch];
+        const state = SEASON_STATES[season][dmWx];
+        const coefficient = SEASON_COEFFICIENTS[state];
+        const strength = round(base + coefficient);
+        const strengthLabel = strength > 0.18 ? "strong" : strength < -0.18 ? "weak" : "balanced";
+        return { strength, strengthLabel, season, seasonState: state, seasonCoefficient: coefficient };
+      }
+
+      function usefulSignal(shares, structure, dmWx, element) {
+        const role = relationToTenGod(dmWx, element);
+        return round(0.65 * (shares[element] || 0) + 0.35 * (structure[role] || 0));
+      }
+
+      function chooseUseful(shares, structure, dmWx, strengthLabel, seed) {
+        let candidates;
+        if (strengthLabel === "weak") candidates = [previousElement(dmWx), dmWx];
+        else if (strengthLabel === "strong") candidates = [controlledBy(dmWx), nextElement(dmWx), controls(dmWx)];
+        else {
+          candidates = ELEMENTS.filter((element) => shares[element] > 0);
+          if (!candidates.length) candidates = ELEMENTS;
+        }
+        return stableSort(candidates, (element) => usefulSignal(shares, structure, dmWx, element), seed, "useful", true)[0];
+      }
+
+      function pickGate(dmWx, strength, structure, shares, useful) {
+        const domain = DOMAIN_MAP[dmWx];
+        const strengthLabel = strength > 0.18 ? "strong" : strength < -0.18 ? "weak" : "balanced";
+        if (strengthLabel === "balanced") return [...domain];
+
+        const preferredAffinities = strengthLabel === "strong"
+          ? new Set(["财", "食伤", "比劫"])
+          : new Set(["印", "官杀"]);
+        let gate = domain.filter((type) => preferredAffinities.has(TYPE_AFFINITY[type]));
+
+        const pressure = structure["官杀"] || 0;
+        if (strengthLabel === "weak" && pressure > 0.28) {
+          const supported = gate.filter((type) => TYPE_AFFINITY[type] === "印" || DOMAIN_MAP[useful].includes(type));
+          if (supported.length) gate = supported;
+        }
+        if (strengthLabel === "strong" && shares[dmWx] > 0.32) {
+          const expressive = gate.filter((type) => TYPE_AFFINITY[type] === "食伤" || TYPE_AFFINITY[type] === "财");
+          if (expressive.length) gate = expressive;
+        }
+        return gate.length ? gate : [...domain];
+      }
+
+      function mainTypeRolePreference(type, strengthLabel) {
+        const affinity = TYPE_AFFINITY[type];
+        const strongPreference = { "财": 1.00, "食伤": 0.90, "比劫": 0.72, "官杀": 0.58, "印": 0.42 };
+        const weakPreference = { "印": 1.00, "官杀": 0.86, "比劫": 0.70, "食伤": 0.54, "财": 0.46 };
+        const balancedPreference = { "比劫": 0.82, "食伤": 0.78, "印": 0.76, "官杀": 0.72, "财": 0.70 };
+        if (strengthLabel === "strong") return strongPreference[affinity] ?? 0.5;
+        if (strengthLabel === "weak") return weakPreference[affinity] ?? 0.5;
+        return balancedPreference[affinity] ?? 0.5;
+      }
+
+      function mainTypeUsefulRoleScore(type, dmWx, useful) {
+        // Main type must stay inside DOMAIN_MAP[dmWx], so useful-domain membership is usually constant.
+        // We therefore translate useful's element into its ten-god relation to dmWx, then compare that
+        // role against each candidate type's affinity. This makes useful influence vary by type.
+        const usefulRole = relationToTenGod(dmWx, useful);
+        const affinity = TYPE_AFFINITY[type];
+        if (affinity === usefulRole) return 1;
+        const adjacentRoles = {
+          "比劫": new Set(["印", "食伤"]),
+          "食伤": new Set(["比劫", "财"]),
+          "财": new Set(["食伤", "官杀"]),
+          "官杀": new Set(["财", "印"]),
+          "印": new Set(["官杀", "比劫"])
+        };
+        return adjacentRoles[usefulRole]?.has(affinity) ? 0.45 : 0;
+      }
+
+      function typeNuanceScore(type) {
+        return TYPE_SECONDARY_WEIGHT[type] ?? 0.5;
+      }
+
+      function chooseMainType(dmWx, useful, shares, structure, strength, seed) {
+        const gate = pickGate(dmWx, strength, structure, shares, useful);
+        const strengthLabel = strength > 0.18 ? "strong" : strength < -0.18 ? "weak" : "balanced";
+        const usefulRole = relationToTenGod(dmWx, useful);
+        const scores = Object.fromEntries(gate.map((type) => {
+          const rolePreference = mainTypeRolePreference(type, strengthLabel);
+          const tenScore = structure[TYPE_AFFINITY[type]] || 0;
+          const nuanceScore = typeNuanceScore(type);
+          const elemScore = clamp(0.48 * rolePreference + 0.34 * tenScore + 0.18 * nuanceScore, 0, 1);
+          const usefulScore = mainTypeUsefulRoleScore(type, dmWx, useful);
+          return [type, round(0.50 * elemScore + 0.25 * tenScore + 0.25 * usefulScore)];
+        }));
+        const mainType = stableSort(gate, (type) => scores[type], seed, "main-type")[0];
+        return {
+          mainType,
+          scores,
+          gate,
+          usefulRole,
+          usefulScores: Object.fromEntries(gate.map((type) => [type, mainTypeUsefulRoleScore(type, dmWx, useful)])),
+          nuanceScores: Object.fromEntries(gate.map((type) => [type, typeNuanceScore(type)]))
+        };
+      }
+
+      function chooseSubType(mainType, useful, shares, structure, seed) {
+        const candidates = DOMAIN_MAP[useful].filter((type) => type !== mainType);
+        if (!candidates.length) return { subType: null, scores: {}, weights: {}, sample: null };
+        const scores = Object.fromEntries(candidates.map((type) => {
+          const tenScore = structure[TYPE_AFFINITY[type]] || 0;
+          return [type, round(tenScore)];
+        }));
+        const maxScore = Math.max(...Object.values(scores));
+        const exponentials = Object.fromEntries(candidates.map((type) => [
+          type,
+          Math.exp((scores[type] - maxScore) / SUB_TYPE_SOFTMAX_TEMPERATURE)
+        ]));
+        const total = Object.values(exponentials).reduce((sum, value) => sum + value, 0);
+        const weights = Object.fromEntries(candidates.map((type) => [type, round(exponentials[type] / total)]));
+        const sample = stableFraction(seed, "sub-type-softmax");
+        let cumulative = 0;
+        let subType = candidates[candidates.length - 1];
+        for (const type of candidates) {
+          cumulative += weights[type];
+          if (sample < cumulative) {
+            subType = type;
+            break;
+          }
+        }
+        return { subType, scores, weights, sample: round(sample) };
+      }
+
+      function comboKey(types) {
+        return [...new Set(types)].join("|");
+      }
+
+      function createChainIndex(pokedex) {
+        const entriesByName = new Map(pokedex.map((entry) => [entry.name, entry]));
+        const groups = new Map();
+        pokedex.forEach((entry) => {
+          if (!groups.has(entry.chainId)) groups.set(entry.chainId, []);
+          groups.get(entry.chainId).push(entry);
+        });
+        const chains = [...groups.entries()].map(([chainId, entries]) => {
+          const finalNames = [...new Set(entries.flatMap((entry) => entry.finalForms))];
+          const finals = finalNames.map((name) => entriesByName.get(name)).filter(Boolean);
+          const combos = [...new Set(entries.flatMap((entry) =>
+            (entry.finalTypeCombos || [entry.finalTypeCombo]).map(comboKey)
+          ))];
+          return { chainId, entries, finals, combos };
+        });
+        return { entriesByName, chains };
+      }
+
+      function statPreference(structure, seed) {
+        const tenGods = stableSort(Object.keys(TEN_GOD_TO_STAT), (key) => structure[key], seed, "stat-preference");
+        return [...tenGods.map((key) => TEN_GOD_TO_STAT[key]), "hp"];
+      }
+
+      function statTuple(entry, preference) {
+        const preferenceIndex = Object.fromEntries(preference.map((stat, index) => [stat, index]));
+        return [...STAT_PRIORITY]
+          .sort((left, right) => {
+            const delta = entry.baseStats[right] - entry.baseStats[left];
+            return delta || STAT_PRIORITY.indexOf(left) - STAT_PRIORITY.indexOf(right);
+          })
+          .map((stat) => preferenceIndex[stat]);
+      }
+
+      function compareTuple(left, right) {
+        for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
+          const delta = (left[index] ?? 999) - (right[index] ?? 999);
+          if (delta) return delta;
+        }
+        return 0;
+      }
+
+      function chooseFinal(chain, targetTypes, dominantElement, preference, seed) {
+        const exact = chain.finals.filter((entry) => comboKey(entry.types) === comboKey(targetTypes));
+        const mainMatches = chain.finals.filter((entry) => entry.types.includes(targetTypes[0]));
+        let candidates = exact.length ? exact : mainMatches.length ? mainMatches : chain.finals;
+        const dominantTypes = DOMAIN_MAP[dominantElement];
+        const dominantMatches = candidates.filter((entry) => entry.types.some((type) => dominantTypes.includes(type)));
+        if (dominantMatches.length) candidates = dominantMatches;
+        return [...candidates].sort((left, right) => {
+          const tupleDelta = compareTuple(statTuple(left, preference), statTuple(right, preference));
+          return tupleDelta || fnv1a(`${seed}|final|${left.name}`) - fnv1a(`${seed}|final|${right.name}`);
+        })[0];
+      }
+
+      function chooseChain(pokedex, typeCombo, structure, shares, seed, allowLegendary, exactOnly = false) {
+        const { entriesByName, chains } = createChainIndex(pokedex);
+        const eligible = chains.filter((chain) => chain.finals.some((entry) => Boolean(entry.isLegendary) === allowLegendary));
+        const exactKey = comboKey(typeCombo);
+        let candidates = eligible.filter((chain) => chain.combos.includes(exactKey));
+        let fallback = "exact";
+        if (exactOnly && !candidates.length) throw friendlyError("No exact matching Pokemon could be found.");
+        if (!candidates.length) {
+          candidates = eligible.filter((chain) => chain.finals.some((entry) => entry.types.includes(typeCombo[0])));
+          fallback = "main-type";
+        }
+        if (!candidates.length) {
+          const relatedTypes = new Set(Object.entries(DOMAIN_MAP)
+            .filter(([, types]) => types.includes(typeCombo[0]))
+            .flatMap(([, types]) => types));
+          candidates = eligible.filter((chain) => chain.finals.some((entry) => entry.types.some((type) => relatedTypes.has(type))));
+          fallback = "near-domain";
+        }
+        if (!candidates.length) {
+          candidates = eligible;
+          fallback = "eligible-pool";
+        }
+        if (!candidates.length) throw friendlyError("No matching Pokemon could be found.");
+
+        const preference = statPreference(structure, seed);
+        const dominantElement = stableSort(ELEMENTS, (element) => shares[element], seed, "dominant-element")[0];
+        const ranked = candidates.map((chain) => {
+          const final = chooseFinal(chain, typeCombo, dominantElement, preference, seed);
+          return { chain, final, tuple: statTuple(final, preference) };
+        }).sort((left, right) => {
+          const tupleDelta = compareTuple(left.tuple, right.tuple);
+          return tupleDelta || fnv1a(`${seed}|chain|${left.chain.chainId}`) - fnv1a(`${seed}|chain|${right.chain.chainId}`);
+        });
+        return { ...ranked[0], fallback, candidateCount: candidates.length, entriesByName, preference, dominantElement };
+      }
+
+      function legendaryGateDecision(pokedex, typeCombo, quality) {
+        const target = comboKey(typeCombo);
+        const hasOrdinaryExact = pokedex.some((entry) =>
+          !entry.isLegendary && (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => comboKey(types) === target)
+        );
+        const hasLegendaryExact = pokedex.some((entry) =>
+          entry.isLegendary && (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => comboKey(types) === target)
+        );
+        if (hasLegendaryExact && quality > LEGENDARY_QUALITY_THRESHOLD) {
+          return { allowLegendary: true, legendaryGate: "normal_quality_pass", hasOrdinaryExact, hasLegendaryExact };
+        }
+        if (hasLegendaryExact && !hasOrdinaryExact && quality >= UNIQUE_LEGENDARY_COMBO_MIN_QUALITY) {
+          return { allowLegendary: true, legendaryGate: "unique_combo_exception", hasOrdinaryExact, hasLegendaryExact };
+        }
+        if (hasLegendaryExact && !hasOrdinaryExact) {
+          return { allowLegendary: false, legendaryGate: "blocked_quality_low", hasOrdinaryExact, hasLegendaryExact };
+        }
+        return { allowLegendary: false, legendaryGate: "ordinary_pool_available", hasOrdinaryExact, hasLegendaryExact };
+      }
+
+      function buildSelectedPath(finalEntry, entriesByName) {
+        const path = [];
+        let current = finalEntry;
+        const seen = new Set();
+        while (current && !seen.has(current.name)) {
+          seen.add(current.name);
+          path.unshift(current);
+          current = current.prevo ? entriesByName.get(current.prevo) : null;
+        }
+        return path;
+      }
+
+      function pillarElementPresence(pillar, element) {
+        let score = STEM_TO_WUXING[pillar.stem] === element ? 1 : 0;
+        (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, index) => {
+          if (STEM_TO_WUXING[stem] === element) score += HIDDEN_WEIGHTS[index] || 0;
+        });
+        return score;
+      }
+
+      function growthPillarIndex(parsedPillars, shares, dmWx, useful, seed) {
+        // This models where the strongest growth signal is anchored, not a traditional useful-god pillar reading.
+        // It is intentionally more stable than using only a scarce useful element that may be absent from the pillars.
+        const dominantElement = stableSort(ELEMENTS, (element) => shares[element], seed, "growth-dominant-element")[0];
+        const scores = parsedPillars.map((pillar, index) => {
+          const monthAnchor = index === 1 ? 0.15 : 0;
+          return round(
+            0.50 * pillarElementPresence(pillar, dominantElement) +
+            0.30 * pillarElementPresence(pillar, dmWx) +
+            0.20 * pillarElementPresence(pillar, useful) +
+            monthAnchor
+          );
+        });
+        const pillarIndex = stableSort([0, 1, 2, 3], (index) => scores[index], seed, "growth-pillar")[0];
+        return { pillarIndex, scores, dominantElement };
+      }
+
+      function calculatePeakWindow(pillarIndex) {
+        if (pillarIndex === 0) return { start: 25, end: 45, pattern: "early" };
+        if (pillarIndex === 3) return { start: 40, end: 60, pattern: "late" };
+        return { start: 30, end: 50, pattern: "steady" };
+      }
+
+      function calculateEnergy(age, peakWindow) {
+        const { start, end } = peakWindow;
+        if (age <= start - 16) return 0;
+        if (age < start) return round((age - (start - 16)) / 16);
+        if (age <= end) return 1;
+        if (age < end + 20) return round(1 - (age - end) / 20);
+        return 0;
+      }
+
+      function calculateMatchConfidence(pokedex, typeCombo) {
+        const target = comboKey(typeCombo);
+        const exact = pokedex.some((entry) => (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => comboKey(types) === target));
+        if (exact) return 1;
+        const main = pokedex.some((entry) => entry.finalTypeCombo.includes(typeCombo[0]));
+        return main ? 0.65 : 0.35;
+      }
+
+      function calculateQuality(shares, structure, useful, parsedPillars, seasonCoefficient, dmWx) {
+        const values = Object.values(shares);
+        const coverage = values.filter((value) => value > 0.03).length / ELEMENTS.length;
+        const evenness = 1 - clamp(values.reduce((sum, value) => sum + Math.abs(value - 0.2), 0) / 1.6, 0, 1);
+        const balanceScore = clamp(0.45 * coverage + 0.55 * evenness, 0, 1);
+        const dominantStructure = Math.max(...Object.values(structure));
+        const clarityScore = clamp((dominantStructure - 0.20) / 0.40, 0, 1);
+        const usefulStrength = clamp((usefulSignal(shares, structure, dmWx, useful) - 0.08) / 0.34, 0, 1);
+        const seasonSupport = clamp((seasonCoefficient + 0.30) / 0.65, 0, 1);
+        const branches = parsedPillars.map((pillar) => pillar.branch);
+        let clashes = 0;
+        for (let left = 0; left < branches.length; left += 1) {
+          for (let right = left + 1; right < branches.length; right += 1) {
+            if (CLASH_PAIRS.has(branches[left] + branches[right])) clashes += 1;
+          }
+        }
+        const clashScore = clamp(1 - clashes / 3, 0, 1);
+        const components = { balanceScore, clarityScore, usefulStrength, seasonSupport, clashScore };
+        const weighted = (
+          0.24 * balanceScore +
+          0.28 * clarityScore +
+          0.22 * usefulStrength +
+          0.16 * seasonSupport +
+          0.10 * clashScore
+        );
+        const quality = clamp((weighted - 0.25) / 0.55, 0, 1);
+        return {
+          quality: round(quality),
+          components: Object.fromEntries(Object.entries(components).map(([key, value]) => [key, round(value)])),
+          weighted: round(weighted),
+          clashes
+        };
+      }
+
+      function publicSpecies(entry) {
+        return {
+          num: entry.num,
+          name: entry.name,
+          types: [...entry.types],
+          baseStats: { ...entry.baseStats },
+          chainId: entry.chainId,
+          stageIndex: entry.stageIndex,
+          chainStages: entry.chainStages,
+          isLegendary: entry.isLegendary
+        };
+      }
+
+      function dominantStructureKey(structure, seed) {
+        return stableSort(Object.keys(structure), (key) => structure[key], seed, "dominant-structure")[0];
+      }
+
+      function explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages, context) {
+        const stats = Object.entries(selectedSpecies.baseStats).sort((a, b) => b[1] - a[1] || STAT_PRIORITY.indexOf(a[0]) - STAT_PRIORITY.indexOf(b[0]));
+        const statPhrases = {
+          hp: "keeps going through long stretches", atk: "acts with direct force",
+          def: "holds steady under pressure", spa: "expresses power with precision",
+          spd: "absorbs pressure without losing focus", spe: "moves before the moment passes"
+        };
+        const strengthPhrases = {
+          strong: "carries momentum outward",
+          weak: "builds strength through careful support",
+          balanced: "keeps several instincts in workable balance"
+        };
+        const structurePhrases = {
+          "比劫": "keeps a clear sense of self direction",
+          "食伤": "turns inner pressure into visible expression",
+          "财": "moves more easily when a tangible goal appears",
+          "官杀": "responds to pressure with discipline",
+          "印": "draws strength from observation and absorption"
+        };
+        const phase = chainStages === 1 ? "a complete form" : stageIndex === chainStages ? "a fully opened phase" : "a growing phase";
+        const dominantStructure = dominantStructureKey(context.structure, context.seed);
+        const typeTexture = selectedSpecies.types.includes("Ghost")
+          ? "quietly observant"
+          : selectedSpecies.types.includes("Electric") || selectedSpecies.types.includes("Fire")
+            ? "quick to ignite when the moment is clear"
+            : "steady and attentive";
+        return {
+          temperament: strengthPhrases[context.strengthLabel] || typeTexture,
+          actionStyle: statPhrases[stats[0][0]],
+          growthDirection: structurePhrases[dominantStructure] || (typeCombo.length > 1 ? "combines two different strengths" : "deepens one clear strength"),
+          pressurePattern: context.strengthLabel === "weak"
+            ? "looks for support before pushing forward"
+            : context.strengthLabel === "strong"
+              ? "needs a fitting outlet for gathered force"
+              : statPhrases[stats.find(([stat]) => stat === "def" || stat === "spd")?.[0] || stats[0][0]],
+          currentPhase: phase,
+          pokemonSimilarityHooks: [
+            `${selectedSpecies.name} carries ${selectedSpecies.types.join(" and ")} traits`,
+            statPhrases[stats[0][0]],
+            strengthPhrases[context.strengthLabel] || typeTexture,
+            structurePhrases[dominantStructure] || "keeps a readable inner rhythm",
+            phase
+          ]
+        };
+      }
+
+      async function calculatePokemonSoul(rawInput) {
+        const input = validateInput(rawInput);
+        const pokedex = await loadPokedex();
+        const bazi = getBazi(input.normalizedToUtc8);
+        const parsedPillars = bazi.map(parsePillar);
+        const dmWx = STEM_TO_WUXING[parsedPillars[2].stem];
+        if (!dmWx) throw friendlyError("The birth date could not be calculated.");
+        const baziString = bazi.join("");
+        const shares = calculateShares(parsedPillars);
+        const structure = calculateStructure(parsedPillars, dmWx);
+        const strengthResult = calculateStrength(shares, dmWx, parsedPillars[1].branch);
+        const useful = chooseUseful(shares, structure, dmWx, strengthResult.strengthLabel, baziString);
+        const mainResult = chooseMainType(dmWx, useful, shares, structure, strengthResult.strength, baziString);
+        const subResult = chooseSubType(mainResult.mainType, useful, shares, structure, baziString);
+        const typeCombo = [mainResult.mainType, subResult.subType].filter(Boolean);
+        const matchConfidence = calculateMatchConfidence(pokedex, typeCombo);
+        const qualityResult = calculateQuality(
+          shares,
+          structure,
+          useful,
+          parsedPillars,
+          strengthResult.seasonCoefficient,
+          dmWx
+        );
+        const quality = qualityResult.quality;
+        const legendaryDecision = legendaryGateDecision(pokedex, typeCombo, quality);
+        let allowLegendary = legendaryDecision.allowLegendary;
+        let legendaryGate = legendaryDecision.legendaryGate;
+        let chainResult;
+        try {
+          chainResult = chooseChain(pokedex, typeCombo, structure, shares, baziString, allowLegendary, allowLegendary);
+        } catch (error) {
+          if (!allowLegendary) throw error;
+          allowLegendary = false;
+          chainResult = chooseChain(pokedex, typeCombo, structure, shares, baziString, false);
+          chainResult.legendaryFallback = true;
+          legendaryGate = "ordinary_pool_available";
+        }
+        const selectedPath = buildSelectedPath(chainResult.final, chainResult.entriesByName);
+        const chainStages = Math.max(1, selectedPath.length);
+        const age = clamp(input.currentYear - input.original.year, 0, 130);
+        const growthSignal = growthPillarIndex(parsedPillars, shares, dmWx, useful, baziString);
+        const peakWindow = calculatePeakWindow(growthSignal.pillarIndex);
+        const energy = calculateEnergy(age, peakWindow);
+        const stageIndex = chainStages === 1 ? 1 : clamp(Math.round(energy * (chainStages - 1)) + 1, 1, chainStages);
+        const selectedSpecies = selectedPath[stageIndex - 1] || selectedPath[0] || chainResult.final;
+        const features = explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages, {
+          strengthLabel: strengthResult.strengthLabel,
+          structure,
+          shares,
+          useful,
+          dmWx,
+          seed: baziString
+        });
+
+        return {
+          input,
+          bazi,
+          dmWx,
+          shares,
+          structure,
+          strength: strengthResult.strength,
+          strengthLabel: strengthResult.strengthLabel,
+          useful,
+          mainType: mainResult.mainType,
+          subType: subResult.subType,
+          typeCombo,
+          selectedChainId: chainResult.chain.chainId,
+          selectedSpecies: publicSpecies(selectedSpecies),
+          chain: selectedPath.map(publicSpecies),
+          stageIndex,
+          chainStages,
+          age,
+          energy,
+          peakWindow,
+          quality,
+          isLegendaryResult: allowLegendary && Boolean(chainResult.final.isLegendary),
+          explanationFeatures: features,
+          debug: {
+            fallback: chainResult.fallback,
+            legendaryGate,
+            legendaryGateDetails: {
+              normalThreshold: LEGENDARY_QUALITY_THRESHOLD,
+              uniqueComboMinimum: UNIQUE_LEGENDARY_COMBO_MIN_QUALITY,
+              hasOrdinaryExact: legendaryDecision.hasOrdinaryExact,
+              hasLegendaryExact: legendaryDecision.hasLegendaryExact
+            },
+            legendaryFallback: Boolean(chainResult.legendaryFallback),
+            candidateCount: chainResult.candidateCount,
+            dominantElement: chainResult.dominantElement,
+            statPreference: chainResult.preference,
+            mainTypeScores: mainResult.scores,
+            mainTypeGate: mainResult.gate,
+            mainTypeUsefulRole: mainResult.usefulRole,
+            mainTypeUsefulScores: mainResult.usefulScores,
+            mainTypeNuanceScores: mainResult.nuanceScores,
+            subTypeSelection: {
+              scores: subResult.scores,
+              weights: subResult.weights,
+              sample: subResult.sample,
+              selected: subResult.subType,
+              temperature: SUB_TYPE_SOFTMAX_TEMPERATURE
+            },
+            qualityComponents: qualityResult.components,
+            qualityWeightedScore: qualityResult.weighted,
+            qualityClashes: qualityResult.clashes,
+            matchConfidence,
+            season: strengthResult.season,
+            seasonState: strengthResult.seasonState,
+            seasonCoefficient: strengthResult.seasonCoefficient,
+            usefulSignal: usefulSignal(shares, structure, dmWx, useful),
+            growthPillar: {
+              index: growthSignal.pillarIndex,
+              scores: growthSignal.scores,
+              dominantElement: growthSignal.dominantElement
+            },
+            timezoneConversion: {
+              original: input.original,
+              normalizedToUtc8: input.normalizedToUtc8
+            }
+          }
+        };
+      }
+
+      function assert(condition, message) {
+        if (!condition) throw new Error(message);
+      }
+
+      function visibleTestText(results) {
+        return results.map((result) => `${result.pass ? "PASS" : "FAIL"} ${result.name}${result.pass ? "" : `: ${result.error}`}`).join("\n");
+      }
+
+      async function findEliteRealitySample() {
+        for (let year = 1900; year <= 2025; year += 1) {
+          for (const month of [3, 6, 9, 12]) {
+            for (const hour of [0, 12]) {
+              const input = { year, month, day: 15, hour, currentYear: 2026 };
+              const result = await calculatePokemonSoul(input);
+              if (result.isLegendaryResult && result.debug.legendaryGate === "normal_quality_pass") return { input, result };
+            }
+          }
+        }
+        return null;
+      }
+
+
+
+      async function analyzeLegendaryRate(options = {}) {
+        const years = options.years || Array.from({ length: 126 }, (_, index) => 1900 + index);
+        const months = options.months || [3, 6, 9, 12];
+        const days = options.days || [15];
+        const hours = options.hours || [0, 12];
+        const currentYear = options.currentYear || 2026;
+        let total = 0;
+        let legendary = 0;
+        let ordinaryPoolLegendaryLeak = 0;
+        const gateCounts = {};
+        let maxQuality = -1;
+        let maxSample = null;
+        for (const year of years) {
+          for (const month of months) {
+            for (const day of days) {
+              for (const hour of hours) {
+                const input = { year, month, day, hour, currentYear };
+                const result = await calculatePokemonSoul(input);
+                total += 1;
+                if (result.isLegendaryResult) legendary += 1;
+                if (!result.isLegendaryResult && result.selectedSpecies?.isLegendary) ordinaryPoolLegendaryLeak += 1;
+                gateCounts[result.debug.legendaryGate] = (gateCounts[result.debug.legendaryGate] || 0) + 1;
+                if (result.quality > maxQuality) {
+                  maxQuality = result.quality;
+                  maxSample = { input, quality: result.quality, species: result.selectedSpecies?.name, isLegendaryResult: result.isLegendaryResult };
+                }
+              }
+            }
+          }
+        }
+        return { total, legendary, rate: total ? round(legendary / total) : 0, ordinaryPoolLegendaryLeak, gateCounts, maxQuality, maxSample };
+      }
+
+      async function runAlgorithmSelfTests() {
+        const tests = [];
+        async function test(name, callback) {
+          try {
+            await callback();
+            tests.push({ name, pass: true });
+          } catch (error) {
+            tests.push({ name, pass: false, error: error.message });
+          }
+        }
+
+        const sample = { year: 1995, month: 6, day: 15, hour: 12, timezoneOffsetMinutes: 480, currentYear: 2026 };
+        await test("deterministic result across ten runs", async () => {
+          const outputs = await Promise.all(Array.from({ length: 10 }, () => calculatePokemonSoul(sample)));
+          const first = JSON.stringify(outputs[0]);
+          assert(outputs.every((output) => JSON.stringify(output) === first), "result changed between runs");
+        });
+        await test("primary type stays in its assigned domain", async () => {
+          const result = await calculatePokemonSoul(sample);
+          assert(DOMAIN_MAP[result.dmWx].includes(result.mainType), "primary type left its domain");
+          assert(result.debug.mainTypeGate.includes(result.mainType), "primary type left its gate");
+          assert(result.debug.mainTypeGate.every((type) => DOMAIN_MAP[result.dmWx].includes(type)), "gate left its domain");
+        });
+        await test("useful role affects main-type scoring within the domain", async () => {
+          const result = await calculatePokemonSoul(sample);
+          const usefulScores = result.debug.mainTypeUsefulScores || {};
+          const values = Object.values(usefulScores);
+          assert(values.length > 0, "useful-role scores are missing");
+          assert(new Set(values).size > 1 || result.debug.mainTypeGate.length === 1, "useful-role scores are constant inside the gate");
+        });
+        await test("same-affinity main-type ties have a secondary signal", async () => {
+          const result = await calculatePokemonSoul(sample);
+          const nuanceScores = result.debug.mainTypeNuanceScores || {};
+          assert(Object.keys(nuanceScores).length > 0, "main-type nuance scores are missing");
+        });
+        await test("useful signal avoids weakest-candidate selection", async () => {
+          const result = await calculatePokemonSoul(sample);
+          const candidateElements = result.strengthLabel === "weak"
+            ? [previousElement(result.dmWx), result.dmWx]
+            : result.strengthLabel === "strong"
+              ? [controlledBy(result.dmWx), nextElement(result.dmWx), controls(result.dmWx)]
+              : ELEMENTS.filter((element) => result.shares[element] > 0);
+          const candidateSignals = candidateElements.map((element) => usefulSignal(result.shares, result.structure, result.dmWx, element));
+          assert(result.debug.usefulSignal === Math.max(...candidateSignals), "useful did not choose the strongest active candidate signal");
+        });
+        await test("quality score is independent from match coverage", async () => {
+          const result = await calculatePokemonSoul(sample);
+          assert(!("matchScore" in result.debug.qualityComponents), "quality still includes match coverage");
+        });
+        await test("secondary type uses deterministic softmax", async () => {
+          const outputs = await Promise.all(Array.from({ length: 10 }, () => calculatePokemonSoul(sample)));
+          const selection = outputs[0].debug.subTypeSelection;
+          const weightTotal = Object.values(selection.weights).reduce((sum, weight) => sum + weight, 0);
+          assert(outputs.every((output) => output.subType === outputs[0].subType), "softmax selection changed between runs");
+          assert(Math.abs(weightTotal - 1) < 0.00001, "softmax weights are not normalized");
+          assert(selection.temperature === SUB_TYPE_SOFTMAX_TEMPERATURE, "softmax temperature changed");
+        });
+        await test("missing hour defaults to twelve", async () => {
+          const result = await calculatePokemonSoul({ year: 1995, month: 6, day: 15, currentYear: 2026 });
+          assert(result.input.original.hour === 12, "default hour was not applied");
+        });
+        await test("missing timezone defaults to UTC+8", async () => {
+          const result = await calculatePokemonSoul({ year: 1995, month: 6, day: 15, hour: 12, currentYear: 2026 });
+          assert(result.input.original.timezoneOffsetMinutes === UTC8_OFFSET_MINUTES, "default timezone was not applied");
+          assert(JSON.stringify(result.input.normalizedToUtc8) === JSON.stringify({ year: 1995, month: 6, day: 15, hour: 12 }), "default timezone changed the input time");
+        });
+        await test("UTC+8 input remains unchanged", async () => {
+          const result = await calculatePokemonSoul(sample);
+          assert(JSON.stringify(result.input.normalizedToUtc8) === JSON.stringify({ year: 1995, month: 6, day: 15, hour: 12 }), "UTC+8 input changed during normalization");
+        });
+        await test("UTC input converts to UTC+8", async () => {
+          const result = await calculatePokemonSoul({ year: 1995, month: 6, day: 15, hour: 12, timezoneOffsetMinutes: 0, currentYear: 2026 });
+          assert(JSON.stringify(result.input.normalizedToUtc8) === JSON.stringify({ year: 1995, month: 6, day: 15, hour: 20 }), "UTC input did not convert to UTC+8");
+        });
+        await test("timezone conversion handles day rollover", async () => {
+          const result = await calculatePokemonSoul({ year: 1995, month: 6, day: 15, hour: 23, timezoneOffsetMinutes: -480, currentYear: 2026 });
+          assert(JSON.stringify(result.input.normalizedToUtc8) === JSON.stringify({ year: 1995, month: 6, day: 16, hour: 15 }), "day rollover conversion failed");
+        });
+        await test("timezone conversion handles year rollover", async () => {
+          const result = await calculatePokemonSoul({ year: 1995, month: 1, day: 1, hour: 0, timezoneOffsetMinutes: 840, currentYear: 2026 });
+          assert(JSON.stringify(result.input.normalizedToUtc8) === JSON.stringify({ year: 1994, month: 12, day: 31, hour: 18 }), "year rollover conversion failed");
+        });
+        await test("future date returns a friendly error", async () => {
+          let failed = false;
+          try {
+            await calculatePokemonSoul({ year: 2030, month: 1, day: 1, currentYear: 2026 });
+          } catch (error) {
+            failed = error.name === "PokemonSoulAlgorithmError";
+          }
+          assert(failed, "future date was accepted");
+        });
+        await test("later date in the current year returns a friendly error", async () => {
+          const futureUtc8 = utcParts(Date.now() + (UTC8_OFFSET_MINUTES * MINUTE_MS) + (48 * 60 * MINUTE_MS));
+          let failed = false;
+          try {
+            await calculatePokemonSoul({
+              year: futureUtc8.year,
+              month: futureUtc8.month,
+              day: futureUtc8.day,
+              hour: futureUtc8.hour,
+              timezoneOffsetMinutes: UTC8_OFFSET_MINUTES,
+              currentYear: new Date().getFullYear()
+            });
+          } catch (error) {
+            failed = error.name === "PokemonSoulAlgorithmError";
+          }
+          assert(failed, "later date in the current year was accepted");
+        });
+        await test("Magikarp final typing is readable", async () => {
+          const data = await loadPokedex();
+          const entry = data.find((item) => item.name === "Magikarp");
+          assert(comboKey(entry.finalTypeCombo) === comboKey(["Water", "Flying"]), "Magikarp final typing is unavailable");
+        });
+        await test("ordered type combinations remain distinct", async () => {
+          assert(comboKey(["Psychic", "Water"]) !== comboKey(["Water", "Psychic"]), "ordered type combinations collapsed");
+          assert(comboKey(["Water", "Water"]) === "Water", "same primary and secondary type did not collapse");
+          const data = await loadPokedex();
+          const slowpoke = data.find((item) => item.name === "Slowpoke");
+          assert(comboKey(slowpoke.finalTypeCombo) === comboKey(["Water", "Psychic"]), "Slowpoke typing order changed");
+          assert(comboKey(slowpoke.finalTypeCombo) !== comboKey(["Psychic", "Water"]), "Psychic + Water incorrectly matched Slowpoke");
+        });
+        await test("public bazi baseline samples remain stable", async () => {
+          const sampleA = await calculatePokemonSoul({ year: 1997, month: 1, day: 5, hour: 5, currentYear: 2026 });
+          const sampleB = await calculatePokemonSoul({ year: 1997, month: 7, day: 4, hour: 0, currentYear: 2026 });
+          assert(sampleA.bazi.join("，") === "丙子，庚子，丁未，癸卯", `baseline A changed: ${sampleA.bazi.join("，")}`);
+          assert(sampleB.bazi.join("，") === "丁丑，丙午，丁未，庚子", `baseline B changed: ${sampleB.bazi.join("，")}`);
+        });
+        await test("Eevee branch data is readable", async () => {
+          const data = await loadPokedex();
+          const entry = data.find((item) => item.name === "Eevee");
+          assert(entry.finalForms.length === 8 && entry.finalTypeCombos.length === 8, "Eevee branch data is incomplete");
+        });
+        await test("ordinary sample stays outside the rare pool", async () => {
+          const result = await calculatePokemonSoul(sample);
+          assert(!result.isLegendaryResult, "ordinary sample entered the rare pool");
+        });
+        await test("a reality sample reaches the rare pool", async () => {
+          const elite = await findEliteRealitySample();
+          assert(elite && elite.result.quality > LEGENDARY_QUALITY_THRESHOLD, "no reality sample reached the rare pool");
+          assert(elite.result.isLegendaryResult, "elite reality sample did not select from the rare pool");
+        });
+        await test("legendary rate stays rare in the sample sweep", async () => {
+          const report = await analyzeLegendaryRate({ years: Array.from({ length: 64 }, (_, index) => 1960 + index) });
+          assert(report.legendary > 0, "legendary path is unreachable in the sample sweep");
+          assert(report.rate > 0 && report.rate <= 0.02, `legendary rate is outside the MVP rare band: ${report.rate}`);
+          assert(report.ordinaryPoolLegendaryLeak === 0, "ordinary pool leaked a legendary result");
+          assert((report.gateCounts.unique_combo_exception || 0) > 0, "unique legendary combo exception is unreachable");
+        });
+        await test("unique legendary combo exception is gated", async () => {
+          const data = await loadPokedex();
+          const uniqueCombo = data.find((entry) => {
+            if (!entry.isLegendary) return false;
+            const target = comboKey(entry.finalTypeCombo);
+            return !data.some((other) => !other.isLegendary &&
+              (other.finalTypeCombos || [other.finalTypeCombo]).some((types) => comboKey(types) === target));
+          });
+          assert(uniqueCombo, "no unique legendary combination is available for gate testing");
+          const low = legendaryGateDecision(data, uniqueCombo.finalTypeCombo, UNIQUE_LEGENDARY_COMBO_MIN_QUALITY - 0.01);
+          const pass = legendaryGateDecision(data, uniqueCombo.finalTypeCombo, UNIQUE_LEGENDARY_COMBO_MIN_QUALITY);
+          assert(!low.allowLegendary && low.legendaryGate === "blocked_quality_low", "low-quality unique combo was not blocked");
+          assert(pass.allowLegendary && pass.legendaryGate === "unique_combo_exception", "unique combo exception did not pass at its threshold");
+        });
+        await test("empty rare pool falls back to the ordinary pool", async () => {
+          const elite = await findEliteRealitySample();
+          assert(elite, "no elite reality sample is available for fallback testing");
+          const data = await loadPokedex();
+          const flags = data.map((entry) => entry.isLegendary);
+          try {
+            data.forEach((entry) => { entry.isLegendary = false; });
+            let rarePoolFailed = false;
+            try {
+              chooseChain(data, elite.result.typeCombo, elite.result.structure, elite.result.shares, elite.result.bazi.join(""), true, true);
+            } catch (error) {
+              rarePoolFailed = true;
+            }
+            const ordinary = chooseChain(data, elite.result.typeCombo, elite.result.structure, elite.result.shares, elite.result.bazi.join(""), false);
+            assert(rarePoolFailed, "empty rare pool did not reject rare selection");
+            assert(ordinary && !ordinary.final.isLegendary, "empty rare pool could not fall back to an ordinary result");
+          } finally {
+            data.forEach((entry, index) => { entry.isLegendary = flags[index]; });
+          }
+        });
+        await test("forty reality samples remain deterministic", async () => {
+          const inputs = [];
+          for (let year = 1980; year <= 2016; year += 4) {
+            for (const month of [2, 8]) inputs.push({ year, month, day: 15, hour: 12, currentYear: 2026 });
+          }
+          const expanded = [...inputs, ...inputs.map((input) => ({ ...input, hour: 0 }))];
+          for (const input of expanded) {
+            const left = await calculatePokemonSoul(input);
+            const right = await calculatePokemonSoul(input);
+            assert(JSON.stringify(left) === JSON.stringify(right), "reality sample changed between runs");
+          }
+        });
+        await test("explanation feature contract is complete", async () => {
+          const result = await calculatePokemonSoul(sample);
+          const required = ["temperament", "actionStyle", "growthDirection", "pressurePattern", "currentPhase", "pokemonSimilarityHooks"];
+          assert(required.every((key) => key in result.explanationFeatures), "feature contract is incomplete");
+          const text = JSON.stringify(result.explanationFeatures);
+          assert(FORBIDDEN_VISIBLE_TERMS.every((term) => !text.includes(term)), "feature contract contains a restricted term");
+        });
+        await test("latest domain map is active", async () => {
+          assert(DOMAIN_MAP.Wood.includes("Fairy"), "Fairy is missing from Wood");
+          assert(DOMAIN_MAP.Metal.includes("Poison") && DOMAIN_MAP.Metal.includes("Fighting"), "Metal assignments are incomplete");
+          assert(!DOMAIN_MAP.Wood.includes("Poison") && !DOMAIN_MAP.Fire.includes("Fairy"), "an obsolete assignment is active");
+        });
+        await test("visible test output contains no restricted terms", async () => {
+          const text = visibleTestText(tests);
+          assert(FORBIDDEN_VISIBLE_TERMS.every((term) => !text.includes(term)), "visible output contains a restricted term");
+        });
+
+        return {
+          passed: tests.filter((item) => item.pass).length,
+          failed: tests.filter((item) => !item.pass).length,
+          tests,
+          visibleText: visibleTestText(tests)
+        };
+      }
+
+      window.PokemonSoulAlgorithm = {
+        loadPokedex,
+        calculatePokemonSoul,
+        runAlgorithmSelfTests,
+        analyzeLegendaryRate
+      };
+
+      document.getElementById("run-tests").addEventListener("click", async () => {
+        const output = document.getElementById("test-output");
+        output.textContent = "Running...";
+        try {
+          const result = await runAlgorithmSelfTests();
+          output.textContent = `${result.visibleText}\n\n${result.passed} passed, ${result.failed} failed`;
+        } catch (error) {
+          output.textContent = `FAIL self-test runner: ${error.message}`;
+        }
+      });
+    })();
+
+    (() => {
+      "use strict";
+
+      const FORBIDDEN_COPY_TERMS = [
+        "八字", "日主", "五行", "十神", "用神", "身强", "身弱", "命格", "旺相休囚死",
+        "刑冲", "旺衰", "官杀", "比劫", "食伤", "财星", "印星", "算命", "吉凶",
+        "你的命注定", "你命里", "专业排盘", "专业命理", "绝对准确", "绝对正确",
+        "命理级精度", "完全正确", "注定成功", "注定失败"
+      ];
+      const FORBIDDEN_COPY_PATTERNS = [
+        { label: "不是……而是……", pattern: /不是[^。！？]*而是/ },
+        { label: "并不是……而是……", pattern: /并不是[^。！？]*而是/ },
+        { label: "与其说……不如说……", pattern: /与其说[^。！？]*不如说/ },
+        { label: "它不仅……还……", pattern: /它不仅[^。！？]*还/ },
+        { label: "这说明你……", pattern: /这说明你/ },
+        { label: "从某种意义上说……", pattern: /从某种意义上说/ },
+        { label: "更准确地说……", pattern: /更准确地说/ },
+        { label: "换句话说……", pattern: /换句话说/ },
+        { label: "总的来说……", pattern: /总的来说/ },
+        { label: "综上……", pattern: /综上/ },
+        { label: "它象征着……也代表着……", pattern: /它象征着[^。！？]*也代表着/ },
+        { label: "你是一个……的人", pattern: /你是一个[^。！？]*的人/ },
+        { label: "你拥有 A、B、C 三种特质", pattern: /你拥有[^。！？]*[、，][^。！？]*[、，][^。！？]*特质/ }
+      ];
+      const TYPE_OBSERVATIONS = {
+        Grass: "它懂得沿着自己的节奏生长，像叶片追着光慢慢舒展开。",
+        Bug: "它对周围细小的变化很敏感，也知道怎样在一次次蜕变中调整自己。",
+        Fairy: "它身上有轻盈而鲜明的气息，常能让紧绷的场面松动下来。",
+        Flying: "它习惯先看清更远的方向，再决定翅膀落向哪里。",
+        Fire: "它的力量像尾焰，找到目标后会稳定地亮起来。",
+        Electric: "它捕捉时机很快，行动常带着清脆直接的节奏。",
+        Psychic: "它习惯先安静观察，再把注意力集中到真正重要的地方。",
+        Ground: "它的脚步贴着地面，面对变化时仍能守住自己的重心。",
+        Rock: "它愿意承受漫长的打磨，外表安静，内部一直保持着力量。",
+        Normal: "它擅长把普通的日子走稳，在熟悉的节奏里积累可靠经验。",
+        Steel: "它像经过训练的护甲，越经历碰撞，越知道怎样稳稳站住。",
+        Fighting: "它愿意在训练里反复修正动作，直到力量能够准确落下。",
+        Dragon: "它身上有向远处生长的气势，仍会耐心守着自己的步调。",
+        Poison: "它懂得分辨环境里的细微信号，也会谨慎保留自己的边界。",
+        Water: "它会顺着环境寻找出口，像海流一样柔和，也有持续向前的力量。",
+        Ice: "它习惯在安静中整理判断，清晰之后才迈出下一步。",
+        Ghost: "它常留意别人忽略的动静，在夜色般的安静里保持敏锐。",
+        Dark: "它懂得观察规则之外的缝隙，行动时很少浪费力气。"
+      };
+      const FEATURE_TRANSLATIONS = {
+        "quietly observant": "你通常会先留意周围的动静，让判断在安静里慢慢变清楚。",
+        "steady and attentive": "你做事时愿意把注意力放稳，细小变化也很少从眼前溜走。",
+        "keeps going through long stretches": "面对漫长的路，你往往能保留耐心，一步一步继续走。",
+        "acts with direct force": "当方向清楚时，你的行动会变得直接，脚步也很坚定。",
+        "holds steady under pressure": "压力靠近时，你会先守住重心，再寻找可以推进的位置。",
+        "expresses power with precision": "你更习惯把力量放在关键处，让一次行动真正产生作用。",
+        "absorbs pressure without losing focus": "周围变得嘈杂时，你仍会努力守住注意力。",
+        "moves before the moment passes": "你对时机很敏感，看到窗口时常能及时迈出一步。",
+        "carries momentum outward": "你身上有一种向外推进的力量，方向清楚时会自然加速。",
+        "builds strength through careful support": "你更适合先找到能支撑自己的节奏，再把力量稳稳放出去。",
+        "keeps several instincts in workable balance": "你会在几种不同冲动之间寻找平衡，让行动不至于偏向一边。",
+        "keeps a clear sense of self direction": "你在选择里常保留自己的方向感，不容易被外界完全带走。",
+        "turns inner pressure into visible expression": "你会把内部积累慢慢转成可以被看见的表达。",
+        "moves more easily when a tangible goal appears": "当目标变得具体时，你的行动会更快进入节奏。",
+        "responds to pressure with discipline": "面对压力时，你倾向先收束动作，再把事情推向可控的位置。",
+        "draws strength from observation and absorption": "你会从观察和吸收中恢复力量，再决定下一步怎么走。",
+        "looks for support before pushing forward": "你会先确认支撑是否足够，再把自己推向更远的地方。",
+        "needs a fitting outlet for gathered force": "当力量积累起来时，你需要一个合适的出口，让它真正发挥作用。",
+        "combines two different strengths": "你的成长常来自两种节奏的配合，让彼此都能发挥作用。",
+        "deepens one clear strength": "你愿意沿着清楚的方向持续练习，把熟悉的能力磨得更稳。"
+      };
+      const PHASE_CHIPS = ["安静积累", "正在成形", "稳定展开"];
+      const COPY_STAT_PRIORITY = ["spa", "atk", "spe", "def", "spd", "hp"];
+
+      function validateVisibleCopy(text) {
+        const visibleText = String(text ?? "");
+        const issues = [];
+        FORBIDDEN_COPY_TERMS.forEach((term) => {
+          if (visibleText.includes(term)) issues.push(`包含禁用术语或过度承诺：${term}`);
+        });
+        FORBIDDEN_COPY_PATTERNS.forEach(({ label, pattern }) => {
+          if (pattern.test(visibleText)) issues.push(`包含禁用句式：${label}`);
+        });
+        return issues;
+      }
+
+      function strongestStatObservation(species) {
+        const phrases = {
+          hp: "它能陪着一段很长的旅程，呼吸和脚步都保持得很稳。",
+          atk: "它一旦决定行动，力量会清楚地落向目标。",
+          def: "它很会守住位置，风浪靠近时也不轻易失去重心。",
+          spa: "它善于把注意力集中起来，在关键时刻给出准确回应。",
+          spd: "它能接住环境里的压力，目光依然会留在重要的事情上。",
+          spe: "它对时机反应敏锐，常能在机会溜走前迈出一步。"
+        };
+        const stats = species?.baseStats && typeof species.baseStats === "object" ? Object.entries(species.baseStats) : [];
+        stats.sort((left, right) => right[1] - left[1] || COPY_STAT_PRIORITY.indexOf(left[0]) - COPY_STAT_PRIORITY.indexOf(right[0]));
+        return phrases[stats[0]?.[0]] || "它会仔细观察环境，再选择适合自己的行动方式。";
+      }
+
+      function featureSentence(features) {
+        const candidates = [features?.temperament, features?.growthDirection, features?.actionStyle, features?.pressurePattern];
+        const translated = candidates.map((value) => FEATURE_TRANSLATIONS[value]).filter(Boolean);
+        return translated.slice(0, 3).join("");
+      }
+
+      function phaseSentence(result, speciesName) {
+        const stageIndex = Number(result.stageIndex);
+        const chainStages = Number(result.chainStages);
+        if (!Array.isArray(result.chain) || !result.chain.length || !stageIndex || !chainStages) return "";
+        if (chainStages === 1) {
+          return `${speciesName}没有需要追赶的下一种形态。它把完整的可能性放在当下，提醒你专心走好眼前这一段。`;
+        }
+        if (stageIndex >= chainStages) {
+          return `现在的你站在这条进化路线较为舒展的位置。过去积累的训练开始彼此配合，像 ${speciesName} 已经学会稳定使用自己的力量。`;
+        }
+        if (Number(result.energy) < 0.35 && stageIndex === 1) {
+          return `现在更适合像 ${speciesName} 一样保存体力、熟悉环境。很多重要变化，会先从安静的练习和可靠的脚步开始。`;
+        }
+        return `现在的你正走在进化路线的第 ${stageIndex} 段。新的能力已经露出轮廓，仍需要一些训练，让它们慢慢配合起来。`;
+      }
+
+      function buildPokemonSoulExplanation(result) {
+        const species = result?.selectedSpecies;
+        if (!species?.name) {
+          return {
+            title: "博士还需要再观察一下",
+            paragraphs: ["这次没有取得足够的宝可梦资料。等资料准备好后，再回来看看与你并肩的伙伴。"],
+            chips: [],
+            internalSourceFields: []
+          };
+        }
+
+        const name = species.name;
+        const types = Array.isArray(result.typeCombo) && result.typeCombo.length
+          ? result.typeCombo
+          : Array.isArray(species.types) ? species.types : [];
+        const typeObservation = types.map((type) => TYPE_OBSERVATIONS[type]).find(Boolean)
+          || "它会仔细观察环境，再选择适合自己的行动方式。";
+        const paragraphs = [
+          `如果让我用一只宝可梦来描述你，我会想到 ${name}。仔细观察它，会发现它总有自己的行动节奏。`,
+          `${typeObservation}${strongestStatObservation(species)}`
+        ];
+        const internalSourceFields = ["selectedSpecies", "typeCombo"];
+        const chips = [];
+
+        if (result.explanationFeatures && typeof result.explanationFeatures === "object") {
+          const similarity = featureSentence(result.explanationFeatures);
+          if (similarity) paragraphs.push(`你身上也能看到相近的节奏。${similarity}`);
+          internalSourceFields.push("explanationFeatures");
+          const phaseChip = result.explanationFeatures.currentPhase === "a fully opened phase"
+            ? "稳定展开"
+            : result.explanationFeatures.currentPhase === "a growing phase" ? "正在成形" : "安静积累";
+          chips.push(phaseChip);
+        }
+
+        const phase = phaseSentence(result, name);
+        if (phase && result.explanationFeatures) {
+          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += phase;
+          else paragraphs.push(phase);
+          internalSourceFields.push("chain", "stageIndex", "chainStages", "energy");
+        }
+
+        if (result.isLegendaryResult) {
+          const legendaryText = `${name}身上的稀有感，来自一种格外清楚的存在方式。这样的相遇像一道少见的足迹，值得慢一点观察，也值得认真珍惜。`;
+          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += legendaryText;
+          else paragraphs.push(legendaryText);
+          internalSourceFields.push("isLegendaryResult");
+          chips.push("清晰足迹");
+        }
+
+        if (!result.explanationFeatures) {
+          chips.push(types.length > 1 ? "双重节奏" : "专注生长");
+        }
+
+        const output = {
+          title: `博士观察：${name}`,
+          paragraphs: paragraphs.slice(0, 4),
+          chips: [...new Set(chips.length ? chips : [PHASE_CHIPS[0]])].slice(0, 3),
+          internalSourceFields: [...new Set(internalSourceFields)]
+        };
+        const issues = validateVisibleCopy([output.title, ...output.paragraphs, ...output.chips].join("\n"));
+        if (issues.length) throw new Error(`Copywriter visible copy validation failed: ${issues.join("; ")}`);
+        return output;
+      }
+
+      async function runCopywriterSelfTests() {
+        const tests = [];
+        async function test(name, callback) {
+          try {
+            await callback();
+            tests.push({ name, pass: true });
+          } catch (error) {
+            tests.push({ name, pass: false, error: error.message });
+          }
+        }
+        function assert(condition, message) {
+          if (!condition) throw new Error(message);
+        }
+        function visibleText(copy) {
+          return [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n");
+        }
+
+        const normalResult = await window.PokemonSoulAlgorithm.calculatePokemonSoul({
+          year: 1995, month: 6, day: 15, hour: 12, currentYear: 2026
+        });
+        await test("normal result creates title and paragraphs", async () => {
+          const copy = buildPokemonSoulExplanation(normalResult);
+          assert(Boolean(copy.title), "title is empty");
+          assert(copy.paragraphs.length >= 2, "paragraphs are empty");
+        });
+        await test("visible copy passes restricted-language validation", async () => {
+          const copy = buildPokemonSoulExplanation(normalResult);
+          assert(validateVisibleCopy(visibleText(copy)).length === 0, "visible copy contains restricted language");
+        });
+        await test("validator detects restricted language", async () => {
+          assert(validateVisibleCopy("这不是停顿，而是专业排盘给出的绝对准确结论。").length >= 3, "validator missed restricted language");
+        });
+        await test("validator detects all accuracy and destiny overclaims", async () => {
+          ["命理级精度", "完全正确", "注定成功", "注定失败"].forEach((phrase) => {
+            assert(validateVisibleCopy(phrase).length > 0, `validator missed overclaim: ${phrase}`);
+          });
+        });
+        await test("missing selected species returns a friendly fallback", async () => {
+          const copy = buildPokemonSoulExplanation({});
+          assert(Boolean(copy.title) && copy.paragraphs.length === 1, "selected species fallback is incomplete");
+        });
+        await test("missing explanation features stays species focused", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, explanationFeatures: null });
+          assert(copy.paragraphs.length === 2, "feature fallback added unsupported similarity claims");
+          assert(!copy.internalSourceFields.includes("explanationFeatures"), "missing features were marked as used");
+        });
+        await test("missing chain omits the phase paragraph", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, chain: null });
+          assert(!copy.internalSourceFields.includes("chain"), "missing chain was marked as used");
+          assert(copy.paragraphs.every((paragraph) => !paragraph.includes("进化路线")), "missing chain produced a phase paragraph");
+        });
+        await test("legendary copy avoids superiority claims", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, isLegendaryResult: true });
+          const text = visibleText(copy);
+          assert(!text.includes("比别人高级") && !text.includes("注定成功"), "legendary copy contains superiority claims");
+          assert(validateVisibleCopy(text).length === 0, "legendary copy contains restricted language");
+        });
+        await test("copy generation is deterministic", async () => {
+          const first = JSON.stringify(buildPokemonSoulExplanation(normalResult));
+          const second = JSON.stringify(buildPokemonSoulExplanation(normalResult));
+          assert(first === second, "copy changed between runs");
+        });
+        await test("copywriter module does not use Math.random", async () => {
+          const source = [
+            buildPokemonSoulExplanation,
+            validateVisibleCopy,
+            strongestStatObservation,
+            featureSentence,
+            phaseSentence
+          ].map((fn) => fn.toString()).join("\n");
+          assert(!source.includes("Math.random"), "copywriter module uses Math.random");
+        });
+
+        return {
+          passed: tests.filter((item) => item.pass).length,
+          failed: tests.filter((item) => !item.pass).length,
+          tests
+        };
+      }
+
+      window.PokemonSoulCopywriter = {
+        buildPokemonSoulExplanation,
+        validateVisibleCopy,
+        runCopywriterSelfTests
+      };
+    })();
+  </script>
+  <script>
+    (() => {
+      "use strict";
+
+      const TYPE_COLORS = {
+        Normal: "#8a8f94", Fire: "#d95645", Water: "#4389c7", Electric: "#d5a928",
+        Grass: "#4e9b61", Ice: "#59aeba", Fighting: "#b85b4d", Poison: "#8a62a8",
+        Ground: "#a97a48", Flying: "#6989bd", Psychic: "#c75f86", Bug: "#7e9b42",
+        Rock: "#8f8062", Ghost: "#6e6b9c", Dragon: "#5964a7", Dark: "#555864",
+        Steel: "#71858c", Fairy: "#c8759b"
+      };
+      const SPRITE_BASE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
+      const screens = {
+        input: document.getElementById("screen-input"),
+        loading: document.getElementById("screen-loading"),
+        result: document.getElementById("screen-result")
+      };
+      const form = document.getElementById("resonance-form");
+      const formError = document.getElementById("form-error");
+      const resultError = document.getElementById("result-error");
+      const resultContent = document.getElementById("result-content");
+      const testOutput = document.getElementById("test-output");
+
+      function showScreen(name) {
+        Object.entries(screens).forEach(([key, screen]) => {
+          const active = key === name;
+          screen.classList.toggle("is-active", active);
+          screen.setAttribute("aria-hidden", String(!active));
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function parseDateValue(value) {
+        const parts = String(value || "").split("-").map(Number);
+        if (parts.length !== 3 || parts.some((part) => !Number.isInteger(part))) return null;
+        return { year: parts[0], month: parts[1], day: parts[2] };
+      }
+
+      function friendlyError(error) {
+        const message = String(error?.message || error || "");
+        if (/future|未来|later than/i.test(message)) return "出生时间不能晚于现在，请重新检查。";
+        if (/date|日期|day|month|year/i.test(message)) return "日期似乎不完整，请重新选择出生日期。";
+        if (/timezone|时区|offset/i.test(message)) return "请选择有效的出生时区。";
+        if (/pokedex|fetch|load|network|Failed to fetch/i.test(message)) return "宝可梦资料暂时没有载入，请稍后再试。";
+        return "这次共鸣没有完成，请检查输入后再试一次。";
+      }
+
+      function spriteUrl(species) {
+        return Number.isInteger(Number(species?.num)) && Number(species.num) > 0
+          ? `${SPRITE_BASE_URL}/${Number(species.num)}.png`
+          : "";
+      }
+
+      function setSprite(image, fallback, species) {
+        const name = species?.name || "Pokémon";
+        const url = spriteUrl(species);
+        image.alt = `${name} sprite`;
+        fallback.textContent = name.slice(0, 1).toUpperCase();
+        fallback.setAttribute("aria-label", `${name} image unavailable`);
+        image.hidden = true;
+        fallback.hidden = false;
+        fallback.classList.add("is-visible");
+        image.onload = () => {
+          image.hidden = false;
+          fallback.hidden = true;
+          fallback.classList.remove("is-visible");
+        };
+        image.onerror = () => {
+          image.hidden = true;
+          fallback.hidden = false;
+          fallback.classList.add("is-visible");
+        };
+        image.src = url;
+      }
+
+      function createTypeBadge(type) {
+        const badge = document.createElement("span");
+        badge.className = "type-badge";
+        badge.textContent = type;
+        badge.style.backgroundColor = TYPE_COLORS[type] || "#687178";
+        return badge;
+      }
+
+      function shorten(text, limit = 150) {
+        const clean = String(text || "").trim();
+        return clean.length > limit ? `${clean.slice(0, limit - 1)}…` : clean;
+      }
+
+      function safeExplanation(result) {
+        const fallback = {
+          title: `博士观察：${result?.selectedSpecies?.name || "这位伙伴"}`,
+          paragraphs: ["这次的观察记录还没有整理完整。先看看这位伙伴和它走过的进化路线。"],
+          chips: []
+        };
+        try {
+          const copy = window.PokemonSoulCopywriter.buildPokemonSoulExplanation(result);
+          const visible = [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n");
+          const issues = window.PokemonSoulCopywriter.validateVisibleCopy(visible);
+          if (issues.length) {
+            console.warn("Copywriter visible-copy validation failed.", issues);
+            return fallback;
+          }
+          return {
+            title: shorten(copy.title, 60),
+            paragraphs: (copy.paragraphs || []).slice(0, 2).map((paragraph) => shorten(paragraph)),
+            chips: (copy.chips || []).slice(0, 3)
+          };
+        } catch (error) {
+          console.warn("Copywriter output fallback used.", error);
+          return fallback;
+        }
+      }
+
+      function renderChain(result) {
+        const container = document.getElementById("evolution-chain");
+        container.replaceChildren();
+        const chain = Array.isArray(result.chain) ? result.chain : [];
+        chain.forEach((species, index) => {
+          const item = document.createElement("div");
+          const current = species.name === result.selectedSpecies?.name || index + 1 === result.stageIndex;
+          item.className = `chain-node${current ? " is-current" : ""}`;
+          if (current) item.setAttribute("aria-current", "true");
+
+          const visual = document.createElement("span");
+          visual.className = "chain-image-wrap";
+          const image = document.createElement("img");
+          const fallback = document.createElement("span");
+          fallback.className = "sprite-fallback";
+          setSprite(image, fallback, species);
+          visual.append(image, fallback);
+
+          const label = document.createElement("span");
+          label.className = "chain-name";
+          label.textContent = species.name;
+          item.append(visual, label);
+          container.append(item);
+        });
+      }
+
+      function renderResult(result) {
+        if (!result?.selectedSpecies) throw new Error("selectedSpecies is missing");
+        const species = result.selectedSpecies;
+        const explanation = safeExplanation(result);
+        document.getElementById("species-name").textContent = species.name;
+        document.getElementById("stage-label").textContent =
+          `当前阶段 ${result.stageIndex || species.stageIndex || 1} / ${result.chainStages || species.chainStages || 1}`;
+        setSprite(document.getElementById("species-image"), document.getElementById("species-fallback"), species);
+
+        const badges = document.getElementById("type-badges");
+        badges.replaceChildren(...(result.typeCombo || species.types || []).map(createTypeBadge));
+        document.getElementById("copy-title").textContent = explanation.title;
+        const paragraphs = document.getElementById("copy-paragraphs");
+        paragraphs.replaceChildren(...explanation.paragraphs.map((text) => {
+          const paragraph = document.createElement("p");
+          paragraph.textContent = text;
+          return paragraph;
+        }));
+        const chips = document.getElementById("result-chips");
+        chips.replaceChildren(...explanation.chips.map((text) => {
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = text;
+          return chip;
+        }));
+        renderChain(result);
+        resultError.textContent = "";
+        resultError.classList.remove("is-visible");
+        resultContent.hidden = false;
+      }
+
+      async function calculateFromForm() {
+        const date = parseDateValue(document.getElementById("birth-date").value);
+        if (!date) throw new Error("date is missing");
+        const input = {
+          ...date,
+          hour: Number(document.getElementById("birth-hour").value || 12),
+          timezoneOffsetMinutes: Number(document.getElementById("birth-timezone").value || 480)
+        };
+        return window.PokemonSoulAlgorithm.calculatePokemonSoul(input);
+      }
+
+      async function submitForm(event) {
+        event.preventDefault();
+        formError.textContent = "";
+        showScreen("loading");
+        try {
+          const started = Date.now();
+          const result = await calculateFromForm();
+          const remaining = Math.max(0, 650 - (Date.now() - started));
+          await new Promise((resolve) => setTimeout(resolve, remaining));
+          renderResult(result);
+          showScreen("result");
+        } catch (error) {
+          formError.textContent = friendlyError(error);
+          showScreen("input");
+        }
+      }
+
+      function formatTestReport(label, report) {
+        const details = (report.tests || [])
+          .filter((test) => !test.pass)
+          .map((test) => `FAIL: ${test.name} - ${test.error}`)
+          .join("\n");
+        return `${label}: ${report.passed} passed, ${report.failed} failed${details ? `\n${details}` : ""}`;
+      }
+
+      async function runFrontendSelfTests() {
+        const tests = [];
+        async function test(name, callback) {
+          try {
+            await callback();
+            tests.push({ name, pass: true });
+          } catch (error) {
+            tests.push({ name, pass: false, error: error.message });
+          }
+        }
+        function assert(condition, message) {
+          if (!condition) throw new Error(message);
+        }
+
+        await test("three required screens exist", () => {
+          assert(Object.values(screens).every(Boolean), "required screen is missing");
+        });
+        await test("input contract only uses date hour and timezone", () => {
+          const names = [...form.elements].map((element) => element.name).filter(Boolean);
+          assert(names.join(",") === "birth-date,birth-hour,birth-timezone", `unexpected fields: ${names.join(",")}`);
+        });
+        await test("timezone defaults to UTC+8", () => {
+          assert(document.getElementById("birth-timezone").value === "480", "timezone default is not 480");
+        });
+        await test("required action labels are exact", () => {
+          assert(document.getElementById("start-resonance").textContent.trim() === "开始共鸣", "start label differs");
+          assert(document.getElementById("restart-resonance").textContent.trim() === "重新共鸣", "restart label differs");
+        });
+        await test("algorithm and copywriter integrations produce renderable output", async () => {
+          const result = await window.PokemonSoulAlgorithm.calculatePokemonSoul({
+            year: 1995, month: 6, day: 15, hour: 12, timezoneOffsetMinutes: 480
+          });
+          const copy = safeExplanation(result);
+          assert(Boolean(result.selectedSpecies?.name), "species is missing");
+          assert(Boolean(copy.title) && copy.paragraphs.length > 0, "copy is missing");
+        });
+        await test("visible markup omits internal algorithm terminology", () => {
+          const visible = document.querySelector(".app-shell").innerText;
+          ["八字", "五行", "十神", "用神", "身强", "身弱", "命格", "旺相休囚死"].forEach((term) => {
+            assert(!visible.includes(term), `visible markup contains ${term}`);
+          });
+        });
+
+        return {
+          passed: tests.filter((test) => test.pass).length,
+          failed: tests.filter((test) => !test.pass).length,
+          tests
+        };
+      }
+
+      form.addEventListener("submit", submitForm);
+      document.getElementById("restart-resonance").addEventListener("click", () => showScreen("input"));
+      document.getElementById("run-copy-tests").addEventListener("click", async () => {
+        testOutput.textContent = "Running Copywriter tests...";
+        testOutput.textContent = formatTestReport("Copywriter", await window.PokemonSoulCopywriter.runCopywriterSelfTests());
+      });
+      document.getElementById("run-frontend-tests").addEventListener("click", async () => {
+        testOutput.textContent = "Running Frontend tests...";
+        testOutput.textContent = formatTestReport("Frontend", await runFrontendSelfTests());
+      });
+
+      const today = new Date();
+      document.getElementById("birth-date").max =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      showScreen("input");
+
+      window.PokemonSoulFrontend = { runFrontendSelfTests };
+    })();
+  </script>
+</body>
+</html>
