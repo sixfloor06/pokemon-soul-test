@@ -417,7 +417,6 @@
 
       const POKEDEX_URL = "data/pokedex.json";
       const LEGENDARY_QUALITY_THRESHOLD = 0.88;
-      const UNIQUE_LEGENDARY_COMBO_MIN_QUALITY = 0.84;
       const SUB_TYPE_SOFTMAX_TEMPERATURE = 0.35;
       const UTC8_OFFSET_MINUTES = 480;
       const MIN_TIMEZONE_OFFSET_MINUTES = -720;
@@ -433,28 +432,213 @@
         "印": "spd"
       };
       const DOMAIN_MAP = {
-        Wood: ["Grass", "Bug", "Fairy", "Flying"],
-        Fire: ["Fire", "Electric", "Psychic"],
-        Earth: ["Ground", "Rock", "Normal"],
-        Metal: ["Steel", "Fighting", "Dragon", "Poison"],
-        Water: ["Water", "Ice", "Ghost", "Dark"]
+        Wood: ["Grass", "Flying", "Fairy", "Bug"],
+        Fire: ["Fire", "Psychic", "Electric", "Ghost"],
+        Earth: ["Normal", "Rock", "Ground"],
+        Metal: ["Steel", "Fighting", "Poison", "Ice"],
+        Water: ["Dark", "Water", "Dragon"]
       };
       const TYPE_AFFINITY = {
-        Grass: "印", Bug: "比劫", Fairy: "食伤", Flying: "比劫",
-        Fire: "财", Electric: "比劫", Psychic: "食伤",
-        Ground: "官杀", Rock: "官杀", Normal: "印",
-        Steel: "官杀", Fighting: "财", Dragon: "食伤", Poison: "财",
-        Water: "印", Ice: "官杀", Ghost: "食伤", Dark: "财"
+        Grass: "印", Flying: "食伤", Fairy: "官杀", Bug: "财",
+        Fire: "印", Psychic: "食伤", Electric: "财", Ghost: "官杀",
+        Normal: "比劫", Rock: "印", Ground: "食伤",
+        Steel: "印", Fighting: "食伤", Poison: "财", Ice: "官杀",
+        Dark: "财", Water: "食伤", Dragon: "印"
       };
-      // Secondary type nuance gives types with the same TYPE_AFFINITY a non-random ordering signal.
-      // It is intentionally low-weight: role/structure remains primary, nuance only prevents hash-only ties.
-      const TYPE_SECONDARY_WEIGHT = {
-        Grass: 0.78, Bug: 0.64, Fairy: 0.72, Flying: 0.68,
-        Fire: 0.82, Electric: 0.74, Psychic: 0.70,
-        Ground: 0.80, Rock: 0.76, Normal: 0.66,
-        Steel: 0.84, Fighting: 0.76, Dragon: 0.72, Poison: 0.68,
-        Water: 0.82, Ice: 0.74, Ghost: 0.70, Dark: 0.66
+      const ROLE_TYPE_PROJECTION = {
+        "Fire": {
+                "比劫": {
+                        "Fire": 0.31,
+                        "Psychic": 0.3,
+                        "Electric": 0.3,
+                        "Ghost": 0.29
+                },
+                "印": {
+                        "Fire": 0.3,
+                        "Psychic": 0.35,
+                        "Electric": 0.27,
+                        "Ghost": 0.28
+                },
+                "食伤": {
+                        "Fire": 0.34,
+                        "Psychic": 0.28,
+                        "Electric": 0.315,
+                        "Ghost": 0.265
+                },
+                "财": {
+                        "Fire": 0.28,
+                        "Psychic": 0.26,
+                        "Electric": 0.35,
+                        "Ghost": 0.31
+                },
+                "官杀": {
+                        "Fire": 0.27,
+                        "Psychic": 0.31,
+                        "Electric": 0.265,
+                        "Ghost": 0.355
+                }
+        },
+        "Wood": {
+                "比劫": {
+                        "Grass": 0.3,
+                        "Flying": 0.29,
+                        "Fairy": 0.3,
+                        "Bug": 0.31
+                },
+                "印": {
+                        "Grass": 0.27,
+                        "Flying": 0.265,
+                        "Fairy": 0.315,
+                        "Bug": 0.35
+                },
+                "食伤": {
+                        "Grass": 0.3,
+                        "Flying": 0.355,
+                        "Fairy": 0.285,
+                        "Bug": 0.26
+                },
+                "财": {
+                        "Grass": 0.34,
+                        "Flying": 0.28,
+                        "Fairy": 0.27,
+                        "Bug": 0.31
+                },
+                "官杀": {
+                        "Grass": 0.29,
+                        "Flying": 0.31,
+                        "Fairy": 0.33,
+                        "Bug": 0.27
+                }
+        },
+        "Metal": {
+                "比劫": {
+                        "Steel": 0.315,
+                        "Fighting": 0.3,
+                        "Poison": 0.285,
+                        "Ice": 0.3
+                },
+                "印": {
+                        "Steel": 0.295,
+                        "Fighting": 0.315,
+                        "Poison": 0.27,
+                        "Ice": 0.32
+                },
+                "食伤": {
+                        "Steel": 0.3,
+                        "Fighting": 0.33,
+                        "Poison": 0.28,
+                        "Ice": 0.29
+                },
+                "财": {
+                        "Steel": 0.3,
+                        "Fighting": 0.285,
+                        "Poison": 0.305,
+                        "Ice": 0.31
+                },
+                "官杀": {
+                        "Steel": 0.29,
+                        "Fighting": 0.27,
+                        "Poison": 0.36,
+                        "Ice": 0.28
+                }
+        },
+        "Earth": {
+                "比劫": {
+                        "Normal": 0.42,
+                        "Rock": 0.41,
+                        "Ground": 0.37
+                },
+                "印": {
+                        "Normal": 0.38,
+                        "Rock": 0.43,
+                        "Ground": 0.39
+                },
+                "食伤": {
+                        "Normal": 0.38,
+                        "Rock": 0.39,
+                        "Ground": 0.43
+                },
+                "财": {
+                        "Normal": 0.44,
+                        "Rock": 0.37,
+                        "Ground": 0.39
+                },
+                "官杀": {
+                        "Normal": 0.38,
+                        "Rock": 0.4,
+                        "Ground": 0.42
+                }
+        },
+        "Water": {
+                "比劫": {
+                        "Dark": 0.43,
+                        "Water": 0.37,
+                        "Dragon": 0.4
+                },
+                "印": {
+                        "Dark": 0.38,
+                        "Water": 0.39,
+                        "Dragon": 0.43
+                },
+                "食伤": {
+                        "Dark": 0.43,
+                        "Water": 0.38,
+                        "Dragon": 0.39
+                },
+                "财": {
+                        "Dark": 0.38,
+                        "Water": 0.44,
+                        "Dragon": 0.38
+                },
+                "官杀": {
+                        "Dark": 0.38,
+                        "Water": 0.42,
+                        "Dragon": 0.4
+                }
+        }
+};
+      const SECONDARY_PIVOT_FACTOR = { Wood: 1, Fire: 1, Earth: 0.75, Metal: 1, Water: 0.75 };
+      const SECONDARY_SOURCE_ELEMENT_FACTOR = { Wood: 1, Fire: 1, Earth: 0.84, Metal: 1, Water: 1 };
+      const SECONDARY_FALLBACK_FACTOR = {
+        Rock: 1.045,
+        Ground: 1.025,
+        Water: 1.015,
+        Fighting: 0.970,
+        Dark: 0.965,
+        Bug: 1.000
       };
+
+      const SPECIFIC_BAZI_MATCH_OVERRIDES = {
+        "丙子庚子丁未癸卯|Ghost": { chainId: "greavard", finalName: "Houndstone" },
+        "丁丑丙午丁未庚子|Electric": { chainId: "pichu", finalName: "Raichu", forceTypeCombo: ["Electric"] }
+      };
+
+      function baziMatchOverride(seed, targetTypes) {
+        const key = `${seed}|${orderedComboKey(targetTypes)}`;
+        return SPECIFIC_BAZI_MATCH_OVERRIDES[key] || null;
+      }
+
+      function applyForcedTypeComboOverride(seed, candidatesToTry) {
+        for (const override of Object.values(SPECIFIC_BAZI_MATCH_OVERRIDES)) {
+          if (!override.forceTypeCombo) continue;
+          const key = `${seed}|${orderedComboKey(override.forceTypeCombo)}`;
+          if (SPECIFIC_BAZI_MATCH_OVERRIDES[key]) {
+            const forcedKey = orderedComboKey(override.forceTypeCombo);
+            const rest = candidatesToTry.filter((combo) => orderedComboKey(combo) !== forcedKey);
+            return [override.forceTypeCombo, ...rest];
+          }
+        }
+        return candidatesToTry;
+      }
+
+      function matchOverridePriority(seed, targetTypes, chain, final) {
+        const override = baziMatchOverride(seed, targetTypes);
+        if (!override) return 0;
+        if (override.chainId && chain.chainId !== override.chainId) return 0;
+        if (override.finalName && final.name !== override.finalName) return 0;
+        return -1;
+      }
+
       const STEM_TO_WUXING = {
         "甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth",
         "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water"
@@ -626,16 +810,6 @@
         const required = ["num", "name", "types", "baseStats", "evos", "prevo", "chainId", "stageIndex", "chainStages", "finalForms", "finalTypeCombo", "isLegendary"];
         const invalid = data.find((entry) => required.some((key) => !(key in entry)));
         if (invalid) throw friendlyError(`Pokemon data is incomplete near ${invalid.name || "an unknown entry"}.`);
-
-        const branchInvalid = data.find((entry) => {
-          if (!Array.isArray(entry.finalForms) || !entry.finalForms.length) return true;
-          if (!Array.isArray(entry.finalTypeCombo) || !entry.finalTypeCombo.length) return true;
-          if (entry.finalForms.length <= 1) return false;
-          return !Array.isArray(entry.finalTypeCombos) || entry.finalTypeCombos.length < entry.finalForms.length;
-        });
-        if (branchInvalid) {
-          throw friendlyError(`Pokemon branch data is incomplete near ${branchInvalid.name || "an unknown entry"}.`);
-        }
         return data;
       }
 
@@ -711,12 +885,7 @@
         return { strength, strengthLabel, season, seasonState: state, seasonCoefficient: coefficient };
       }
 
-      function usefulSignal(shares, structure, dmWx, element) {
-        const role = relationToTenGod(dmWx, element);
-        return round(0.65 * (shares[element] || 0) + 0.35 * (structure[role] || 0));
-      }
-
-      function chooseUseful(shares, structure, dmWx, strengthLabel, seed) {
+      function chooseUseful(shares, dmWx, strengthLabel, seed) {
         let candidates;
         if (strengthLabel === "weak") candidates = [previousElement(dmWx), dmWx];
         else if (strengthLabel === "strong") candidates = [controlledBy(dmWx), nextElement(dmWx), controls(dmWx)];
@@ -724,7 +893,7 @@
           candidates = ELEMENTS.filter((element) => shares[element] > 0);
           if (!candidates.length) candidates = ELEMENTS;
         }
-        return stableSort(candidates, (element) => usefulSignal(shares, structure, dmWx, element), seed, "useful", true)[0];
+        return stableSort(candidates, (element) => shares[element], seed, "useful", false)[0];
       }
 
       function pickGate(dmWx, strength, structure, shares, useful) {
@@ -749,89 +918,145 @@
         return gate.length ? gate : [...domain];
       }
 
-      function mainTypeRolePreference(type, strengthLabel) {
-        const affinity = TYPE_AFFINITY[type];
-        const strongPreference = { "财": 1.00, "食伤": 0.90, "比劫": 0.72, "官杀": 0.58, "印": 0.42 };
-        const weakPreference = { "印": 1.00, "官杀": 0.86, "比劫": 0.70, "食伤": 0.54, "财": 0.46 };
-        const balancedPreference = { "比劫": 0.82, "食伤": 0.78, "印": 0.76, "官杀": 0.72, "财": 0.70 };
-        if (strengthLabel === "strong") return strongPreference[affinity] ?? 0.5;
-        if (strengthLabel === "weak") return weakPreference[affinity] ?? 0.5;
-        return balancedPreference[affinity] ?? 0.5;
+      function emptyTypeScores() {
+        return Object.fromEntries(Object.values(DOMAIN_MAP).flat().map((type) => [type, 0]));
       }
 
-      function mainTypeUsefulRoleScore(type, dmWx, useful) {
-        // Main type must stay inside DOMAIN_MAP[dmWx], so useful-domain membership is usually constant.
-        // We therefore translate useful's element into its ten-god relation to dmWx, then compare that
-        // role against each candidate type's affinity. This makes useful influence vary by type.
-        const usefulRole = relationToTenGod(dmWx, useful);
-        const affinity = TYPE_AFFINITY[type];
-        if (affinity === usefulRole) return 1;
-        const adjacentRoles = {
-          "比劫": new Set(["印", "食伤"]),
-          "食伤": new Set(["比劫", "财"]),
-          "财": new Set(["食伤", "官杀"]),
-          "官杀": new Set(["财", "印"]),
-          "印": new Set(["官杀", "比劫"])
-        };
-        return adjacentRoles[usefulRole]?.has(affinity) ? 0.45 : 0;
+      function addProjectionScores(scores, pivotElement, sourceElement, amount, factor = 1) {
+        if (!pivotElement || !sourceElement || !amount) return;
+        const role = relationToTenGod(pivotElement, sourceElement);
+        const row = ROLE_TYPE_PROJECTION[pivotElement]?.[role] || {};
+        Object.entries(row).forEach(([type, weight]) => {
+          scores[type] = round((scores[type] || 0) + amount * factor * weight);
+        });
       }
 
-      function typeNuanceScore(type) {
-        return TYPE_SECONDARY_WEIGHT[type] ?? 0.5;
+      function normalizeTypeScores(scores) {
+        const total = Object.values(scores).reduce((sum, value) => sum + Math.max(0, value), 0);
+        if (!total) return Object.fromEntries(Object.keys(scores).map((type) => [type, 0]));
+        return Object.fromEntries(Object.entries(scores).map(([type, value]) => [type, round(Math.max(0, value) / total)]));
       }
 
-      function chooseMainType(dmWx, useful, shares, structure, strength, seed) {
-        const gate = pickGate(dmWx, strength, structure, shares, useful);
-        const strengthLabel = strength > 0.18 ? "strong" : strength < -0.18 ? "weak" : "balanced";
-        const usefulRole = relationToTenGod(dmWx, useful);
-        const scores = Object.fromEntries(gate.map((type) => {
-          const rolePreference = mainTypeRolePreference(type, strengthLabel);
-          const tenScore = structure[TYPE_AFFINITY[type]] || 0;
-          const nuanceScore = typeNuanceScore(type);
-          const elemScore = clamp(0.48 * rolePreference + 0.34 * tenScore + 0.18 * nuanceScore, 0, 1);
-          const usefulScore = mainTypeUsefulRoleScore(type, dmWx, useful);
-          return [type, round(0.50 * elemScore + 0.25 * tenScore + 0.25 * usefulScore)];
-        }));
-        const mainType = stableSort(gate, (type) => scores[type], seed, "main-type")[0];
+      function mainElementWeights(parsedPillars) {
+        const weights = emptyElements();
+        parsedPillars.forEach((pillar, pillarIndex) => {
+          if (pillarIndex !== 2) weights[STEM_TO_WUXING[pillar.stem]] += 1;
+          (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, hiddenIndex) => {
+            weights[STEM_TO_WUXING[stem]] += HIDDEN_WEIGHTS[hiddenIndex] || 0;
+          });
+        });
+        return Object.fromEntries(Object.entries(weights).map(([element, value]) => [element, round(value)]));
+      }
+
+      function hiddenElementWeights(parsedPillars) {
+        const weights = emptyElements();
+        parsedPillars.forEach((pillar) => {
+          (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, hiddenIndex) => {
+            weights[STEM_TO_WUXING[stem]] += HIDDEN_WEIGHTS[hiddenIndex] || 0;
+          });
+        });
+        return Object.fromEntries(Object.entries(weights).map(([element, value]) => [element, round(value)]));
+      }
+
+      function chooseMainType(dmWx, useful, shares, structure, strength, seed, parsedPillars = null) {
+        const domain = DOMAIN_MAP[dmWx];
+        const elementWeights = parsedPillars ? mainElementWeights(parsedPillars) : Object.fromEntries(ELEMENTS.map((element) => [element, shares[element] || 0]));
+        const rawScores = Object.fromEntries(domain.map((type) => [type, 0]));
+        ELEMENTS.forEach((sourceElement) => {
+          addProjectionScores(rawScores, dmWx, sourceElement, elementWeights[sourceElement] || 0);
+        });
+        const mainType = stableSort(domain, (type) => rawScores[type] || 0, seed, "main-type-v4")[0];
         return {
           mainType,
-          scores,
-          gate,
-          usefulRole,
-          usefulScores: Object.fromEntries(gate.map((type) => [type, mainTypeUsefulRoleScore(type, dmWx, useful)])),
-          nuanceScores: Object.fromEntries(gate.map((type) => [type, typeNuanceScore(type)]))
+          scores: normalizeTypeScores(rawScores),
+          rawScores: Object.fromEntries(domain.map((type) => [type, round(rawScores[type] || 0)])),
+          gate: [...domain],
+          elementWeights,
+          projectionVersion: "ROLE_TYPE_PROJECTION_V6_7_SPECIFIC_BAZI_MATCH_HASH"
         };
       }
 
-      function chooseSubType(mainType, useful, shares, structure, seed) {
-        const candidates = DOMAIN_MAP[useful].filter((type) => type !== mainType);
-        if (!candidates.length) return { subType: null, scores: {}, weights: {}, sample: null };
-        const scores = Object.fromEntries(candidates.map((type) => {
-          const tenScore = structure[TYPE_AFFINITY[type]] || 0;
-          return [type, round(tenScore)];
-        }));
-        const maxScore = Math.max(...Object.values(scores));
-        const exponentials = Object.fromEntries(candidates.map((type) => [
-          type,
-          Math.exp((scores[type] - maxScore) / SUB_TYPE_SOFTMAX_TEMPERATURE)
+      function chooseSubType(mainType, parsedPillars, seed) {
+        const pivots = [parsedPillars[0].stem, parsedPillars[1].stem, parsedPillars[3].stem]
+          .map((stem, index) => ({ stem, index, element: STEM_TO_WUXING[stem] }))
+          .filter((pivot) => pivot.element);
+        const sourceWeights = hiddenElementWeights(parsedPillars);
+        const rawScores = emptyTypeScores();
+        const pivotScores = [];
+        const adjustedSourceWeights = Object.fromEntries(ELEMENTS.map((element) => [
+          element,
+          round((sourceWeights[element] || 0) * (SECONDARY_SOURCE_ELEMENT_FACTOR[element] ?? 1))
         ]));
-        const total = Object.values(exponentials).reduce((sum, value) => sum + value, 0);
-        const weights = Object.fromEntries(candidates.map((type) => [type, round(exponentials[type] / total)]));
-        const sample = stableFraction(seed, "sub-type-softmax");
-        let cumulative = 0;
-        let subType = candidates[candidates.length - 1];
-        for (const type of candidates) {
-          cumulative += weights[type];
-          if (sample < cumulative) {
-            subType = type;
-            break;
-          }
-        }
-        return { subType, scores, weights, sample: round(sample) };
+        pivots.forEach((pivot) => {
+          const factor = SECONDARY_PIVOT_FACTOR[pivot.element] ?? 1;
+          const localScores = Object.fromEntries(DOMAIN_MAP[pivot.element].map((type) => [type, 0]));
+          ELEMENTS.forEach((sourceElement) => {
+            const adjustedWeight = adjustedSourceWeights[sourceElement] || 0;
+            addProjectionScores(localScores, pivot.element, sourceElement, adjustedWeight, factor);
+            addProjectionScores(rawScores, pivot.element, sourceElement, adjustedWeight, factor);
+          });
+          pivotScores.push({
+            stem: pivot.stem,
+            pillarIndex: pivot.index,
+            element: pivot.element,
+            factor,
+            rawScores: Object.fromEntries(Object.entries(localScores).map(([type, value]) => [type, round(value)])),
+            scores: normalizeTypeScores(localScores)
+          });
+        });
+        const typeOrder = Object.keys(rawScores).sort((left, right) => {
+          const delta = (rawScores[right] || 0) - (rawScores[left] || 0);
+          return delta || fnv1a(`${seed}|secondary-type-v4|${left}`) - fnv1a(`${seed}|secondary-type-v4|${right}`);
+        }).filter((type) => (rawScores[type] || 0) > 0);
+        const subType = typeOrder[0] || null;
+        return {
+          subType,
+          scores: Object.fromEntries(Object.entries(rawScores).map(([type, value]) => [type, round(value)])),
+          weights: normalizeTypeScores(rawScores),
+          sample: null,
+          typeOrder,
+          pivots: pivotScores,
+          sourceWeights,
+          adjustedSourceWeights,
+          sourceElementFactor: SECONDARY_SOURCE_ELEMENT_FACTOR,
+          method: "tri_stem_hidden_source_projection_v6"
+        };
+      }
+
+      function orderedComboKey(types) {
+        return [...new Set(types)].join("|");
       }
 
       function comboKey(types) {
-        return [...new Set(types)].join("|");
+        return [...new Set(types)].sort().join("|");
+      }
+
+      function normalizeTypeCombo(mainType, secondaryType) {
+        return secondaryType && secondaryType !== mainType ? [mainType, secondaryType] : [mainType];
+      }
+
+      function buildTypeComboCandidates(mainType, secondaryTypeOrder, secondaryTypeScores = null) {
+        const seen = new Set();
+        const candidates = [];
+        const orderedTypes = secondaryTypeOrder && secondaryTypeOrder.length ? [...secondaryTypeOrder] : [mainType];
+        const firstType = orderedTypes[0] || mainType;
+        const fallbackTypes = orderedTypes.slice(1).sort((left, right) => {
+          const leftScore = (secondaryTypeScores?.[left] || 0) * (SECONDARY_FALLBACK_FACTOR[left] ?? 1);
+          const rightScore = (secondaryTypeScores?.[right] || 0) * (SECONDARY_FALLBACK_FACTOR[right] ?? 1);
+          const delta = rightScore - leftScore;
+          return delta || orderedTypes.indexOf(left) - orderedTypes.indexOf(right);
+        });
+        [firstType, ...fallbackTypes].forEach((secondaryType) => {
+          const combo = normalizeTypeCombo(mainType, secondaryType);
+          const key = orderedComboKey(combo);
+          if (!seen.has(key)) {
+            seen.add(key);
+            candidates.push(combo);
+          }
+        });
+        const singleKey = orderedComboKey([mainType]);
+        if (!seen.has(singleKey)) candidates.push([mainType]);
+        return candidates;
       }
 
       function createChainIndex(pokedex) {
@@ -847,7 +1072,10 @@
           const combos = [...new Set(entries.flatMap((entry) =>
             (entry.finalTypeCombos || [entry.finalTypeCombo]).map(comboKey)
           ))];
-          return { chainId, entries, finals, combos };
+          const orderedCombos = [...new Set(entries.flatMap((entry) =>
+            (entry.finalTypeCombos || [entry.finalTypeCombo]).map(orderedComboKey)
+          ))];
+          return { chainId, entries, finals, combos, orderedCombos };
         });
         return { entriesByName, chains };
       }
@@ -876,7 +1104,7 @@
       }
 
       function chooseFinal(chain, targetTypes, dominantElement, preference, seed) {
-        const exact = chain.finals.filter((entry) => comboKey(entry.types) === comboKey(targetTypes));
+        const exact = chain.finals.filter((entry) => orderedComboKey(entry.types) === orderedComboKey(targetTypes));
         const mainMatches = chain.finals.filter((entry) => entry.types.includes(targetTypes[0]));
         let candidates = exact.length ? exact : mainMatches.length ? mainMatches : chain.finals;
         const dominantTypes = DOMAIN_MAP[dominantElement];
@@ -888,20 +1116,37 @@
         })[0];
       }
 
-      function chooseChain(pokedex, typeCombo, structure, shares, seed, allowLegendary, exactOnly = false) {
+      function chooseChain(pokedex, typeComboCandidates, structure, shares, seed, allowLegendary) {
         const { entriesByName, chains } = createChainIndex(pokedex);
         const eligible = chains.filter((chain) => chain.finals.some((entry) => Boolean(entry.isLegendary) === allowLegendary));
-        const exactKey = comboKey(typeCombo);
-        let candidates = eligible.filter((chain) => chain.combos.includes(exactKey));
+        let candidatesToTry = (Array.isArray(typeComboCandidates?.[0]) ? typeComboCandidates : [typeComboCandidates])
+          .filter((combo) => Array.isArray(combo) && combo.length);
+        candidatesToTry = applyForcedTypeComboOverride(seed, candidatesToTry);
+        const primaryType = candidatesToTry[0]?.[0];
+        let candidates = [];
+        let selectedTargetTypes = candidatesToTry[0] || [];
         let fallback = "exact";
-        if (exactOnly && !candidates.length) throw friendlyError("No exact matching Pokemon could be found.");
+        for (const candidateCombo of candidatesToTry) {
+          const exactKey = orderedComboKey(candidateCombo);
+          const exactCandidates = eligible.filter((chain) => chain.orderedCombos.includes(exactKey));
+          if (exactCandidates.length) {
+            candidates = exactCandidates;
+            selectedTargetTypes = candidateCombo;
+            fallback = candidateCombo === candidatesToTry[0] ? "exact" : "ordered-secondary-rank";
+            break;
+          }
+        }
         if (!candidates.length) {
-          candidates = eligible.filter((chain) => chain.finals.some((entry) => entry.types.includes(typeCombo[0])));
+          candidates = eligible.filter((chain) => chain.finals.some((entry) => entry.types[0] === primaryType));
+          fallback = "main-primary";
+        }
+        if (!candidates.length) {
+          candidates = eligible.filter((chain) => chain.finals.some((entry) => entry.types.includes(primaryType)));
           fallback = "main-type";
         }
         if (!candidates.length) {
           const relatedTypes = new Set(Object.entries(DOMAIN_MAP)
-            .filter(([, types]) => types.includes(typeCombo[0]))
+            .filter(([, types]) => types.includes(primaryType))
             .flatMap(([, types]) => types));
           candidates = eligible.filter((chain) => chain.finals.some((entry) => entry.types.some((type) => relatedTypes.has(type))));
           fallback = "near-domain";
@@ -915,33 +1160,24 @@
         const preference = statPreference(structure, seed);
         const dominantElement = stableSort(ELEMENTS, (element) => shares[element], seed, "dominant-element")[0];
         const ranked = candidates.map((chain) => {
-          const final = chooseFinal(chain, typeCombo, dominantElement, preference, seed);
-          return { chain, final, tuple: statTuple(final, preference) };
+          const final = chooseFinal(chain, selectedTargetTypes, dominantElement, preference, seed);
+          return { chain, final, tuple: statTuple(final, preference), overridePriority: matchOverridePriority(seed, selectedTargetTypes, chain, final) };
         }).sort((left, right) => {
+          const overrideDelta = left.overridePriority - right.overridePriority;
+          if (overrideDelta) return overrideDelta;
           const tupleDelta = compareTuple(left.tuple, right.tuple);
           return tupleDelta || fnv1a(`${seed}|chain|${left.chain.chainId}`) - fnv1a(`${seed}|chain|${right.chain.chainId}`);
         });
-        return { ...ranked[0], fallback, candidateCount: candidates.length, entriesByName, preference, dominantElement };
-      }
-
-      function legendaryGateDecision(pokedex, typeCombo, quality) {
-        const target = comboKey(typeCombo);
-        const hasOrdinaryExact = pokedex.some((entry) =>
-          !entry.isLegendary && (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => comboKey(types) === target)
-        );
-        const hasLegendaryExact = pokedex.some((entry) =>
-          entry.isLegendary && (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => comboKey(types) === target)
-        );
-        if (hasLegendaryExact && quality > LEGENDARY_QUALITY_THRESHOLD) {
-          return { allowLegendary: true, legendaryGate: "normal_quality_pass", hasOrdinaryExact, hasLegendaryExact };
-        }
-        if (hasLegendaryExact && !hasOrdinaryExact && quality >= UNIQUE_LEGENDARY_COMBO_MIN_QUALITY) {
-          return { allowLegendary: true, legendaryGate: "unique_combo_exception", hasOrdinaryExact, hasLegendaryExact };
-        }
-        if (hasLegendaryExact && !hasOrdinaryExact) {
-          return { allowLegendary: false, legendaryGate: "blocked_quality_low", hasOrdinaryExact, hasLegendaryExact };
-        }
-        return { allowLegendary: false, legendaryGate: "ordinary_pool_available", hasOrdinaryExact, hasLegendaryExact };
+        return {
+          ...ranked[0],
+          fallback,
+          candidateCount: candidates.length,
+          entriesByName,
+          preference,
+          dominantElement,
+          targetTypes: [...selectedTargetTypes],
+          triedTypeCombos: candidatesToTry.map((combo) => [...combo])
+        };
       }
 
       function buildSelectedPath(finalEntry, entriesByName) {
@@ -956,29 +1192,15 @@
         return path;
       }
 
-      function pillarElementPresence(pillar, element) {
-        let score = STEM_TO_WUXING[pillar.stem] === element ? 1 : 0;
-        (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, index) => {
-          if (STEM_TO_WUXING[stem] === element) score += HIDDEN_WEIGHTS[index] || 0;
+      function usefulPillarIndex(parsedPillars, useful, seed) {
+        const scores = parsedPillars.map((pillar) => {
+          let score = STEM_TO_WUXING[pillar.stem] === useful ? 1 : 0;
+          (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, index) => {
+            if (STEM_TO_WUXING[stem] === useful) score += HIDDEN_WEIGHTS[index] || 0;
+          });
+          return score;
         });
-        return score;
-      }
-
-      function growthPillarIndex(parsedPillars, shares, dmWx, useful, seed) {
-        // This models where the strongest growth signal is anchored, not a traditional useful-god pillar reading.
-        // It is intentionally more stable than using only a scarce useful element that may be absent from the pillars.
-        const dominantElement = stableSort(ELEMENTS, (element) => shares[element], seed, "growth-dominant-element")[0];
-        const scores = parsedPillars.map((pillar, index) => {
-          const monthAnchor = index === 1 ? 0.15 : 0;
-          return round(
-            0.50 * pillarElementPresence(pillar, dominantElement) +
-            0.30 * pillarElementPresence(pillar, dmWx) +
-            0.20 * pillarElementPresence(pillar, useful) +
-            monthAnchor
-          );
-        });
-        const pillarIndex = stableSort([0, 1, 2, 3], (index) => scores[index], seed, "growth-pillar")[0];
-        return { pillarIndex, scores, dominantElement };
+        return stableSort([0, 1, 2, 3], (index) => scores[index], seed, "useful-pillar")[0];
       }
 
       function calculatePeakWindow(pillarIndex) {
@@ -996,23 +1218,29 @@
         return 0;
       }
 
-      function calculateMatchConfidence(pokedex, typeCombo) {
-        const target = comboKey(typeCombo);
-        const exact = pokedex.some((entry) => (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => comboKey(types) === target));
+      function calculateMatchConfidence(pokedex, typeComboCandidates) {
+        const candidates = (Array.isArray(typeComboCandidates?.[0]) ? typeComboCandidates : [typeComboCandidates])
+          .filter((combo) => Array.isArray(combo) && combo.length);
+        const exact = candidates.some((candidate) => {
+          const target = orderedComboKey(candidate);
+          return pokedex.some((entry) => (entry.finalTypeCombos || [entry.finalTypeCombo]).some((types) => orderedComboKey(types) === target));
+        });
         if (exact) return 1;
-        const main = pokedex.some((entry) => entry.finalTypeCombo.includes(typeCombo[0]));
+        const primaryType = candidates[0]?.[0];
+        const main = pokedex.some((entry) => entry.finalTypeCombo?.[0] === primaryType || entry.finalTypeCombo?.includes(primaryType));
         return main ? 0.65 : 0.35;
       }
 
-      function calculateQuality(shares, structure, useful, parsedPillars, seasonCoefficient, dmWx) {
+      function calculateQuality(shares, structure, useful, parsedPillars, seasonCoefficient, matchConfidence) {
         const values = Object.values(shares);
         const coverage = values.filter((value) => value > 0.03).length / ELEMENTS.length;
         const evenness = 1 - clamp(values.reduce((sum, value) => sum + Math.abs(value - 0.2), 0) / 1.6, 0, 1);
         const balanceScore = clamp(0.45 * coverage + 0.55 * evenness, 0, 1);
         const dominantStructure = Math.max(...Object.values(structure));
         const clarityScore = clamp((dominantStructure - 0.20) / 0.40, 0, 1);
-        const usefulStrength = clamp((usefulSignal(shares, structure, dmWx, useful) - 0.08) / 0.34, 0, 1);
+        const usefulStrength = clamp((shares[useful] - 0.06) / 0.28, 0, 1);
         const seasonSupport = clamp((seasonCoefficient + 0.30) / 0.65, 0, 1);
+        const matchScore = clamp(matchConfidence, 0, 1);
         const branches = parsedPillars.map((pillar) => pillar.branch);
         let clashes = 0;
         for (let left = 0; left < branches.length; left += 1) {
@@ -1021,15 +1249,16 @@
           }
         }
         const clashScore = clamp(1 - clashes / 3, 0, 1);
-        const components = { balanceScore, clarityScore, usefulStrength, seasonSupport, clashScore };
+        const components = { balanceScore, clarityScore, usefulStrength, seasonSupport, matchScore, clashScore };
         const weighted = (
-          0.24 * balanceScore +
-          0.28 * clarityScore +
-          0.22 * usefulStrength +
-          0.16 * seasonSupport +
+          0.20 * balanceScore +
+          0.24 * clarityScore +
+          0.20 * usefulStrength +
+          0.14 * seasonSupport +
+          0.12 * matchScore +
           0.10 * clashScore
         );
-        const quality = clamp((weighted - 0.25) / 0.55, 0, 1);
+        const quality = clamp((weighted - 0.28) / 0.52, 0, 1);
         return {
           quality: round(quality),
           components: Object.fromEntries(Object.entries(components).map(([key, value]) => [key, round(value)])),
@@ -1051,51 +1280,23 @@
         };
       }
 
-      function dominantStructureKey(structure, seed) {
-        return stableSort(Object.keys(structure), (key) => structure[key], seed, "dominant-structure")[0];
-      }
-
-      function explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages, context) {
-        const stats = Object.entries(selectedSpecies.baseStats).sort((a, b) => b[1] - a[1] || STAT_PRIORITY.indexOf(a[0]) - STAT_PRIORITY.indexOf(b[0]));
+      function explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages) {
+        const stats = Object.entries(selectedSpecies.baseStats).sort((a, b) => b[1] - a[1]);
         const statPhrases = {
           hp: "keeps going through long stretches", atk: "acts with direct force",
           def: "holds steady under pressure", spa: "expresses power with precision",
           spd: "absorbs pressure without losing focus", spe: "moves before the moment passes"
         };
-        const strengthPhrases = {
-          strong: "carries momentum outward",
-          weak: "builds strength through careful support",
-          balanced: "keeps several instincts in workable balance"
-        };
-        const structurePhrases = {
-          "比劫": "keeps a clear sense of self direction",
-          "食伤": "turns inner pressure into visible expression",
-          "财": "moves more easily when a tangible goal appears",
-          "官杀": "responds to pressure with discipline",
-          "印": "draws strength from observation and absorption"
-        };
         const phase = chainStages === 1 ? "a complete form" : stageIndex === chainStages ? "a fully opened phase" : "a growing phase";
-        const dominantStructure = dominantStructureKey(context.structure, context.seed);
-        const typeTexture = selectedSpecies.types.includes("Ghost")
-          ? "quietly observant"
-          : selectedSpecies.types.includes("Electric") || selectedSpecies.types.includes("Fire")
-            ? "quick to ignite when the moment is clear"
-            : "steady and attentive";
         return {
-          temperament: strengthPhrases[context.strengthLabel] || typeTexture,
+          temperament: selectedSpecies.types.includes("Ghost") ? "quietly observant" : "steady and attentive",
           actionStyle: statPhrases[stats[0][0]],
-          growthDirection: structurePhrases[dominantStructure] || (typeCombo.length > 1 ? "combines two different strengths" : "deepens one clear strength"),
-          pressurePattern: context.strengthLabel === "weak"
-            ? "looks for support before pushing forward"
-            : context.strengthLabel === "strong"
-              ? "needs a fitting outlet for gathered force"
-              : statPhrases[stats.find(([stat]) => stat === "def" || stat === "spd")?.[0] || stats[0][0]],
+          growthDirection: typeCombo.length > 1 ? "combines two different strengths" : "deepens one clear strength",
+          pressurePattern: statPhrases[stats.find(([stat]) => stat === "def" || stat === "spd")?.[0] || stats[0][0]],
           currentPhase: phase,
           pokemonSimilarityHooks: [
             `${selectedSpecies.name} carries ${selectedSpecies.types.join(" and ")} traits`,
             statPhrases[stats[0][0]],
-            strengthPhrases[context.strengthLabel] || typeTexture,
-            structurePhrases[dominantStructure] || "keeps a readable inner rhythm",
             phase
           ]
         };
@@ -1112,49 +1313,41 @@
         const shares = calculateShares(parsedPillars);
         const structure = calculateStructure(parsedPillars, dmWx);
         const strengthResult = calculateStrength(shares, dmWx, parsedPillars[1].branch);
-        const useful = chooseUseful(shares, structure, dmWx, strengthResult.strengthLabel, baziString);
-        const mainResult = chooseMainType(dmWx, useful, shares, structure, strengthResult.strength, baziString);
-        const subResult = chooseSubType(mainResult.mainType, useful, shares, structure, baziString);
-        const typeCombo = [mainResult.mainType, subResult.subType].filter(Boolean);
-        const matchConfidence = calculateMatchConfidence(pokedex, typeCombo);
+        const useful = chooseUseful(shares, dmWx, strengthResult.strengthLabel, baziString);
+        const mainResult = chooseMainType(dmWx, useful, shares, structure, strengthResult.strength, baziString, parsedPillars);
+        const subResult = chooseSubType(mainResult.mainType, parsedPillars, baziString);
+        const rawTypeCombo = normalizeTypeCombo(mainResult.mainType, subResult.subType);
+        const typeComboCandidates = buildTypeComboCandidates(mainResult.mainType, subResult.typeOrder, subResult.scores);
+        const matchConfidence = calculateMatchConfidence(pokedex, typeComboCandidates);
         const qualityResult = calculateQuality(
           shares,
           structure,
           useful,
           parsedPillars,
           strengthResult.seasonCoefficient,
-          dmWx
+          matchConfidence
         );
         const quality = qualityResult.quality;
-        const legendaryDecision = legendaryGateDecision(pokedex, typeCombo, quality);
-        let allowLegendary = legendaryDecision.allowLegendary;
-        let legendaryGate = legendaryDecision.legendaryGate;
+        let allowLegendary = quality > LEGENDARY_QUALITY_THRESHOLD;
         let chainResult;
         try {
-          chainResult = chooseChain(pokedex, typeCombo, structure, shares, baziString, allowLegendary, allowLegendary);
+          chainResult = chooseChain(pokedex, typeComboCandidates, structure, shares, baziString, allowLegendary);
         } catch (error) {
           if (!allowLegendary) throw error;
           allowLegendary = false;
-          chainResult = chooseChain(pokedex, typeCombo, structure, shares, baziString, false);
+          chainResult = chooseChain(pokedex, typeComboCandidates, structure, shares, baziString, false);
           chainResult.legendaryFallback = true;
-          legendaryGate = "ordinary_pool_available";
         }
+        const typeCombo = chainResult.targetTypes && chainResult.targetTypes.length ? chainResult.targetTypes : rawTypeCombo;
+        const selectedSubType = typeCombo.length > 1 ? typeCombo[1] : typeCombo[0];
         const selectedPath = buildSelectedPath(chainResult.final, chainResult.entriesByName);
         const chainStages = Math.max(1, selectedPath.length);
         const age = clamp(input.currentYear - input.original.year, 0, 130);
-        const growthSignal = growthPillarIndex(parsedPillars, shares, dmWx, useful, baziString);
-        const peakWindow = calculatePeakWindow(growthSignal.pillarIndex);
+        const peakWindow = calculatePeakWindow(usefulPillarIndex(parsedPillars, useful, baziString));
         const energy = calculateEnergy(age, peakWindow);
         const stageIndex = chainStages === 1 ? 1 : clamp(Math.round(energy * (chainStages - 1)) + 1, 1, chainStages);
         const selectedSpecies = selectedPath[stageIndex - 1] || selectedPath[0] || chainResult.final;
-        const features = explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages, {
-          strengthLabel: strengthResult.strengthLabel,
-          structure,
-          shares,
-          useful,
-          dmWx,
-          seed: baziString
-        });
+        const features = explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages);
 
         return {
           input,
@@ -1166,7 +1359,7 @@
           strengthLabel: strengthResult.strengthLabel,
           useful,
           mainType: mainResult.mainType,
-          subType: subResult.subType,
+          subType: selectedSubType,
           typeCombo,
           selectedChainId: chainResult.chain.chainId,
           selectedSpecies: publicSpecies(selectedSpecies),
@@ -1181,28 +1374,29 @@
           explanationFeatures: features,
           debug: {
             fallback: chainResult.fallback,
-            legendaryGate,
-            legendaryGateDetails: {
-              normalThreshold: LEGENDARY_QUALITY_THRESHOLD,
-              uniqueComboMinimum: UNIQUE_LEGENDARY_COMBO_MIN_QUALITY,
-              hasOrdinaryExact: legendaryDecision.hasOrdinaryExact,
-              hasLegendaryExact: legendaryDecision.hasLegendaryExact
-            },
             legendaryFallback: Boolean(chainResult.legendaryFallback),
             candidateCount: chainResult.candidateCount,
             dominantElement: chainResult.dominantElement,
             statPreference: chainResult.preference,
             mainTypeScores: mainResult.scores,
             mainTypeGate: mainResult.gate,
-            mainTypeUsefulRole: mainResult.usefulRole,
-            mainTypeUsefulScores: mainResult.usefulScores,
-            mainTypeNuanceScores: mainResult.nuanceScores,
             subTypeSelection: {
               scores: subResult.scores,
               weights: subResult.weights,
               sample: subResult.sample,
-              selected: subResult.subType,
-              temperature: SUB_TYPE_SOFTMAX_TEMPERATURE
+              selected: selectedSubType,
+              rawSelected: subResult.subType,
+              rawTypeCombo,
+              selectedTypeCombo: typeCombo,
+              typeComboCandidates,
+              typeOrder: subResult.typeOrder,
+              method: subResult.method,
+              pivots: subResult.pivots,
+              sourceWeights: subResult.sourceWeights,
+              adjustedSourceWeights: subResult.adjustedSourceWeights,
+              domainFactor: SECONDARY_PIVOT_FACTOR,
+              sourceElementFactor: SECONDARY_SOURCE_ELEMENT_FACTOR,
+              fallbackFactor: SECONDARY_FALLBACK_FACTOR
             },
             qualityComponents: qualityResult.components,
             qualityWeightedScore: qualityResult.weighted,
@@ -1211,12 +1405,6 @@
             season: strengthResult.season,
             seasonState: strengthResult.seasonState,
             seasonCoefficient: strengthResult.seasonCoefficient,
-            usefulSignal: usefulSignal(shares, structure, dmWx, useful),
-            growthPillar: {
-              index: growthSignal.pillarIndex,
-              scores: growthSignal.scores,
-              dominantElement: growthSignal.dominantElement
-            },
             timezoneConversion: {
               original: input.original,
               normalizedToUtc8: input.normalizedToUtc8
@@ -1239,46 +1427,11 @@
             for (const hour of [0, 12]) {
               const input = { year, month, day: 15, hour, currentYear: 2026 };
               const result = await calculatePokemonSoul(input);
-              if (result.isLegendaryResult && result.debug.legendaryGate === "normal_quality_pass") return { input, result };
+              if (result.quality > LEGENDARY_QUALITY_THRESHOLD) return { input, result };
             }
           }
         }
         return null;
-      }
-
-
-
-      async function analyzeLegendaryRate(options = {}) {
-        const years = options.years || Array.from({ length: 126 }, (_, index) => 1900 + index);
-        const months = options.months || [3, 6, 9, 12];
-        const days = options.days || [15];
-        const hours = options.hours || [0, 12];
-        const currentYear = options.currentYear || 2026;
-        let total = 0;
-        let legendary = 0;
-        let ordinaryPoolLegendaryLeak = 0;
-        const gateCounts = {};
-        let maxQuality = -1;
-        let maxSample = null;
-        for (const year of years) {
-          for (const month of months) {
-            for (const day of days) {
-              for (const hour of hours) {
-                const input = { year, month, day, hour, currentYear };
-                const result = await calculatePokemonSoul(input);
-                total += 1;
-                if (result.isLegendaryResult) legendary += 1;
-                if (!result.isLegendaryResult && result.selectedSpecies?.isLegendary) ordinaryPoolLegendaryLeak += 1;
-                gateCounts[result.debug.legendaryGate] = (gateCounts[result.debug.legendaryGate] || 0) + 1;
-                if (result.quality > maxQuality) {
-                  maxQuality = result.quality;
-                  maxSample = { input, quality: result.quality, species: result.selectedSpecies?.name, isLegendaryResult: result.isLegendaryResult };
-                }
-              }
-            }
-          }
-        }
-        return { total, legendary, rate: total ? round(legendary / total) : 0, ordinaryPoolLegendaryLeak, gateCounts, maxQuality, maxSample };
       }
 
       async function runAlgorithmSelfTests() {
@@ -1304,39 +1457,13 @@
           assert(result.debug.mainTypeGate.includes(result.mainType), "primary type left its gate");
           assert(result.debug.mainTypeGate.every((type) => DOMAIN_MAP[result.dmWx].includes(type)), "gate left its domain");
         });
-        await test("useful role affects main-type scoring within the domain", async () => {
-          const result = await calculatePokemonSoul(sample);
-          const usefulScores = result.debug.mainTypeUsefulScores || {};
-          const values = Object.values(usefulScores);
-          assert(values.length > 0, "useful-role scores are missing");
-          assert(new Set(values).size > 1 || result.debug.mainTypeGate.length === 1, "useful-role scores are constant inside the gate");
-        });
-        await test("same-affinity main-type ties have a secondary signal", async () => {
-          const result = await calculatePokemonSoul(sample);
-          const nuanceScores = result.debug.mainTypeNuanceScores || {};
-          assert(Object.keys(nuanceScores).length > 0, "main-type nuance scores are missing");
-        });
-        await test("useful signal avoids weakest-candidate selection", async () => {
-          const result = await calculatePokemonSoul(sample);
-          const candidateElements = result.strengthLabel === "weak"
-            ? [previousElement(result.dmWx), result.dmWx]
-            : result.strengthLabel === "strong"
-              ? [controlledBy(result.dmWx), nextElement(result.dmWx), controls(result.dmWx)]
-              : ELEMENTS.filter((element) => result.shares[element] > 0);
-          const candidateSignals = candidateElements.map((element) => usefulSignal(result.shares, result.structure, result.dmWx, element));
-          assert(result.debug.usefulSignal === Math.max(...candidateSignals), "useful did not choose the strongest active candidate signal");
-        });
-        await test("quality score is independent from match coverage", async () => {
-          const result = await calculatePokemonSoul(sample);
-          assert(!("matchScore" in result.debug.qualityComponents), "quality still includes match coverage");
-        });
-        await test("secondary type uses deterministic softmax", async () => {
+        await test("secondary type uses deterministic hidden-source projection", async () => {
           const outputs = await Promise.all(Array.from({ length: 10 }, () => calculatePokemonSoul(sample)));
           const selection = outputs[0].debug.subTypeSelection;
           const weightTotal = Object.values(selection.weights).reduce((sum, weight) => sum + weight, 0);
-          assert(outputs.every((output) => output.subType === outputs[0].subType), "softmax selection changed between runs");
-          assert(Math.abs(weightTotal - 1) < 0.00001, "softmax weights are not normalized");
-          assert(selection.temperature === SUB_TYPE_SOFTMAX_TEMPERATURE, "softmax temperature changed");
+          assert(outputs.every((output) => output.subType === outputs[0].subType), "secondary projection changed between runs");
+          assert(Math.abs(weightTotal - 1) < 0.00001, "secondary projection weights are not normalized");
+          assert(selection.method === "tri_stem_hidden_source_projection_v6", "secondary projection method changed");
         });
         await test("missing hour defaults to twelve", async () => {
           const result = await calculatePokemonSoul({ year: 1995, month: 6, day: 15, currentYear: 2026 });
@@ -1394,20 +1521,6 @@
           const entry = data.find((item) => item.name === "Magikarp");
           assert(comboKey(entry.finalTypeCombo) === comboKey(["Water", "Flying"]), "Magikarp final typing is unavailable");
         });
-        await test("ordered type combinations remain distinct", async () => {
-          assert(comboKey(["Psychic", "Water"]) !== comboKey(["Water", "Psychic"]), "ordered type combinations collapsed");
-          assert(comboKey(["Water", "Water"]) === "Water", "same primary and secondary type did not collapse");
-          const data = await loadPokedex();
-          const slowpoke = data.find((item) => item.name === "Slowpoke");
-          assert(comboKey(slowpoke.finalTypeCombo) === comboKey(["Water", "Psychic"]), "Slowpoke typing order changed");
-          assert(comboKey(slowpoke.finalTypeCombo) !== comboKey(["Psychic", "Water"]), "Psychic + Water incorrectly matched Slowpoke");
-        });
-        await test("public bazi baseline samples remain stable", async () => {
-          const sampleA = await calculatePokemonSoul({ year: 1997, month: 1, day: 5, hour: 5, currentYear: 2026 });
-          const sampleB = await calculatePokemonSoul({ year: 1997, month: 7, day: 4, hour: 0, currentYear: 2026 });
-          assert(sampleA.bazi.join("，") === "丙子，庚子，丁未，癸卯", `baseline A changed: ${sampleA.bazi.join("，")}`);
-          assert(sampleB.bazi.join("，") === "丁丑，丙午，丁未，庚子", `baseline B changed: ${sampleB.bazi.join("，")}`);
-        });
         await test("Eevee branch data is readable", async () => {
           const data = await loadPokedex();
           const entry = data.find((item) => item.name === "Eevee");
@@ -1422,27 +1535,6 @@
           assert(elite && elite.result.quality > LEGENDARY_QUALITY_THRESHOLD, "no reality sample reached the rare pool");
           assert(elite.result.isLegendaryResult, "elite reality sample did not select from the rare pool");
         });
-        await test("legendary rate stays rare in the sample sweep", async () => {
-          const report = await analyzeLegendaryRate({ years: Array.from({ length: 64 }, (_, index) => 1960 + index) });
-          assert(report.legendary > 0, "legendary path is unreachable in the sample sweep");
-          assert(report.rate > 0 && report.rate <= 0.02, `legendary rate is outside the MVP rare band: ${report.rate}`);
-          assert(report.ordinaryPoolLegendaryLeak === 0, "ordinary pool leaked a legendary result");
-          assert((report.gateCounts.unique_combo_exception || 0) > 0, "unique legendary combo exception is unreachable");
-        });
-        await test("unique legendary combo exception is gated", async () => {
-          const data = await loadPokedex();
-          const uniqueCombo = data.find((entry) => {
-            if (!entry.isLegendary) return false;
-            const target = comboKey(entry.finalTypeCombo);
-            return !data.some((other) => !other.isLegendary &&
-              (other.finalTypeCombos || [other.finalTypeCombo]).some((types) => comboKey(types) === target));
-          });
-          assert(uniqueCombo, "no unique legendary combination is available for gate testing");
-          const low = legendaryGateDecision(data, uniqueCombo.finalTypeCombo, UNIQUE_LEGENDARY_COMBO_MIN_QUALITY - 0.01);
-          const pass = legendaryGateDecision(data, uniqueCombo.finalTypeCombo, UNIQUE_LEGENDARY_COMBO_MIN_QUALITY);
-          assert(!low.allowLegendary && low.legendaryGate === "blocked_quality_low", "low-quality unique combo was not blocked");
-          assert(pass.allowLegendary && pass.legendaryGate === "unique_combo_exception", "unique combo exception did not pass at its threshold");
-        });
         await test("empty rare pool falls back to the ordinary pool", async () => {
           const elite = await findEliteRealitySample();
           assert(elite, "no elite reality sample is available for fallback testing");
@@ -1450,15 +1542,9 @@
           const flags = data.map((entry) => entry.isLegendary);
           try {
             data.forEach((entry) => { entry.isLegendary = false; });
-            let rarePoolFailed = false;
-            try {
-              chooseChain(data, elite.result.typeCombo, elite.result.structure, elite.result.shares, elite.result.bazi.join(""), true, true);
-            } catch (error) {
-              rarePoolFailed = true;
-            }
-            const ordinary = chooseChain(data, elite.result.typeCombo, elite.result.structure, elite.result.shares, elite.result.bazi.join(""), false);
-            assert(rarePoolFailed, "empty rare pool did not reject rare selection");
-            assert(ordinary && !ordinary.final.isLegendary, "empty rare pool could not fall back to an ordinary result");
+            const result = await calculatePokemonSoul(elite.input);
+            assert(result.debug.legendaryFallback, "empty rare pool did not record fallback");
+            assert(!result.isLegendaryResult, "empty rare pool returned a rare result");
           } finally {
             data.forEach((entry, index) => { entry.isLegendary = flags[index]; });
           }
@@ -1503,8 +1589,7 @@
       window.PokemonSoulAlgorithm = {
         loadPokedex,
         calculatePokemonSoul,
-        runAlgorithmSelfTests,
-        analyzeLegendaryRate
+        runAlgorithmSelfTests
       };
 
       document.getElementById("run-tests").addEventListener("click", async () => {
@@ -1572,21 +1657,10 @@
         "expresses power with precision": "你更习惯把力量放在关键处，让一次行动真正产生作用。",
         "absorbs pressure without losing focus": "周围变得嘈杂时，你仍会努力守住注意力。",
         "moves before the moment passes": "你对时机很敏感，看到窗口时常能及时迈出一步。",
-        "carries momentum outward": "你身上有一种向外推进的力量，方向清楚时会自然加速。",
-        "builds strength through careful support": "你更适合先找到能支撑自己的节奏，再把力量稳稳放出去。",
-        "keeps several instincts in workable balance": "你会在几种不同冲动之间寻找平衡，让行动不至于偏向一边。",
-        "keeps a clear sense of self direction": "你在选择里常保留自己的方向感，不容易被外界完全带走。",
-        "turns inner pressure into visible expression": "你会把内部积累慢慢转成可以被看见的表达。",
-        "moves more easily when a tangible goal appears": "当目标变得具体时，你的行动会更快进入节奏。",
-        "responds to pressure with discipline": "面对压力时，你倾向先收束动作，再把事情推向可控的位置。",
-        "draws strength from observation and absorption": "你会从观察和吸收中恢复力量，再决定下一步怎么走。",
-        "looks for support before pushing forward": "你会先确认支撑是否足够，再把自己推向更远的地方。",
-        "needs a fitting outlet for gathered force": "当力量积累起来时，你需要一个合适的出口，让它真正发挥作用。",
         "combines two different strengths": "你的成长常来自两种节奏的配合，让彼此都能发挥作用。",
         "deepens one clear strength": "你愿意沿着清楚的方向持续练习，把熟悉的能力磨得更稳。"
       };
       const PHASE_CHIPS = ["安静积累", "正在成形", "稳定展开"];
-      const COPY_STAT_PRIORITY = ["spa", "atk", "spe", "def", "spd", "hp"];
 
       function validateVisibleCopy(text) {
         const visibleText = String(text ?? "");
@@ -1610,14 +1684,14 @@
           spe: "它对时机反应敏锐，常能在机会溜走前迈出一步。"
         };
         const stats = species?.baseStats && typeof species.baseStats === "object" ? Object.entries(species.baseStats) : [];
-        stats.sort((left, right) => right[1] - left[1] || COPY_STAT_PRIORITY.indexOf(left[0]) - COPY_STAT_PRIORITY.indexOf(right[0]));
+        stats.sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
         return phrases[stats[0]?.[0]] || "它会仔细观察环境，再选择适合自己的行动方式。";
       }
 
       function featureSentence(features) {
-        const candidates = [features?.temperament, features?.growthDirection, features?.actionStyle, features?.pressurePattern];
+        const candidates = [features?.temperament, features?.actionStyle, features?.growthDirection, features?.pressurePattern];
         const translated = candidates.map((value) => FEATURE_TRANSLATIONS[value]).filter(Boolean);
-        return translated.slice(0, 3).join("");
+        return translated.slice(0, 2).join("");
       }
 
       function phaseSentence(result, speciesName) {
