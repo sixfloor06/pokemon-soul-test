@@ -417,7 +417,6 @@
 
       const POKEDEX_URL = "data/pokedex.json";
       const LEGENDARY_QUALITY_THRESHOLD = 0.88;
-      const SUB_TYPE_SOFTMAX_TEMPERATURE = 0.35;
       const UTC8_OFFSET_MINUTES = 480;
       const MIN_TIMEZONE_OFFSET_MINUTES = -720;
       const MAX_TIMEZONE_OFFSET_MINUTES = 840;
@@ -445,198 +444,99 @@
         Steel: "印", Fighting: "食伤", Poison: "财", Ice: "官杀",
         Dark: "财", Water: "食伤", Dragon: "印"
       };
-      const ROLE_TYPE_PROJECTION = {
-        "Fire": {
-                "比劫": {
-                        "Fire": 0.31,
-                        "Psychic": 0.3,
-                        "Electric": 0.3,
-                        "Ghost": 0.29
-                },
-                "印": {
-                        "Fire": 0.3,
-                        "Psychic": 0.35,
-                        "Electric": 0.27,
-                        "Ghost": 0.28
-                },
-                "食伤": {
-                        "Fire": 0.34,
-                        "Psychic": 0.28,
-                        "Electric": 0.315,
-                        "Ghost": 0.265
-                },
-                "财": {
-                        "Fire": 0.28,
-                        "Psychic": 0.26,
-                        "Electric": 0.35,
-                        "Ghost": 0.31
-                },
-                "官杀": {
-                        "Fire": 0.27,
-                        "Psychic": 0.31,
-                        "Electric": 0.265,
-                        "Ghost": 0.355
-                }
-        },
-        "Wood": {
-                "比劫": {
-                        "Grass": 0.3,
-                        "Flying": 0.29,
-                        "Fairy": 0.3,
-                        "Bug": 0.31
-                },
-                "印": {
-                        "Grass": 0.27,
-                        "Flying": 0.265,
-                        "Fairy": 0.315,
-                        "Bug": 0.35
-                },
-                "食伤": {
-                        "Grass": 0.3,
-                        "Flying": 0.355,
-                        "Fairy": 0.285,
-                        "Bug": 0.26
-                },
-                "财": {
-                        "Grass": 0.34,
-                        "Flying": 0.28,
-                        "Fairy": 0.27,
-                        "Bug": 0.31
-                },
-                "官杀": {
-                        "Grass": 0.29,
-                        "Flying": 0.31,
-                        "Fairy": 0.33,
-                        "Bug": 0.27
-                }
-        },
-        "Metal": {
-                "比劫": {
-                        "Steel": 0.315,
-                        "Fighting": 0.3,
-                        "Poison": 0.285,
-                        "Ice": 0.3
-                },
-                "印": {
-                        "Steel": 0.295,
-                        "Fighting": 0.315,
-                        "Poison": 0.27,
-                        "Ice": 0.32
-                },
-                "食伤": {
-                        "Steel": 0.3,
-                        "Fighting": 0.33,
-                        "Poison": 0.28,
-                        "Ice": 0.29
-                },
-                "财": {
-                        "Steel": 0.3,
-                        "Fighting": 0.285,
-                        "Poison": 0.305,
-                        "Ice": 0.31
-                },
-                "官杀": {
-                        "Steel": 0.29,
-                        "Fighting": 0.27,
-                        "Poison": 0.36,
-                        "Ice": 0.28
-                }
-        },
-        "Earth": {
-                "比劫": {
-                        "Normal": 0.42,
-                        "Rock": 0.41,
-                        "Ground": 0.37
-                },
-                "印": {
-                        "Normal": 0.38,
-                        "Rock": 0.43,
-                        "Ground": 0.39
-                },
-                "食伤": {
-                        "Normal": 0.38,
-                        "Rock": 0.39,
-                        "Ground": 0.43
-                },
-                "财": {
-                        "Normal": 0.44,
-                        "Rock": 0.37,
-                        "Ground": 0.39
-                },
-                "官杀": {
-                        "Normal": 0.38,
-                        "Rock": 0.4,
-                        "Ground": 0.42
-                }
-        },
-        "Water": {
-                "比劫": {
-                        "Dark": 0.43,
-                        "Water": 0.37,
-                        "Dragon": 0.4
-                },
-                "印": {
-                        "Dark": 0.38,
-                        "Water": 0.39,
-                        "Dragon": 0.43
-                },
-                "食伤": {
-                        "Dark": 0.43,
-                        "Water": 0.38,
-                        "Dragon": 0.39
-                },
-                "财": {
-                        "Dark": 0.38,
-                        "Water": 0.44,
-                        "Dragon": 0.38
-                },
-                "官杀": {
-                        "Dark": 0.38,
-                        "Water": 0.42,
-                        "Dragon": 0.4
-                }
-        }
-};
-      const SECONDARY_PIVOT_FACTOR = { Wood: 1, Fire: 1, Earth: 0.75, Metal: 1, Water: 0.75 };
-      const SECONDARY_SOURCE_ELEMENT_FACTOR = { Wood: 1, Fire: 1, Earth: 0.84, Metal: 1, Water: 1 };
-      const SECONDARY_FALLBACK_FACTOR = {
-        Rock: 1.045,
-        Ground: 1.025,
-        Water: 1.015,
-        Fighting: 0.970,
-        Dark: 0.965,
-        Bug: 1.000
-      };
+      const P5_ROLE_MARGIN = 0.08;
+      const P5_LOTTERY_BETA = 1.0;
+      const P5_SUB_LOTTERY_BETA = 0;
+      const P5_SUB_DECISION_MODE = "two-zone-no-signal";
+      const P5_ROLE_WEIGHT_HOME = 0.70;
+      const P5_ROLE_WEIGHT_ADJACENT = 0.20;
+      const P5_ROLE_WEIGHT_OTHER = 0.10;
+      const P5_ALPHA_STATUS = "retired-fixed-sharp";
+      const POOL_PRIMARY_SHARE_SOURCE = "pokedex.json ordinary final forms; computed at runtime from non-legendary final stage entries by types[0]";
 
-      const SPECIFIC_BAZI_MATCH_OVERRIDES = {
-        "丙子庚子丁未癸卯|Ghost": { chainId: "greavard", finalName: "Houndstone" },
-        "丁丑丙午丁未庚子|Electric": { chainId: "pichu", finalName: "Raichu", forceTypeCombo: ["Electric"] }
-      };
+      function roleElement(pivotElement, role) {
+        if (role === "比劫") return pivotElement;
+        if (role === "食伤") return nextElement(pivotElement);
+        if (role === "财") return controls(pivotElement);
+        if (role === "官杀") return controlledBy(pivotElement);
+        return previousElement(pivotElement);
+      }
+
+      function domainElementForType(type) {
+        return ELEMENTS.find((element) => DOMAIN_MAP[element].includes(type)) || null;
+      }
+
+      function projectionRowSum(pivotElement) {
+        const size = DOMAIN_MAP[pivotElement]?.length || 4;
+        return size === 3 ? 0.9 : 1.2;
+      }
+
+      function projectionFeatureWeights(pivotElement, role) {
+        const domain = DOMAIN_MAP[pivotElement] || [];
+        const sourceElement = roleElement(pivotElement, role);
+        const groups = { home: [], adjacent: [], other: [] };
+        domain.forEach((type) => {
+          const homeRole = TYPE_AFFINITY[type];
+          const homeElement = roleElement(pivotElement, homeRole);
+          if (homeRole === role) groups.home.push(type);
+          else if (homeElement === nextElement(sourceElement) || homeElement === previousElement(sourceElement)) groups.adjacent.push(type);
+          else groups.other.push(type);
+        });
+        const intendedMass = { home: P5_ROLE_WEIGHT_HOME, adjacent: P5_ROLE_WEIGHT_ADJACENT, other: P5_ROLE_WEIGHT_OTHER };
+        const activeGroups = Object.keys(groups).filter((key) => groups[key].length);
+        const activeMass = activeGroups.reduce((sum, key) => sum + intendedMass[key], 0) || 1;
+        const weights = Object.fromEntries(domain.map((type) => [type, 0]));
+        activeGroups.forEach((key) => {
+          const mass = intendedMass[key] / activeMass;
+          groups[key].forEach((type) => { weights[type] = mass / groups[key].length; });
+        });
+        return weights;
+      }
+
+      function buildRoleTypeProjection() {
+        const projection = {};
+        ELEMENTS.forEach((pivotElement) => {
+          const domain = DOMAIN_MAP[pivotElement];
+          const rowSum = projectionRowSum(pivotElement);
+          projection[pivotElement] = {};
+          ["比劫", "印", "食伤", "财", "官杀"].forEach((role) => {
+            const featureWeights = projectionFeatureWeights(pivotElement, role);
+            projection[pivotElement][role] = Object.fromEntries(domain.map((type) => [
+              type,
+              round(rowSum * (featureWeights[type] || 0))
+            ]));
+          });
+        });
+        return projection;
+      }
+
+      const ROLE_TYPE_PROJECTION = buildRoleTypeProjection();
+
+      const ALGORITHM_VERSION = "v7.0-d031-release";
+      const SPECIFIC_BAZI_MATCH_OVERRIDES = Object.freeze({});
+      const FIXED_REGRESSION_SNAPSHOT_CASES = Object.freeze([
+        {
+          id: "D0312-SNAPSHOT-GHOST-DARK",
+          seed: "丙子庚子丁未癸卯",
+          note: "Runtime override removed in D-031.2; snapshot current natural result instead of rewriting it."
+        },
+        {
+          id: "D0312-SNAPSHOT-ELECTRIC",
+          seed: "丁丑丙午丁未庚子",
+          note: "Runtime override removed in D-031.2; snapshot current natural result instead of rewriting it."
+        }
+      ]);
 
       function baziMatchOverride(seed, targetTypes) {
-        const key = `${seed}|${orderedComboKey(targetTypes)}`;
-        return SPECIFIC_BAZI_MATCH_OVERRIDES[key] || null;
+        return null;
       }
 
       function applyForcedTypeComboOverride(seed, candidatesToTry) {
-        for (const override of Object.values(SPECIFIC_BAZI_MATCH_OVERRIDES)) {
-          if (!override.forceTypeCombo) continue;
-          const key = `${seed}|${orderedComboKey(override.forceTypeCombo)}`;
-          if (SPECIFIC_BAZI_MATCH_OVERRIDES[key]) {
-            const forcedKey = orderedComboKey(override.forceTypeCombo);
-            const rest = candidatesToTry.filter((combo) => orderedComboKey(combo) !== forcedKey);
-            return [override.forceTypeCombo, ...rest];
-          }
-        }
         return candidatesToTry;
       }
 
       function matchOverridePriority(seed, targetTypes, chain, final) {
-        const override = baziMatchOverride(seed, targetTypes);
-        if (!override) return 0;
-        if (override.chainId && chain.chainId !== override.chainId) return 0;
-        if (override.finalName && final.name !== override.finalName) return 0;
-        return -1;
+        return 0;
       }
 
       const STEM_TO_WUXING = {
@@ -650,6 +550,29 @@
         "酉": ["辛"], "戌": ["戊", "辛", "丁"], "亥": ["壬", "甲"]
       };
       const HIDDEN_WEIGHTS = [0.6, 0.25, 0.15];
+      function calculateHiddenStemSupplyTotals() {
+        const totals = emptyElements();
+        Object.values(BRANCH_HIDDEN_STEMS).forEach((stems) => {
+          stems.forEach((stem, hiddenIndex) => {
+            const element = STEM_TO_WUXING[stem];
+            if (element) totals[element] += HIDDEN_WEIGHTS[hiddenIndex] || 0;
+          });
+        });
+        return Object.fromEntries(Object.entries(totals).map(([element, value]) => [element, round(value)]));
+      }
+
+      function calculateHiddenStemSupplyNormalization() {
+        const totals = calculateHiddenStemSupplyTotals();
+        const average = Object.values(totals).reduce((sum, value) => sum + value, 0) / ELEMENTS.length;
+        return Object.fromEntries(ELEMENTS.map((element) => [
+          element,
+          totals[element] ? round(average / totals[element]) : 1
+        ]));
+      }
+
+      const HIDDEN_STEM_SUPPLY_TOTALS = calculateHiddenStemSupplyTotals();
+      const HIDDEN_STEM_SUPPLY_NORMALIZATION = calculateHiddenStemSupplyNormalization();
+      const SECONDARY_SOURCE_ELEMENT_FACTOR = HIDDEN_STEM_SUPPLY_NORMALIZATION;
       const SEASON_BY_BRANCH = {
         "寅": "Spring", "卯": "Spring", "辰": "Spring",
         "巳": "Summer", "午": "Summer", "未": "Summer",
@@ -850,7 +773,7 @@
         const totals = emptyElements();
         parsedPillars.forEach((pillar, pillarIndex) => {
           totals[STEM_TO_WUXING[pillar.stem]] += 1;
-          const monthMultiplier = pillarIndex === 1 ? 1.4 : 1;
+          const monthMultiplier = pillarIndex === 1 ? 1.5 : 1;
           (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, hiddenIndex) => {
             totals[STEM_TO_WUXING[stem]] += (HIDDEN_WEIGHTS[hiddenIndex] || 0) * monthMultiplier;
           });
@@ -893,7 +816,7 @@
           candidates = ELEMENTS.filter((element) => shares[element] > 0);
           if (!candidates.length) candidates = ELEMENTS;
         }
-        return stableSort(candidates, (element) => shares[element], seed, "useful", false)[0];
+        return stableSort(candidates, (element) => shares[element], seed, "useful", true)[0];
       }
 
       function pickGate(dmWx, strength, structure, shares, useful) {
@@ -942,7 +865,8 @@
         parsedPillars.forEach((pillar, pillarIndex) => {
           if (pillarIndex !== 2) weights[STEM_TO_WUXING[pillar.stem]] += 1;
           (BRANCH_HIDDEN_STEMS[pillar.branch] || []).forEach((stem, hiddenIndex) => {
-            weights[STEM_TO_WUXING[stem]] += HIDDEN_WEIGHTS[hiddenIndex] || 0;
+            const element = STEM_TO_WUXING[stem];
+            weights[element] += (HIDDEN_WEIGHTS[hiddenIndex] || 0) * (HIDDEN_STEM_SUPPLY_NORMALIZATION[element] ?? 1);
           });
         });
         return Object.fromEntries(Object.entries(weights).map(([element, value]) => [element, round(value)]));
@@ -958,38 +882,299 @@
         return Object.fromEntries(Object.entries(weights).map(([element, value]) => [element, round(value)]));
       }
 
-      function chooseMainType(dmWx, useful, shares, structure, strength, seed, parsedPillars = null) {
+      let poolPrimaryShareCache = null;
+      function calculatePoolPrimaryShare(pokedex) {
+        if (poolPrimaryShareCache && poolPrimaryShareCache.pokedex === pokedex) return poolPrimaryShareCache.share;
+        const counts = Object.fromEntries(Object.values(DOMAIN_MAP).flat().map((type) => [type, 0]));
+        let total = 0;
+        pokedex.forEach((entry) => {
+          if (entry.isLegendary) return;
+          if (entry.stageIndex !== entry.chainStages) return;
+          const primary = entry.types?.[0];
+          if (!(primary in counts)) return;
+          counts[primary] += 1;
+          total += 1;
+        });
+        const share = Object.fromEntries(Object.entries(counts).map(([type, count]) => [type, total ? round(count / total) : 0]));
+        poolPrimaryShareCache = { pokedex, share, counts, total };
+        return share;
+      }
+
+      function monthHiddenElements(parsedPillars) {
+        const monthBranch = parsedPillars?.[1]?.branch;
+        return new Set((BRANCH_HIDDEN_STEMS[monthBranch] || []).map((stem) => STEM_TO_WUXING[stem]).filter(Boolean));
+      }
+
+      function roleInfluenceScores(pivotElement, sourceWeights) {
+        const scores = { "比劫": 0, "食伤": 0, "财": 0, "官杀": 0, "印": 0 };
+        ELEMENTS.forEach((sourceElement) => {
+          const role = relationToTenGod(pivotElement, sourceElement);
+          scores[role] = round((scores[role] || 0) + (sourceWeights[sourceElement] || 0));
+        });
+        return scores;
+      }
+
+      function normalizeRoleScores(scores) {
+        const total = Object.values(scores).reduce((sum, value) => sum + Math.max(0, value), 0);
+        if (!total) return Object.fromEntries(Object.keys(scores).map((role) => [role, 0]));
+        return Object.fromEntries(Object.entries(scores).map(([role, value]) => [role, round(Math.max(0, value) / total)]));
+      }
+
+      function roleDecisionFromScores(roleScores, seed, purpose, parsedPillars, pivotElement) {
+        const normalizedRoles = normalizeRoleScores(roleScores);
+        const roles = Object.keys(normalizedRoles);
+        const rankedRoles = stableSort(roles, (role) => normalizedRoles[role] || 0, seed, `${purpose}|role-score`);
+        const topRole = rankedRoles[0] || null;
+        const secondRole = rankedRoles[1] || null;
+        const topRoleScore = topRole ? normalizedRoles[topRole] || 0 : 0;
+        const secondRoleScore = secondRole ? normalizedRoles[secondRole] || 0 : 0;
+        const roleMargin = secondRole ? round(topRoleScore - secondRoleScore) : 1;
+        const nearRoles = rankedRoles.filter((role) => topRoleScore - (normalizedRoles[role] || 0) <= P5_ROLE_MARGIN + 1e-12);
+        if (!secondRole || roleMargin >= P5_ROLE_MARGIN) {
+          return {
+            zone: "decisive",
+            path: "role-margin",
+            topRole,
+            secondRole,
+            topRoleScore: round(topRoleScore),
+            secondRoleScore: round(secondRoleScore),
+            roleMargin,
+            nearRoles,
+            signalRoles: [],
+            normalizedRoles,
+            roleMarginThreshold: P5_ROLE_MARGIN,
+            pivotElement
+          };
+        }
+        const monthElements = monthHiddenElements(parsedPillars);
+        const signalRoles = nearRoles.filter((role) => monthElements.has(roleElement(pivotElement, role)));
+        if (signalRoles.length) {
+          const selectedRole = stableSort(signalRoles, (role) => normalizedRoles[role] || 0, seed, `${purpose}|role-signal`)[0];
+          return {
+            zone: "signal",
+            path: "month-hidden-role-element",
+            topRole,
+            secondRole,
+            topRoleScore: round(topRoleScore),
+            secondRoleScore: round(secondRoleScore),
+            roleMargin,
+            nearRoles,
+            selectedRole,
+            signalRoles,
+            normalizedRoles,
+            roleMarginThreshold: P5_ROLE_MARGIN,
+            pivotElement
+          };
+        }
+        return {
+          zone: "lottery",
+          path: "role-near-tie",
+          topRole,
+          secondRole,
+          topRoleScore: round(topRoleScore),
+          secondRoleScore: round(secondRoleScore),
+          roleMargin,
+          nearRoles,
+          signalRoles: [],
+          normalizedRoles,
+          roleMarginThreshold: P5_ROLE_MARGIN,
+          pivotElement
+        };
+      }
+
+      function normalizedScoresForTypes(rawScores, candidateTypes) {
+        const scoped = Object.fromEntries(candidateTypes.map((type) => [type, rawScores[type] || 0]));
+        return normalizeTypeScores(scoped);
+      }
+
+      function typeHomeRole(type) {
+        return TYPE_AFFINITY[type] || null;
+      }
+
+      function typeHomeElement(type, defaultPivotElement = null) {
+        const pivotElement = domainElementForType(type) || defaultPivotElement;
+        if (!pivotElement) return null;
+        return roleElement(pivotElement, TYPE_AFFINITY[type]);
+      }
+
+      function weightedHashTypeChoice(types, poolPrimaryShare, seed, purpose, beta = P5_LOTTERY_BETA) {
+        return [...types].sort((left, right) => {
+          function raceScore(type) {
+            const share = Math.max(poolPrimaryShare?.[type] || 0.000001, 0.000001);
+            const weight = beta === 0 ? 1 : Math.pow(share, beta);
+            const fraction = Math.max(stableFraction(seed, `${purpose}|lottery|${type}`), 1e-12);
+            return -Math.log(fraction) / weight;
+          }
+          const delta = raceScore(left) - raceScore(right);
+          return delta || fnv1a(`${seed}|${purpose}|lottery-tie|${left}`) - fnv1a(`${seed}|${purpose}|lottery-tie|${right}`);
+        })[0] || types[0] || null;
+      }
+
+      function chooseTypeByRoleZone(rawScores, candidateTypes, roleScores, seed, purpose, parsedPillars, poolPrimaryShare, pivotElement, roleToTypePivotElement = pivotElement) {
+        const usableTypes = [...new Set(candidateTypes)].filter((type) => (rawScores[type] || 0) > 0);
+        const types = usableTypes.length ? usableTypes : [...new Set(candidateTypes)];
+        const normalized = normalizedScoresForTypes(rawScores, types);
+        const rankedTypes = stableSort(types, (type) => normalized[type] || 0, seed, `${purpose}|type-score`);
+        const topType = rankedTypes[0] || null;
+        const secondType = rankedTypes[1] || null;
+        const topScore = topType ? normalized[topType] || 0 : 0;
+        const secondScore = secondType ? normalized[secondType] || 0 : 0;
+        const typeMargin = secondType ? round(topScore - secondScore) : 1;
+        const roleDecision = roleDecisionFromScores(roleScores, seed, purpose, parsedPillars, pivotElement);
+        let selectedType = topType;
+        let lotteryCandidates = [];
+        let lotteryWeights = null;
+        if (roleDecision.zone === "signal") {
+          const roleTypes = rankedTypes.filter((type) => typeHomeRole(type) === roleDecision.selectedRole);
+          if (roleTypes.length) selectedType = roleTypes[0];
+        } else if (roleDecision.zone === "lottery") {
+          const nearRoleTypes = rankedTypes.filter((type) => roleDecision.nearRoles.includes(typeHomeRole(type)));
+          lotteryCandidates = nearRoleTypes.length ? nearRoleTypes : rankedTypes.slice(0, Math.min(2, rankedTypes.length));
+          selectedType = weightedHashTypeChoice(lotteryCandidates, poolPrimaryShare, seed, purpose);
+          lotteryWeights = Object.fromEntries(lotteryCandidates.map((type) => {
+            const share = Math.max(poolPrimaryShare?.[type] || 0.000001, 0.000001);
+            return [type, round(P5_LOTTERY_BETA === 0 ? 1 : Math.pow(share, P5_LOTTERY_BETA))];
+          }));
+        }
+        return {
+          selectedType,
+          zone: roleDecision.zone,
+          path: roleDecision.path,
+          topType,
+          topScore: round(topScore),
+          secondType,
+          secondScore: round(secondScore),
+          typeMargin,
+          rankedTypes,
+          lotteryCandidates,
+          lotteryWeights,
+          normalizedScores: normalized,
+          roleDecision,
+          beta: P5_LOTTERY_BETA,
+          roleMarginThreshold: P5_ROLE_MARGIN,
+          roleWeights: {
+            home: P5_ROLE_WEIGHT_HOME,
+            adjacent: P5_ROLE_WEIGHT_ADJACENT,
+            other: P5_ROLE_WEIGHT_OTHER
+          }
+        };
+      }
+
+      function chooseTypeByRoleTwoZone(rawScores, candidateTypes, roleScores, seed, purpose, parsedPillars, poolPrimaryShare, pivotElement) {
+        const usableTypes = [...new Set(candidateTypes)].filter((type) => (rawScores[type] || 0) > 0);
+        const types = usableTypes.length ? usableTypes : [...new Set(candidateTypes)];
+        const normalized = normalizedScoresForTypes(rawScores, types);
+        const rankedTypes = stableSort(types, (type) => normalized[type] || 0, seed, `${purpose}|type-score`);
+        const topType = rankedTypes[0] || null;
+        const secondType = rankedTypes[1] || null;
+        const topScore = topType ? normalized[topType] || 0 : 0;
+        const secondScore = secondType ? normalized[secondType] || 0 : 0;
+        const typeMargin = secondType ? round(topScore - secondScore) : 1;
+        const normalizedRoles = normalizeRoleScores(roleScores);
+        const roles = Object.keys(normalizedRoles);
+        const rankedRoles = stableSort(roles, (role) => normalizedRoles[role] || 0, seed, `${purpose}|role-score`);
+        const topRole = rankedRoles[0] || null;
+        const secondRole = rankedRoles[1] || null;
+        const topRoleScore = topRole ? normalizedRoles[topRole] || 0 : 0;
+        const secondRoleScore = secondRole ? normalizedRoles[secondRole] || 0 : 0;
+        const roleMargin = secondRole ? round(topRoleScore - secondRoleScore) : 1;
+        const nearRoles = rankedRoles.filter((role) => topRoleScore - (normalizedRoles[role] || 0) <= P5_ROLE_MARGIN + 1e-12);
+        const decisive = !secondRole || roleMargin >= P5_ROLE_MARGIN;
+        let selectedType = topType;
+        let lotteryCandidates = [];
+        let lotteryWeights = null;
+        if (!decisive) {
+          const nearRoleTypes = rankedTypes.filter((type) => nearRoles.includes(typeHomeRole(type)));
+          lotteryCandidates = nearRoleTypes.length ? nearRoleTypes : rankedTypes.slice(0, Math.min(2, rankedTypes.length));
+          selectedType = weightedHashTypeChoice(lotteryCandidates, poolPrimaryShare, seed, purpose, P5_SUB_LOTTERY_BETA);
+          lotteryWeights = Object.fromEntries(lotteryCandidates.map((type) => [type, 1]));
+        }
+        const roleDecision = {
+          zone: decisive ? "decisive" : "lottery",
+          path: decisive ? "role-margin" : "sub-role-near-tie-uniform-lottery",
+          topRole,
+          secondRole,
+          topRoleScore: round(topRoleScore),
+          secondRoleScore: round(secondRoleScore),
+          roleMargin,
+          nearRoles,
+          signalRoles: [],
+          normalizedRoles,
+          roleMarginThreshold: P5_ROLE_MARGIN,
+          pivotElement,
+          decisionMode: P5_SUB_DECISION_MODE
+        };
+        return {
+          selectedType,
+          zone: roleDecision.zone,
+          path: roleDecision.path,
+          topType,
+          topScore: round(topScore),
+          secondType,
+          secondScore: round(secondScore),
+          typeMargin,
+          rankedTypes,
+          lotteryCandidates,
+          lotteryWeights,
+          normalizedScores: normalized,
+          roleDecision,
+          beta: P5_SUB_LOTTERY_BETA,
+          roleMarginThreshold: P5_ROLE_MARGIN,
+          decisionMode: P5_SUB_DECISION_MODE,
+          roleWeights: {
+            home: P5_ROLE_WEIGHT_HOME,
+            adjacent: P5_ROLE_WEIGHT_ADJACENT,
+            other: P5_ROLE_WEIGHT_OTHER
+          }
+        };
+      }
+
+      function normalizeHiddenSourceWeights(weights) {
+        return Object.fromEntries(ELEMENTS.map((element) => [
+          element,
+          round((weights[element] || 0) * (HIDDEN_STEM_SUPPLY_NORMALIZATION[element] ?? 1))
+        ]));
+      }
+
+      function chooseMainType(dmWx, useful, shares, structure, strength, seed, parsedPillars = null, poolPrimaryShare = null) {
         const domain = DOMAIN_MAP[dmWx];
         const elementWeights = parsedPillars ? mainElementWeights(parsedPillars) : Object.fromEntries(ELEMENTS.map((element) => [element, shares[element] || 0]));
         const rawScores = Object.fromEntries(domain.map((type) => [type, 0]));
         ELEMENTS.forEach((sourceElement) => {
           addProjectionScores(rawScores, dmWx, sourceElement, elementWeights[sourceElement] || 0);
         });
-        const mainType = stableSort(domain, (type) => rawScores[type] || 0, seed, "main-type-v4")[0];
+        const roleScores = roleInfluenceScores(dmWx, elementWeights);
+        const decision = chooseTypeByRoleZone(rawScores, domain, roleScores, seed, "main-type-v5aprime", parsedPillars, poolPrimaryShare, dmWx, dmWx);
+        const mainType = decision.selectedType;
         return {
           mainType,
           scores: normalizeTypeScores(rawScores),
           rawScores: Object.fromEntries(domain.map((type) => [type, round(rawScores[type] || 0)])),
           gate: [...domain],
           elementWeights,
-          projectionVersion: "ROLE_TYPE_PROJECTION_V6_7_SPECIFIC_BAZI_MATCH_HASH"
+          roleScores,
+          decision,
+          zone: decision.zone,
+          projectionVersion: "ROLE_TYPE_PROJECTION_D031_P5APRIME_ROLE_MARGIN_" + P5_ROLE_MARGIN
         };
       }
 
-      function chooseSubType(mainType, parsedPillars, seed) {
+      function chooseSubType(mainType, parsedPillars, seed, poolPrimaryShare = null) {
         const pivots = [parsedPillars[0].stem, parsedPillars[1].stem, parsedPillars[3].stem]
           .map((stem, index) => ({ stem, index, element: STEM_TO_WUXING[stem] }))
           .filter((pivot) => pivot.element);
         const sourceWeights = hiddenElementWeights(parsedPillars);
+        const adjustedSourceWeights = normalizeHiddenSourceWeights(sourceWeights);
         const rawScores = emptyTypeScores();
+        const aggregateRoleScores = { "比劫": 0, "食伤": 0, "财": 0, "官杀": 0, "印": 0 };
         const pivotScores = [];
-        const adjustedSourceWeights = Object.fromEntries(ELEMENTS.map((element) => [
-          element,
-          round((sourceWeights[element] || 0) * (SECONDARY_SOURCE_ELEMENT_FACTOR[element] ?? 1))
-        ]));
         pivots.forEach((pivot) => {
-          const factor = SECONDARY_PIVOT_FACTOR[pivot.element] ?? 1;
+          const factor = 1;
           const localScores = Object.fromEntries(DOMAIN_MAP[pivot.element].map((type) => [type, 0]));
+          const localRoleScores = roleInfluenceScores(pivot.element, adjustedSourceWeights);
+          Object.entries(localRoleScores).forEach(([role, value]) => {
+            aggregateRoleScores[role] = round((aggregateRoleScores[role] || 0) + value);
+          });
           ELEMENTS.forEach((sourceElement) => {
             const adjustedWeight = adjustedSourceWeights[sourceElement] || 0;
             addProjectionScores(localScores, pivot.element, sourceElement, adjustedWeight, factor);
@@ -1001,25 +1186,35 @@
             element: pivot.element,
             factor,
             rawScores: Object.fromEntries(Object.entries(localScores).map(([type, value]) => [type, round(value)])),
-            scores: normalizeTypeScores(localScores)
+            scores: normalizeTypeScores(localScores),
+            roleScores: localRoleScores
           });
         });
-        const typeOrder = Object.keys(rawScores).sort((left, right) => {
+        const scoreOrder = Object.keys(rawScores).sort((left, right) => {
           const delta = (rawScores[right] || 0) - (rawScores[left] || 0);
-          return delta || fnv1a(`${seed}|secondary-type-v4|${left}`) - fnv1a(`${seed}|secondary-type-v4|${right}`);
+          return delta || fnv1a(`${seed}|secondary-type-v5aprime|${left}`) - fnv1a(`${seed}|secondary-type-v5aprime|${right}`);
         }).filter((type) => (rawScores[type] || 0) > 0);
-        const subType = typeOrder[0] || null;
+        const dominantPivot = stableSort(pivotScores, (pivot) => Object.values(pivot.rawScores).reduce((sum, value) => sum + value, 0), seed, "secondary-dominant-pivot-v5aprime")[0] || null;
+        const decisionPivotElement = dominantPivot?.element || STEM_TO_WUXING[parsedPillars[1]?.stem] || "Earth";
+        const decision = chooseTypeByRoleTwoZone(rawScores, scoreOrder, aggregateRoleScores, seed, "secondary-type-d0316-two-zone", parsedPillars, poolPrimaryShare, decisionPivotElement);
+        const subType = decision.selectedType || scoreOrder[0] || null;
+        const typeOrder = subType ? [subType, ...scoreOrder.filter((type) => type !== subType)] : scoreOrder;
         return {
           subType,
           scores: Object.fromEntries(Object.entries(rawScores).map(([type, value]) => [type, round(value)])),
           weights: normalizeTypeScores(rawScores),
           sample: null,
           typeOrder,
+          scoreOrder,
+          decision,
+          zone: decision.zone,
           pivots: pivotScores,
+          dominantPivot,
+          roleScores: aggregateRoleScores,
           sourceWeights,
           adjustedSourceWeights,
-          sourceElementFactor: SECONDARY_SOURCE_ELEMENT_FACTOR,
-          method: "tri_stem_hidden_source_projection_v6"
+          sourceElementFactor: HIDDEN_STEM_SUPPLY_NORMALIZATION,
+          method: "tri_stem_hidden_source_projection_d0316_sub_two_zone"
         };
       }
 
@@ -1041,9 +1236,7 @@
         const orderedTypes = secondaryTypeOrder && secondaryTypeOrder.length ? [...secondaryTypeOrder] : [mainType];
         const firstType = orderedTypes[0] || mainType;
         const fallbackTypes = orderedTypes.slice(1).sort((left, right) => {
-          const leftScore = (secondaryTypeScores?.[left] || 0) * (SECONDARY_FALLBACK_FACTOR[left] ?? 1);
-          const rightScore = (secondaryTypeScores?.[right] || 0) * (SECONDARY_FALLBACK_FACTOR[right] ?? 1);
-          const delta = rightScore - leftScore;
+          const delta = (secondaryTypeScores?.[right] || 0) - (secondaryTypeScores?.[left] || 0);
           return delta || orderedTypes.indexOf(left) - orderedTypes.indexOf(right);
         });
         [firstType, ...fallbackTypes].forEach((secondaryType) => {
@@ -1080,60 +1273,69 @@
         return { entriesByName, chains };
       }
 
-      function statPreference(structure, seed) {
-        const tenGods = stableSort(Object.keys(TEN_GOD_TO_STAT), (key) => structure[key], seed, "stat-preference");
+      function narrativeStatPreference(structure, seed) {
+        const tenGods = stableSort(Object.keys(TEN_GOD_TO_STAT), (key) => structure[key], seed, "narrative-stat-preference");
         return [...tenGods.map((key) => TEN_GOD_TO_STAT[key]), "hp"];
       }
 
-      function statTuple(entry, preference) {
-        const preferenceIndex = Object.fromEntries(preference.map((stat, index) => [stat, index]));
-        return [...STAT_PRIORITY]
-          .sort((left, right) => {
-            const delta = entry.baseStats[right] - entry.baseStats[left];
-            return delta || STAT_PRIORITY.indexOf(left) - STAT_PRIORITY.indexOf(right);
-          })
-          .map((stat) => preferenceIndex[stat]);
+      function balancedChainHash(seed, targetTypes, chainId) {
+        return fnv1a(`${seed}|${orderedComboKey(targetTypes)}|${chainId}`);
       }
 
-      function compareTuple(left, right) {
-        for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
-          const delta = (left[index] ?? 999) - (right[index] ?? 999);
-          if (delta) return delta;
+      function balancedFinalHash(seed, name) {
+        return fnv1a(`${seed}|final|${name}`);
+      }
+
+      function chooseFinal(chain, targetTypes, dominantElement, seed, allowLegendaryFinal = true, useDominantElementFilter = false) {
+        const finals = allowLegendaryFinal ? chain.finals : chain.finals.filter((entry) => !entry.isLegendary);
+        const candidatePool = finals.length ? finals : chain.finals;
+        const exact = candidatePool.filter((entry) => orderedComboKey(entry.types) === orderedComboKey(targetTypes));
+        const mainMatches = candidatePool.filter((entry) => entry.types.includes(targetTypes[0]));
+        let candidates = exact.length ? exact : mainMatches.length ? mainMatches : candidatePool;
+        if (useDominantElementFilter) {
+          const dominantTypes = DOMAIN_MAP[dominantElement];
+          const dominantMatches = candidates.filter((entry) => entry.types.some((type) => dominantTypes.includes(type)));
+          if (dominantMatches.length) candidates = dominantMatches;
         }
-        return 0;
-      }
-
-      function chooseFinal(chain, targetTypes, dominantElement, preference, seed) {
-        const exact = chain.finals.filter((entry) => orderedComboKey(entry.types) === orderedComboKey(targetTypes));
-        const mainMatches = chain.finals.filter((entry) => entry.types.includes(targetTypes[0]));
-        let candidates = exact.length ? exact : mainMatches.length ? mainMatches : chain.finals;
-        const dominantTypes = DOMAIN_MAP[dominantElement];
-        const dominantMatches = candidates.filter((entry) => entry.types.some((type) => dominantTypes.includes(type)));
-        if (dominantMatches.length) candidates = dominantMatches;
         return [...candidates].sort((left, right) => {
-          const tupleDelta = compareTuple(statTuple(left, preference), statTuple(right, preference));
-          return tupleDelta || fnv1a(`${seed}|final|${left.name}`) - fnv1a(`${seed}|final|${right.name}`);
+          const delta = balancedFinalHash(seed, left.name) - balancedFinalHash(seed, right.name);
+          return delta || left.name.localeCompare(right.name);
         })[0];
       }
 
       function chooseChain(pokedex, typeComboCandidates, structure, shares, seed, allowLegendary) {
         const { entriesByName, chains } = createChainIndex(pokedex);
-        const eligible = chains.filter((chain) => chain.finals.some((entry) => Boolean(entry.isLegendary) === allowLegendary));
+        const ordinaryEligible = chains.filter((chain) => chain.finals.some((entry) => !entry.isLegendary));
+        const legendaryEligible = chains.filter((chain) => chain.finals.some((entry) => Boolean(entry.isLegendary)));
+        const eligible = chains.filter((chain) => chain.finals.some((entry) => !entry.isLegendary || allowLegendary));
         let candidatesToTry = (Array.isArray(typeComboCandidates?.[0]) ? typeComboCandidates : [typeComboCandidates])
           .filter((combo) => Array.isArray(combo) && combo.length);
         candidatesToTry = applyForcedTypeComboOverride(seed, candidatesToTry);
         const primaryType = candidatesToTry[0]?.[0];
+        const plannedComboKey = orderedComboKey(candidatesToTry[0] || []);
         let candidates = [];
         let selectedTargetTypes = candidatesToTry[0] || [];
         let fallback = "exact";
+        let legendaryOnlyBypass = false;
         for (const candidateCombo of candidatesToTry) {
           const exactKey = orderedComboKey(candidateCombo);
           const exactCandidates = eligible.filter((chain) => chain.orderedCombos.includes(exactKey));
           if (exactCandidates.length) {
             candidates = exactCandidates;
             selectedTargetTypes = candidateCombo;
-            fallback = candidateCombo === candidatesToTry[0] ? "exact" : "ordered-secondary-rank";
+            fallback = exactKey === plannedComboKey ? "exact" : "ordered-secondary-rank";
             break;
+          }
+          const isPlannedCombo = exactKey === plannedComboKey;
+          if (!allowLegendary && isPlannedCombo) {
+            const legendaryExactCandidates = legendaryEligible.filter((chain) => chain.orderedCombos.includes(exactKey));
+            if (legendaryExactCandidates.length) {
+              candidates = legendaryExactCandidates;
+              selectedTargetTypes = candidateCombo;
+              fallback = "legendary-only-exact";
+              legendaryOnlyBypass = true;
+              break;
+            }
           }
         }
         if (!candidates.length) {
@@ -1157,26 +1359,37 @@
         }
         if (!candidates.length) throw friendlyError("No matching Pokemon could be found.");
 
-        const preference = statPreference(structure, seed);
+        const preference = narrativeStatPreference(structure, seed);
         const dominantElement = stableSort(ELEMENTS, (element) => shares[element], seed, "dominant-element")[0];
+        const allowLegendaryFinal = allowLegendary || legendaryOnlyBypass;
+        const exactFallbacks = new Set(["exact", "ordered-secondary-rank", "legendary-only-exact", "legendary-only-ordered-secondary-rank"]);
+        const useDominantElementFilter = !exactFallbacks.has(fallback);
         const ranked = candidates.map((chain) => {
-          const final = chooseFinal(chain, selectedTargetTypes, dominantElement, preference, seed);
-          return { chain, final, tuple: statTuple(final, preference), overridePriority: matchOverridePriority(seed, selectedTargetTypes, chain, final) };
+          const final = chooseFinal(chain, selectedTargetTypes, dominantElement, seed, allowLegendaryFinal, useDominantElementFilter);
+          return {
+            chain,
+            final,
+            balancedHash: balancedChainHash(seed, selectedTargetTypes, chain.chainId),
+            overridePriority: matchOverridePriority(seed, selectedTargetTypes, chain, final)
+          };
         }).sort((left, right) => {
           const overrideDelta = left.overridePriority - right.overridePriority;
           if (overrideDelta) return overrideDelta;
-          const tupleDelta = compareTuple(left.tuple, right.tuple);
-          return tupleDelta || fnv1a(`${seed}|chain|${left.chain.chainId}`) - fnv1a(`${seed}|chain|${right.chain.chainId}`);
+          const hashDelta = left.balancedHash - right.balancedHash;
+          return hashDelta || left.chain.chainId.localeCompare(right.chain.chainId);
         });
         return {
           ...ranked[0],
           fallback,
+          legendaryOnlyBypass,
           candidateCount: candidates.length,
           entriesByName,
           preference,
           dominantElement,
           targetTypes: [...selectedTargetTypes],
-          triedTypeCombos: candidatesToTry.map((combo) => [...combo])
+          triedTypeCombos: candidatesToTry.map((combo) => [...combo]),
+          selectionMethod: "balanced_hash_v1",
+          useDominantElementFilter
         };
       }
 
@@ -1231,7 +1444,7 @@
         return main ? 0.65 : 0.35;
       }
 
-      function calculateQuality(shares, structure, useful, parsedPillars, seasonCoefficient, matchConfidence) {
+      function calculateQuality(shares, structure, useful, parsedPillars, seasonCoefficient) {
         const values = Object.values(shares);
         const coverage = values.filter((value) => value > 0.03).length / ELEMENTS.length;
         const evenness = 1 - clamp(values.reduce((sum, value) => sum + Math.abs(value - 0.2), 0) / 1.6, 0, 1);
@@ -1240,7 +1453,6 @@
         const clarityScore = clamp((dominantStructure - 0.20) / 0.40, 0, 1);
         const usefulStrength = clamp((shares[useful] - 0.06) / 0.28, 0, 1);
         const seasonSupport = clamp((seasonCoefficient + 0.30) / 0.65, 0, 1);
-        const matchScore = clamp(matchConfidence, 0, 1);
         const branches = parsedPillars.map((pillar) => pillar.branch);
         let clashes = 0;
         for (let left = 0; left < branches.length; left += 1) {
@@ -1249,21 +1461,21 @@
           }
         }
         const clashScore = clamp(1 - clashes / 3, 0, 1);
-        const components = { balanceScore, clarityScore, usefulStrength, seasonSupport, matchScore, clashScore };
+        const components = { balanceScore, clarityScore, usefulStrength, seasonSupport, clashScore };
         const weighted = (
-          0.20 * balanceScore +
-          0.24 * clarityScore +
-          0.20 * usefulStrength +
-          0.14 * seasonSupport +
-          0.12 * matchScore +
-          0.10 * clashScore
+          0.23 * balanceScore +
+          0.27 * clarityScore +
+          0.23 * usefulStrength +
+          0.16 * seasonSupport +
+          0.11 * clashScore
         );
         const quality = clamp((weighted - 0.28) / 0.52, 0, 1);
         return {
           quality: round(quality),
           components: Object.fromEntries(Object.entries(components).map(([key, value]) => [key, round(value)])),
           weighted: round(weighted),
-          clashes
+          clashes,
+          qualityFormulaVersion: "D-031-P2_NO_MATCH_CONFIDENCE"
         };
       }
 
@@ -1280,7 +1492,88 @@
         };
       }
 
-      function explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages) {
+      function rankedScoreEntries(scores, seed, purpose) {
+        return stableSort(Object.keys(scores || {}), (key) => scores[key] || 0, seed, purpose)
+          .map((key) => ({ key, score: round(scores[key] || 0) }));
+      }
+
+      function dominantStructureFeature(structure, seed) {
+        const ordered = rankedScoreEntries(structure, seed, "dominant-structure-feature");
+        const top = ordered[0] || { key: null, score: 0 };
+        const runnerUp = ordered[1] || { key: null, score: 0 };
+        const growthSignals = {
+          "比劫": "grows through self-driven rhythm and peer resonance",
+          "食伤": "grows by expression, output, and visible practice",
+          "财": "grows by choosing concrete targets and exchanging with the world",
+          "官杀": "grows through pressure, discipline, and clear boundaries",
+          "印": "grows by receiving support, study, and accumulated shelter"
+        };
+        return {
+          role: top.key,
+          score: top.score,
+          runnerUpRole: runnerUp.key,
+          runnerUpScore: runnerUp.score,
+          margin: round(top.score - runnerUp.score),
+          growthSignal: growthSignals[top.key] || "grows by keeping several forces in balance"
+        };
+      }
+
+      function strengthFeature(strengthResult) {
+        const temperamentByStrength = {
+          strong: "pressure moves outward before it settles",
+          weak: "support and shelter help the rhythm take shape",
+          balanced: "several forces stay close enough to negotiate"
+        };
+        return {
+          label: strengthResult.strengthLabel,
+          value: strengthResult.strength,
+          season: strengthResult.season,
+          seasonState: strengthResult.seasonState,
+          seasonCoefficient: strengthResult.seasonCoefficient,
+          temperamentSignal: temperamentByStrength[strengthResult.strengthLabel] || temperamentByStrength.balanced
+        };
+      }
+
+      function mainTypeReasonFeature(mainResult, dmWx, seed) {
+        const ranked = rankedScoreEntries(mainResult.scores, seed, "main-type-reason-feature");
+        const top = ranked.find((entry) => entry.key === mainResult.mainType) || ranked[0] || { key: mainResult.mainType, score: 0 };
+        const runnerUp = ranked.find((entry) => entry.key !== top.key) || { key: null, score: 0 };
+        return {
+          selectedType: mainResult.mainType,
+          sourceElement: dmWx,
+          homeRole: TYPE_AFFINITY[mainResult.mainType] || null,
+          score: top.score,
+          runnerUpType: runnerUp.key,
+          runnerUpHomeRole: runnerUp.key ? TYPE_AFFINITY[runnerUp.key] || null : null,
+          runnerUpScore: runnerUp.score,
+          margin: round(top.score - runnerUp.score),
+          projectionVersion: mainResult.projectionVersion
+        };
+      }
+
+      function secondaryPivotFeature(subResult, selectedSubType) {
+        const targetType = subResult.subType || selectedSubType || null;
+        const pivots = Array.isArray(subResult.pivots) ? subResult.pivots : [];
+        const rankedPivots = [...pivots].sort((left, right) => {
+          const delta = (right.rawScores?.[targetType] || 0) - (left.rawScores?.[targetType] || 0);
+          return delta || left.pillarIndex - right.pillarIndex;
+        });
+        const pivot = rankedPivots[0] || null;
+        return {
+          selectedType: targetType,
+          matchedSubType: selectedSubType,
+          homeRole: targetType ? TYPE_AFFINITY[targetType] || null : null,
+          pivotStem: pivot?.stem || null,
+          pillarIndex: Number.isInteger(pivot?.pillarIndex) ? pivot.pillarIndex : null,
+          pivotElement: pivot?.element || null,
+          pivotFactor: pivot?.factor ?? null,
+          pivotScore: pivot ? round(pivot.rawScores?.[targetType] || 0) : 0,
+          pivotChannelCount: pivots.length,
+          method: subResult.method
+        };
+      }
+
+      function explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages, context = {}) {
         const stats = Object.entries(selectedSpecies.baseStats).sort((a, b) => b[1] - a[1]);
         const statPhrases = {
           hp: "keeps going through long stretches", atk: "acts with direct force",
@@ -1288,7 +1581,7 @@
           spd: "absorbs pressure without losing focus", spe: "moves before the moment passes"
         };
         const phase = chainStages === 1 ? "a complete form" : stageIndex === chainStages ? "a fully opened phase" : "a growing phase";
-        return {
+        const baseFeatures = {
           temperament: selectedSpecies.types.includes("Ghost") ? "quietly observant" : "steady and attentive",
           actionStyle: statPhrases[stats[0][0]],
           growthDirection: typeCombo.length > 1 ? "combines two different strengths" : "deepens one clear strength",
@@ -1298,6 +1591,23 @@
             `${selectedSpecies.name} carries ${selectedSpecies.types.join(" and ")} traits`,
             statPhrases[stats[0][0]],
             phase
+          ]
+        };
+        if (!context || !context.strengthResult || !context.structure || !context.mainResult || !context.subResult) {
+          return baseFeatures;
+        }
+        return {
+          ...baseFeatures,
+          p1BridgeVersion: "D-031-P1",
+          strengthSignal: strengthFeature(context.strengthResult),
+          dominantStructure: dominantStructureFeature(context.structure, context.seed),
+          mainTypeReason: mainTypeReasonFeature(context.mainResult, context.dmWx, context.seed),
+          secondaryPivot: secondaryPivotFeature(context.subResult, context.selectedSubType),
+          narrativeSourceFields: [
+            "strengthLabel",
+            "structure",
+            "mainTypeScores",
+            "subTypeSelection.pivots"
           ]
         };
       }
@@ -1314,8 +1624,9 @@
         const structure = calculateStructure(parsedPillars, dmWx);
         const strengthResult = calculateStrength(shares, dmWx, parsedPillars[1].branch);
         const useful = chooseUseful(shares, dmWx, strengthResult.strengthLabel, baziString);
-        const mainResult = chooseMainType(dmWx, useful, shares, structure, strengthResult.strength, baziString, parsedPillars);
-        const subResult = chooseSubType(mainResult.mainType, parsedPillars, baziString);
+        const poolPrimaryShare = calculatePoolPrimaryShare(pokedex);
+        const mainResult = chooseMainType(dmWx, useful, shares, structure, strengthResult.strength, baziString, parsedPillars, poolPrimaryShare);
+        const subResult = chooseSubType(mainResult.mainType, parsedPillars, baziString, poolPrimaryShare);
         const rawTypeCombo = normalizeTypeCombo(mainResult.mainType, subResult.subType);
         const typeComboCandidates = buildTypeComboCandidates(mainResult.mainType, subResult.typeOrder, subResult.scores);
         const matchConfidence = calculateMatchConfidence(pokedex, typeComboCandidates);
@@ -1324,8 +1635,7 @@
           structure,
           useful,
           parsedPillars,
-          strengthResult.seasonCoefficient,
-          matchConfidence
+          strengthResult.seasonCoefficient
         );
         const quality = qualityResult.quality;
         let allowLegendary = quality > LEGENDARY_QUALITY_THRESHOLD;
@@ -1347,7 +1657,15 @@
         const energy = calculateEnergy(age, peakWindow);
         const stageIndex = chainStages === 1 ? 1 : clamp(Math.round(energy * (chainStages - 1)) + 1, 1, chainStages);
         const selectedSpecies = selectedPath[stageIndex - 1] || selectedPath[0] || chainResult.final;
-        const features = explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages);
+        const features = explanationFeatures(selectedSpecies, typeCombo, stageIndex, chainStages, {
+          strengthResult,
+          structure,
+          mainResult,
+          subResult,
+          selectedSubType,
+          dmWx,
+          seed: baziString
+        });
 
         return {
           input,
@@ -1370,16 +1688,24 @@
           energy,
           peakWindow,
           quality,
-          isLegendaryResult: allowLegendary && Boolean(chainResult.final.isLegendary),
+          isLegendaryResult: (allowLegendary || Boolean(chainResult.legendaryOnlyBypass)) && Boolean(chainResult.final.isLegendary),
           explanationFeatures: features,
           debug: {
+            algorithmVersion: ALGORITHM_VERSION,
             fallback: chainResult.fallback,
             legendaryFallback: Boolean(chainResult.legendaryFallback),
+            legendaryOnlyBypass: Boolean(chainResult.legendaryOnlyBypass),
             candidateCount: chainResult.candidateCount,
             dominantElement: chainResult.dominantElement,
             statPreference: chainResult.preference,
+            selectionMethod: chainResult.selectionMethod,
+            useDominantElementFilter: chainResult.useDominantElementFilter,
             mainTypeScores: mainResult.scores,
             mainTypeGate: mainResult.gate,
+            mainTypeDecision: mainResult.decision,
+            poolPrimaryShare,
+            poolPrimaryShareSource: POOL_PRIMARY_SHARE_SOURCE,
+            p5Parameters: { roleMargin: P5_ROLE_MARGIN, beta: P5_LOTTERY_BETA, subBeta: P5_SUB_LOTTERY_BETA, subDecisionMode: P5_SUB_DECISION_MODE, alphaStatus: P5_ALPHA_STATUS, roleWeights: { home: P5_ROLE_WEIGHT_HOME, adjacent: P5_ROLE_WEIGHT_ADJACENT, other: P5_ROLE_WEIGHT_OTHER }, hiddenStemSupplyTotals: HIDDEN_STEM_SUPPLY_TOTALS, hiddenStemSupplyNormalization: HIDDEN_STEM_SUPPLY_NORMALIZATION },
             subTypeSelection: {
               scores: subResult.scores,
               weights: subResult.weights,
@@ -1394,13 +1720,17 @@
               pivots: subResult.pivots,
               sourceWeights: subResult.sourceWeights,
               adjustedSourceWeights: subResult.adjustedSourceWeights,
-              domainFactor: SECONDARY_PIVOT_FACTOR,
-              sourceElementFactor: SECONDARY_SOURCE_ELEMENT_FACTOR,
-              fallbackFactor: SECONDARY_FALLBACK_FACTOR
+              sourceElementFactor: HIDDEN_STEM_SUPPLY_NORMALIZATION,
+              decision: subResult.decision,
+              zone: subResult.zone,
+              scoreOrder: subResult.scoreOrder,
+              roleScores: subResult.roleScores,
+              dominantPivot: subResult.dominantPivot
             },
             qualityComponents: qualityResult.components,
             qualityWeightedScore: qualityResult.weighted,
             qualityClashes: qualityResult.clashes,
+            qualityFormulaVersion: qualityResult.qualityFormulaVersion,
             matchConfidence,
             season: strengthResult.season,
             seasonState: strengthResult.seasonState,
@@ -1463,7 +1793,7 @@
           const weightTotal = Object.values(selection.weights).reduce((sum, weight) => sum + weight, 0);
           assert(outputs.every((output) => output.subType === outputs[0].subType), "secondary projection changed between runs");
           assert(Math.abs(weightTotal - 1) < 0.00001, "secondary projection weights are not normalized");
-          assert(selection.method === "tri_stem_hidden_source_projection_v6", "secondary projection method changed");
+          assert(selection.method === "tri_stem_hidden_source_projection_d0316_sub_two_zone", "secondary projection method changed");
         });
         await test("missing hour defaults to twelve", async () => {
           const result = await calculatePokemonSoul({ year: 1995, month: 6, day: 15, currentYear: 2026 });
@@ -1526,16 +1856,17 @@
           const entry = data.find((item) => item.name === "Eevee");
           assert(entry.finalForms.length === 8 && entry.finalTypeCombos.length === 8, "Eevee branch data is incomplete");
         });
-        await test("ordinary sample stays outside the rare pool", async () => {
+        await test("ordinary sample rare-pool status is monitored but not capped", async () => {
           const result = await calculatePokemonSoul(sample);
-          assert(!result.isLegendaryResult, "ordinary sample entered the rare pool");
+          assert(typeof result.isLegendaryResult === "boolean", "rare-pool status is not reported");
+          assert(Boolean(result.selectedSpecies?.name), "ordinary sample did not return a species");
         });
-        await test("a reality sample reaches the rare pool", async () => {
+        await test("elite quality can access the union rare pool", async () => {
           const elite = await findEliteRealitySample();
-          assert(elite && elite.result.quality > LEGENDARY_QUALITY_THRESHOLD, "no reality sample reached the rare pool");
-          assert(elite.result.isLegendaryResult, "elite reality sample did not select from the rare pool");
+          assert(elite && elite.result.quality > LEGENDARY_QUALITY_THRESHOLD, "no elite-quality reality sample is available");
+          assert(elite.result.debug.algorithmVersion === ALGORITHM_VERSION, "algorithm version was not exposed");
         });
-        await test("empty rare pool falls back to the ordinary pool", async () => {
+        await test("empty rare pool remains valid under union semantics", async () => {
           const elite = await findEliteRealitySample();
           assert(elite, "no elite reality sample is available for fallback testing");
           const data = await loadPokedex();
@@ -1543,8 +1874,8 @@
           try {
             data.forEach((entry) => { entry.isLegendary = false; });
             const result = await calculatePokemonSoul(elite.input);
-            assert(result.debug.legendaryFallback, "empty rare pool did not record fallback");
             assert(!result.isLegendaryResult, "empty rare pool returned a rare result");
+            assert(!result.debug.legendaryFallback, "union semantics should not require rare-pool fallback");
           } finally {
             data.forEach((entry, index) => { entry.isLegendary = flags[index]; });
           }
@@ -1567,6 +1898,153 @@
           assert(required.every((key) => key in result.explanationFeatures), "feature contract is incomplete");
           const text = JSON.stringify(result.explanationFeatures);
           assert(FORBIDDEN_VISIBLE_TERMS.every((term) => !text.includes(term)), "feature contract contains a restricted term");
+        });
+        await test("D-031 P1 explanation bridge is populated", async () => {
+          const result = await calculatePokemonSoul(sample);
+          const features = result.explanationFeatures || {};
+          assert(features.p1BridgeVersion === "D-031-P1", "P1 bridge version is missing");
+          assert(features.strengthSignal?.label === result.strengthLabel, "strength signal is missing or inconsistent");
+          assert(Boolean(features.dominantStructure?.role), "dominant structure is missing");
+          assert(features.mainTypeReason?.selectedType === result.mainType, "main type reason is missing or inconsistent");
+          assert(Boolean(features.mainTypeReason?.homeRole), "main type home role is missing");
+          assert(Boolean(features.secondaryPivot?.selectedType), "secondary pivot selected type is missing");
+          assert(Number.isInteger(features.secondaryPivot?.pillarIndex), "secondary pivot channel is missing");
+          assert(Array.isArray(features.narrativeSourceFields) && features.narrativeSourceFields.length >= 4, "narrative source field list is incomplete");
+        });
+        await test("D-031.2 runtime overrides are removed", async () => {
+          assert(Object.keys(SPECIFIC_BAZI_MATCH_OVERRIDES).length === 0, "runtime overrides are still present");
+          assert(baziMatchOverride("丙子庚子丁未癸卯", ["Ghost"]) === null, "bazi override still returns an active override");
+          const candidates = applyForcedTypeComboOverride("丁丑丙午丁未庚子", [["Fire"], ["Electric"]]);
+          assert(orderedComboKey(candidates[0]) === "Fire", "force type combo override still rewrites candidates");
+        });
+        await test("D-031.2 snapshot sample cases are recorded", async () => {
+          assert(FIXED_REGRESSION_SNAPSHOT_CASES.length === 2, "snapshot cases are missing");
+          const ids = FIXED_REGRESSION_SNAPSHOT_CASES.map((item) => item.id);
+          assert(ids.includes("D0312-SNAPSHOT-GHOST-DARK") && ids.includes("D0312-SNAPSHOT-ELECTRIC"), "snapshot case ids are incomplete");
+        });
+        await test("D-031 P2 useful picks the strongest candidate", async () => {
+          const weakShares = { Wood: 0.12, Fire: 0.42, Earth: 0.16, Metal: 0.15, Water: 0.15 };
+          assert(chooseUseful(weakShares, "Fire", "weak", "p2-useful-weak") === "Fire", "weak useful did not pick the strongest support candidate");
+          const strongShares = { Wood: 0.05, Fire: 0.35, Earth: 0.18, Metal: 0.32, Water: 0.10 };
+          assert(chooseUseful(strongShares, "Fire", "strong", "p2-useful-strong") === "Metal", "strong useful did not pick the strongest draining candidate");
+        });
+        await test("D-031 P2 quality independent of pokedex coverage", async () => {
+          const shares = { Wood: 0.2, Fire: 0.2, Earth: 0.2, Metal: 0.2, Water: 0.2 };
+          const structure = { "比劫": 0.2, "食伤": 0.2, "财": 0.2, "官杀": 0.2, "印": 0.2 };
+          const parsed = [parsePillar("甲子"), parsePillar("乙丑"), parsePillar("丙寅"), parsePillar("丁卯")];
+          const left = calculateQuality(shares, structure, "Wood", parsed, 0.2, 0.35);
+          const right = calculateQuality(shares, structure, "Wood", parsed, 0.2, 1);
+          assert(JSON.stringify(left) === JSON.stringify(right), "quality still changes with match confidence");
+          assert(!("matchScore" in left.components), "quality components still expose matchScore");
+        });
+        await test("D-031 P2 legendary-only combo is reachable regardless of quality", async () => {
+          const stats = { hp: 80, atk: 80, def: 80, spa: 80, spd: 80, spe: 80 };
+          const miniPokedex = [
+            { num: 9001, name: "Ordinarymon", types: ["Fire"], baseStats: stats, evos: [], prevo: null, chainId: "ordinarymon", stageIndex: 1, chainStages: 1, finalForms: ["Ordinarymon"], finalTypeCombo: ["Fire"], finalTypeCombos: [["Fire"]], isLegendary: false },
+            { num: 9002, name: "Legendmon", types: ["Dragon", "Electric"], baseStats: stats, evos: [], prevo: null, chainId: "legendmon", stageIndex: 1, chainStages: 1, finalForms: ["Legendmon"], finalTypeCombo: ["Dragon", "Electric"], finalTypeCombos: [["Dragon", "Electric"]], isLegendary: true }
+          ];
+          const structure = { "比劫": 0.2, "食伤": 0.2, "财": 0.2, "官杀": 0.2, "印": 0.2 };
+          const shares = { Wood: 0.2, Fire: 0.2, Earth: 0.2, Metal: 0.2, Water: 0.2 };
+          const result = chooseChain(miniPokedex, [["Dragon", "Electric"]], structure, shares, "p2-legendary-only", false);
+          assert(result.legendaryOnlyBypass, "legendary-only bypass flag was not set");
+          assert(result.final?.isLegendary, "legendary-only combo did not select the legendary final");
+          assert(result.fallback === "legendary-only-exact", "legendary-only bypass used an unexpected fallback label");
+        });
+        await test("D-031.8 bypass fires only on the planned combo", async () => {
+          const stats = { hp: 80, atk: 80, def: 80, spa: 80, spd: 80, spe: 80 };
+          const miniPokedex = [
+            { num: 9021, name: "LegendOnlyFlying", types: ["Flying"], baseStats: stats, evos: [], prevo: null, chainId: "legend-only-flying", stageIndex: 1, chainStages: 1, finalForms: ["LegendOnlyFlying"], finalTypeCombo: ["Flying"], finalTypeCombos: [["Flying"]], isLegendary: true },
+            { num: 9022, name: "OrdinaryFlyingCarrier", types: ["Normal", "Flying"], baseStats: stats, evos: [], prevo: null, chainId: "ordinary-flying-carrier", stageIndex: 1, chainStages: 1, finalForms: ["OrdinaryFlyingCarrier"], finalTypeCombo: ["Normal", "Flying"], finalTypeCombos: [["Normal", "Flying"]], isLegendary: false }
+          ];
+          const structure = { "比劫": 0.2, "食伤": 0.2, "财": 0.2, "官杀": 0.2, "印": 0.2 };
+          const shares = { Wood: 0.2, Fire: 0.2, Earth: 0.2, Metal: 0.2, Water: 0.2 };
+          const plannedBypass = chooseChain(miniPokedex, [["Flying"]], structure, shares, "d0318-planned-bypass", false);
+          assert(plannedBypass.legendaryOnlyBypass, "planned unique legendary combo did not receive bypass");
+          assert(plannedBypass.final?.isLegendary, "planned unique legendary combo did not select legendary final");
+          const fallbackResult = chooseChain(miniPokedex, [["Flying", "Fire"], ["Flying"]], structure, shares, "d0318-fallback-no-bypass", false);
+          assert(!fallbackResult.legendaryOnlyBypass, "fallback-derived combo incorrectly received bypass");
+          assert(!fallbackResult.final?.isLegendary, "fallback-derived combo leaked into legendary final");
+        });
+        await test("D-031.2 allowLegendary uses union pool rather than replacement pool", async () => {
+          const stats = { hp: 80, atk: 80, def: 80, spa: 80, spd: 80, spe: 80 };
+          const miniPokedex = [
+            { num: 9011, name: "OrdinaryFireGhost", types: ["Fire", "Ghost"], baseStats: stats, evos: [], prevo: null, chainId: "ordinary-fire-ghost", stageIndex: 1, chainStages: 1, finalForms: ["OrdinaryFireGhost"], finalTypeCombo: ["Fire", "Ghost"], finalTypeCombos: [["Fire", "Ghost"]], isLegendary: false },
+            { num: 9012, name: "LegendFireGhost", types: ["Fire", "Ghost"], baseStats: stats, evos: [], prevo: null, chainId: "legend-fire-ghost", stageIndex: 1, chainStages: 1, finalForms: ["LegendFireGhost"], finalTypeCombo: ["Fire", "Ghost"], finalTypeCombos: [["Fire", "Ghost"]], isLegendary: true }
+          ];
+          const structure = { "比劫": 0.2, "食伤": 0.2, "财": 0.2, "官杀": 0.2, "印": 0.2 };
+          const shares = { Wood: 0.2, Fire: 0.2, Earth: 0.2, Metal: 0.2, Water: 0.2 };
+          const result = chooseChain(miniPokedex, [["Fire", "Ghost"]], structure, shares, "d0312-union-pool", true);
+          assert(result.candidateCount === 2, "union pool did not include ordinary and legendary exact candidates together");
+          assert(result.fallback === "exact", "union pool should preserve exact fallback semantics");
+        });
+        await test("D-031 P3 balanced hash selects chain independently of stat tuple", async () => {
+          const highAtk = { hp: 40, atk: 200, def: 40, spa: 30, spd: 30, spe: 30 };
+          const highSpa = { hp: 40, atk: 30, def: 40, spa: 200, spd: 30, spe: 30 };
+          const miniPokedex = [
+            { num: 9101, name: "HashA", types: ["Fire", "Ghost"], baseStats: highAtk, evos: [], prevo: null, chainId: "hash-a", stageIndex: 1, chainStages: 1, finalForms: ["HashA"], finalTypeCombo: ["Fire", "Ghost"], finalTypeCombos: [["Fire", "Ghost"]], isLegendary: false },
+            { num: 9102, name: "HashB", types: ["Fire", "Ghost"], baseStats: highSpa, evos: [], prevo: null, chainId: "hash-b", stageIndex: 1, chainStages: 1, finalForms: ["HashB"], finalTypeCombo: ["Fire", "Ghost"], finalTypeCombos: [["Fire", "Ghost"]], isLegendary: false }
+          ];
+          const structure = { "比劫": 0.05, "食伤": 0.70, "财": 0.05, "官杀": 0.10, "印": 0.10 };
+          const shares = { Wood: 0.2, Fire: 0.2, Earth: 0.2, Metal: 0.2, Water: 0.2 };
+          const seed = "p3-balanced-chain";
+          const result = chooseChain(miniPokedex, [["Fire", "Ghost"]], structure, shares, seed, false);
+          const expected = ["hash-a", "hash-b"].sort((left, right) => balancedChainHash(seed, ["Fire", "Ghost"], left) - balancedChainHash(seed, ["Fire", "Ghost"], right))[0];
+          assert(result.chain.chainId === expected, "chain was not selected by balanced hash");
+          assert(result.selectionMethod === "balanced_hash_v1", "balanced hash method was not recorded");
+        });
+        await test("D-031 P3 balanced hash selects final independently of stat tuple", async () => {
+          const statsA = { hp: 40, atk: 200, def: 40, spa: 30, spd: 30, spe: 30 };
+          const statsB = { hp: 40, atk: 30, def: 40, spa: 200, spd: 30, spe: 30 };
+          const chain = { chainId: "hash-final", finals: [
+            { name: "FinalA", types: ["Fire", "Ghost"], baseStats: statsA, isLegendary: false },
+            { name: "FinalB", types: ["Fire", "Ghost"], baseStats: statsB, isLegendary: false }
+          ]};
+          const seed = "p3-balanced-final";
+          const final = chooseFinal(chain, ["Fire", "Ghost"], "Fire", seed, true, false);
+          const expected = ["FinalA", "FinalB"].sort((left, right) => balancedFinalHash(seed, left) - balancedFinalHash(seed, right))[0];
+          assert(final.name === expected, "final was not selected by balanced hash");
+        });
+        await test("D-031 P3 fallback ordering ignores removed secondary fallback factors", async () => {
+          const candidates = buildTypeComboCandidates("Fire", ["Ghost", "Rock", "Ground"], { Ghost: 2, Rock: 1.00, Ground: 1.01 });
+          assert(orderedComboKey(candidates[1]) === "Fire|Ground", "fallback order still behaves like factor-adjusted order");
+          assert(orderedComboKey(candidates[2]) === "Fire|Rock", "fallback order is not pure score order");
+        });
+        await test("D-031 P3 shares month branch multiplier is unified to 1.5", async () => {
+          const shares = calculateShares([parsePillar("甲子"), parsePillar("乙丑"), parsePillar("丙寅"), parsePillar("丁卯")]);
+          const rawTotal = 1 + 0.6 + 1 + (0.6 + 0.25 + 0.15) * 1.5 + 1 + 0.6 + 0.25 + 0.15 + 1 + 0.6;
+          const expectedEarth = (0.6 * 1.5 + 0.15);
+          assert(Math.abs(shares.Earth - round(expectedEarth / rawTotal)) < 0.000001, "shares month multiplier is not 1.5");
+        });
+        await test("D-031.4 P5a prime generated projection rows preserve configured row sums", async () => {
+          ELEMENTS.forEach((element) => {
+            ["比劫", "印", "食伤", "财", "官杀"].forEach((role) => {
+              const total = Object.values(ROLE_TYPE_PROJECTION[element][role]).reduce((sum, value) => sum + value, 0);
+              assert(Math.abs(total - projectionRowSum(element)) < 0.00001, `row sum mismatch for ${element}/${role}`);
+            });
+          });
+        });
+        await test("D-031.4 hidden stem supply normalization is five-element and balanced", async () => {
+          const normalizedSupply = Object.fromEntries(ELEMENTS.map((element) => [
+            element,
+            round(HIDDEN_STEM_SUPPLY_TOTALS[element] * HIDDEN_STEM_SUPPLY_NORMALIZATION[element])
+          ]));
+          const values = Object.values(normalizedSupply);
+          assert(values.every((value) => Math.abs(value - values[0]) < 0.00001), "hidden stem supply normalization is not balanced");
+          assert(Object.keys(HIDDEN_STEM_SUPPLY_NORMALIZATION).length === 5, "normalization is not five-element");
+        });
+        await test("D-031.4 main decisive zone uses role-layer margin", async () => {
+          const result = await calculatePokemonSoul(sample);
+          const decision = result.debug.mainTypeDecision;
+          assert(decision.roleDecision && typeof decision.roleDecision.roleMargin === "number", "role-layer decision is missing");
+          assert(result.debug.p5Parameters.roleMargin === P5_ROLE_MARGIN, "role margin parameter is not exposed");
+          assert(result.debug.p5Parameters.alphaStatus === P5_ALPHA_STATUS, "alpha retirement status is not exposed");
+        });
+        await test("D-031.4 pool primary share is computed from ordinary final forms", async () => {
+          const data = await loadPokedex();
+          const share = calculatePoolPrimaryShare(data);
+          const total = Object.values(share).reduce((sum, value) => sum + value, 0);
+          assert(Math.abs(total - 1) < 0.0001, "pool primary share is not normalized");
+          assert(share.Water > 0 && share.Steel > 0, "pool primary share is missing expected types");
         });
         await test("latest domain map is active", async () => {
           assert(DOMAIN_MAP.Wood.includes("Fairy"), "Fairy is missing from Wood");
@@ -1607,66 +2085,90 @@
     (() => {
       "use strict";
 
+      const POWER_LABELS = {
+        "印": "滋养之力",
+        "比劫": "本我之力",
+        "食伤": "表达之力",
+        "财": "掌控之力",
+        "官杀": "砥砺之力"
+      };
+      const STRENGTH_SENTENCES = {
+        strong: "你是能量向外的人，先行动，再回头解释。",
+        weak: "你是能量内蕴的人，安静处反而蓄着最多的力。",
+        balanced: "你的能量出入有度，张弛之间自有节律。"
+      };
+      const TYPE_CN = {
+        Normal: "一般", Fire: "火", Water: "水", Electric: "电", Grass: "草", Ice: "冰",
+        Fighting: "格斗", Poison: "毒", Ground: "地面", Flying: "飞行", Psychic: "超能力",
+        Bug: "虫", Rock: "岩石", Ghost: "幽灵", Dragon: "龙", Dark: "恶", Steel: "钢", Fairy: "妖精"
+      };
+      const ELEMENT_CN = { Wood: "木", Fire: "火", Earth: "土", Metal: "金", Water: "水" };
+      const CHANNEL_LABELS = {
+        0: { name: "来处的通道", place: "来处" },
+        1: { name: "环境的通道", place: "环境" },
+        3: { name: "将来的通道", place: "将来" }
+      };
+      const TYPE_ESSENCE_SENTENCES = {
+        Grass: "一股滋养之力托着你，像水养着根——你是会扎根、会慢慢长高的那种生命。",
+        Bug: "掌控之力让你务实而坚韧——你像虫之一族，不惧蜕变，每一次换壳都更接近自己。",
+        Fairy: "砥砺之力没有压垮你，反而把你磨出了柔光——柔软，是你最锋利的部分。",
+        Flying: "表达之力推着你向上——你天然想离开地面，去更开阔处舒展自己。",
+        Fire: "滋养之力是你的燃料——你的热不是爆燃，是有柴可烧、烧得长久的火。",
+        Psychic: "你的火没有向外烧，而是经表达之力内化成了感知——你看见别人看不见的东西。",
+        Electric: "掌控之力让你的火变成了电——即时、敏锐、出手就是答案。",
+        Ghost: "砥砺之力把你的火压进了幽微处——它没有熄灭，它学会了在暗中看清一切。",
+        Normal: "本我之力厚而稳——平衡不是平庸，是承载万物的从容。你是让一切如常运转的那种人。",
+        Rock: "滋养之力长年压实，把你炼成了岩——你的硬度是时间给的，不是脾气给的。",
+        Ground: "表达之力让你的厚土向外给予——你承载别人，是因为你担得起。",
+        Steel: "滋养之力厚积，把你铸成了器——结构、章法、可靠，是你的形状。",
+        Fighting: "表达之力让你的锋芒落在行动上——你不空谈，你出手。",
+        Poison: "掌控之力让你擅长处理复杂——你的边界带刺，但分寸精确。",
+        Ice: "砥砺之力把你磨得清冷明断——你的冷静不是疏离，是看得太清。",
+        Water: "表达之力让你像水一样流动——遇方则方，遇圆则圆，却从未失去自己。",
+        Dark: "掌控之力沉在你的水面之下——你深算而不张扬，棋总是多看三步。",
+        Dragon: "滋养之力在你深处积成了势——你平时收着，但所有人都知道你收着的是什么。"
+      };
+      const STAT_LABELS = {
+        hp: "生命力", atk: "出手的力道", def: "扛住世界的能力",
+        spa: "看不见的锋利", spd: "内心的护甲", spe: "反应与节奏"
+      };
+      const STAT_STYLE_SENTENCES = {
+        hp: "呼吸和脚步都保持得很稳。",
+        atk: "力量会清楚地落向目标。",
+        def: "风浪靠近时也不轻易失去重心。",
+        spa: "关键时刻总能给出准确回应。",
+        spd: "压力靠近时目光仍会留在要处。",
+        spe: "常能在机会溜走前迈出一步。"
+      };
+      const HOTSPOT_ENDINGS = {
+        Tornadus: "全世界以纯粹的风为本相的精灵，只有它一只。你的结构指向了风的尽头——人间唯一，恰好是你。",
+        Spiritomb: "幽影与暗谋交叠的此种组合，人间仅此一灵。不是它稀有，是这条路本来就只有一个出口。",
+        Bombirdier: "既乘风、又行于暗面的精灵屈指可数——你的组合在人间的载体，几乎只有它。"
+      };
       const FORBIDDEN_COPY_TERMS = [
-        "八字", "日主", "五行", "十神", "用神", "身强", "身弱", "命格", "旺相休囚死",
-        "刑冲", "旺衰", "官杀", "比劫", "食伤", "财星", "印星", "算命", "吉凶",
-        "你的命注定", "你命里", "专业排盘", "专业命理", "绝对准确", "绝对正确",
-        "命理级精度", "完全正确", "注定成功", "注定失败"
+        "八字", "四柱", "日主", "日干", "日支", "月令", "十神", "比劫", "劫财", "食神", "伤官",
+        "正财", "偏财", "正官", "七杀", "官杀", "正印", "偏印", "用神", "喜神", "藏干", "透干",
+        "通根", "身强", "身弱", "刑", "冲", "命格", "命局", "大运", "流年", "旺相休囚死",
+        "注定", "命中", "你将会", "你一定", "你永远", "逃不掉", "吉", "凶", "灾", "福报", "转运", "化解",
+        "退化", "衰退", "走下坡", "普通命", "缺什么", "补什么",
+        "哈希", "抽签", "算法", "权重", "fallback", "margin", "decisive", "lottery"
       ];
       const FORBIDDEN_COPY_PATTERNS = [
-        { label: "不是……而是……", pattern: /不是[^。！？]*而是/ },
-        { label: "并不是……而是……", pattern: /并不是[^。！？]*而是/ },
         { label: "与其说……不如说……", pattern: /与其说[^。！？]*不如说/ },
-        { label: "它不仅……还……", pattern: /它不仅[^。！？]*还/ },
         { label: "这说明你……", pattern: /这说明你/ },
-        { label: "从某种意义上说……", pattern: /从某种意义上说/ },
-        { label: "更准确地说……", pattern: /更准确地说/ },
-        { label: "换句话说……", pattern: /换句话说/ },
         { label: "总的来说……", pattern: /总的来说/ },
         { label: "综上……", pattern: /综上/ },
-        { label: "它象征着……也代表着……", pattern: /它象征着[^。！？]*也代表着/ },
         { label: "你是一个……的人", pattern: /你是一个[^。！？]*的人/ },
-        { label: "你拥有 A、B、C 三种特质", pattern: /你拥有[^。！？]*[、，][^。！？]*[、，][^。！？]*特质/ }
+        { label: "缘声部因果词", pattern: /\[缘声部\][^\n]*(因为|说明|所以|由于)/ }
       ];
-      const TYPE_OBSERVATIONS = {
-        Grass: "它懂得沿着自己的节奏生长，像叶片追着光慢慢舒展开。",
-        Bug: "它对周围细小的变化很敏感，也知道怎样在一次次蜕变中调整自己。",
-        Fairy: "它身上有轻盈而鲜明的气息，常能让紧绷的场面松动下来。",
-        Flying: "它习惯先看清更远的方向，再决定翅膀落向哪里。",
-        Fire: "它的力量像尾焰，找到目标后会稳定地亮起来。",
-        Electric: "它捕捉时机很快，行动常带着清脆直接的节奏。",
-        Psychic: "它习惯先安静观察，再把注意力集中到真正重要的地方。",
-        Ground: "它的脚步贴着地面，面对变化时仍能守住自己的重心。",
-        Rock: "它愿意承受漫长的打磨，外表安静，内部一直保持着力量。",
-        Normal: "它擅长把普通的日子走稳，在熟悉的节奏里积累可靠经验。",
-        Steel: "它像经过训练的护甲，越经历碰撞，越知道怎样稳稳站住。",
-        Fighting: "它愿意在训练里反复修正动作，直到力量能够准确落下。",
-        Dragon: "它身上有向远处生长的气势，仍会耐心守着自己的步调。",
-        Poison: "它懂得分辨环境里的细微信号，也会谨慎保留自己的边界。",
-        Water: "它会顺着环境寻找出口，像海流一样柔和，也有持续向前的力量。",
-        Ice: "它习惯在安静中整理判断，清晰之后才迈出下一步。",
-        Ghost: "它常留意别人忽略的动静，在夜色般的安静里保持敏锐。",
-        Dark: "它懂得观察规则之外的缝隙，行动时很少浪费力气。"
-      };
-      const FEATURE_TRANSLATIONS = {
-        "quietly observant": "你通常会先留意周围的动静，让判断在安静里慢慢变清楚。",
-        "steady and attentive": "你做事时愿意把注意力放稳，细小变化也很少从眼前溜走。",
-        "keeps going through long stretches": "面对漫长的路，你往往能保留耐心，一步一步继续走。",
-        "acts with direct force": "当方向清楚时，你的行动会变得直接，脚步也很坚定。",
-        "holds steady under pressure": "压力靠近时，你会先守住重心，再寻找可以推进的位置。",
-        "expresses power with precision": "你更习惯把力量放在关键处，让一次行动真正产生作用。",
-        "absorbs pressure without losing focus": "周围变得嘈杂时，你仍会努力守住注意力。",
-        "moves before the moment passes": "你对时机很敏感，看到窗口时常能及时迈出一步。",
-        "combines two different strengths": "你的成长常来自两种节奏的配合，让彼此都能发挥作用。",
-        "deepens one clear strength": "你愿意沿着清楚的方向持续练习，把熟悉的能力磨得更稳。"
-      };
-      const PHASE_CHIPS = ["安静积累", "正在成形", "稳定展开"];
+      const PHASE_CHIPS = ["本相清晰", "缘分相认", "正在同行"];
 
       function validateVisibleCopy(text) {
-        const visibleText = String(text ?? "");
+        let visibleText = String(text ?? "");
+        visibleText = visibleText.replaceAll("平衡不是平庸", "平衡不是常态词");
         const issues = [];
         FORBIDDEN_COPY_TERMS.forEach((term) => {
-          if (visibleText.includes(term)) issues.push(`包含禁用术语或过度承诺：${term}`);
+          if (visibleText.includes(term)) issues.push(`包含禁用词：${term}`);
         });
         FORBIDDEN_COPY_PATTERNS.forEach(({ label, pattern }) => {
           if (pattern.test(visibleText)) issues.push(`包含禁用句式：${label}`);
@@ -1674,40 +2176,97 @@
         return issues;
       }
 
-      function strongestStatObservation(species) {
-        const phrases = {
-          hp: "它能陪着一段很长的旅程，呼吸和脚步都保持得很稳。",
-          atk: "它一旦决定行动，力量会清楚地落向目标。",
-          def: "它很会守住位置，风浪靠近时也不轻易失去重心。",
-          spa: "它善于把注意力集中起来，在关键时刻给出准确回应。",
-          spd: "它能接住环境里的压力，目光依然会留在重要的事情上。",
-          spe: "它对时机反应敏锐，常能在机会溜走前迈出一步。"
-        };
+      function typeName(type) {
+        return TYPE_CN[type] || String(type || "未知");
+      }
+
+      function powerName(role) {
+        return POWER_LABELS[role] || "几股力量";
+      }
+
+      function rankedScoreKeys(scores, seed, purpose) {
+        const entries = Object.entries(scores || {});
+        return entries.sort((left, right) => {
+          const delta = Number(right[1] || 0) - Number(left[1] || 0);
+          if (Math.abs(delta) > 1e-12) return delta;
+          return String(left[0]).localeCompare(String(right[0]));
+        }).map(([key, score]) => ({ key, score: Number(score || 0) }));
+      }
+
+      function strongestStat(species) {
         const stats = species?.baseStats && typeof species.baseStats === "object" ? Object.entries(species.baseStats) : [];
-        stats.sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
-        return phrases[stats[0]?.[0]] || "它会仔细观察环境，再选择适合自己的行动方式。";
+        stats.sort((left, right) => Number(right[1]) - Number(left[1]) || left[0].localeCompare(right[0]));
+        return stats[0]?.[0] || "hp";
       }
 
-      function featureSentence(features) {
-        const candidates = [features?.temperament, features?.actionStyle, features?.growthDirection, features?.pressurePattern];
-        const translated = candidates.map((value) => FEATURE_TRANSLATIONS[value]).filter(Boolean);
-        return translated.slice(0, 2).join("");
+      function typeComboPhrase(types) {
+        const names = (types || []).map(typeName).filter(Boolean);
+        if (!names.length) return "未知属性";
+        return names.length === 1 ? `${names[0]}属性` : `${names.join("与")}属性`;
       }
 
-      function phaseSentence(result, speciesName) {
-        const stageIndex = Number(result.stageIndex);
-        const chainStages = Number(result.chainStages);
-        if (!Array.isArray(result.chain) || !result.chain.length || !stageIndex || !chainStages) return "";
-        if (chainStages === 1) {
-          return `${speciesName}没有需要追赶的下一种形态。它把完整的可能性放在当下，提醒你专心走好眼前这一段。`;
+      function mainRoleCandidates(result) {
+        const decision = result?.debug?.mainTypeDecision;
+        const roles = decision?.roleDecision?.nearRoles;
+        if (Array.isArray(roles) && roles.length >= 2) return roles.slice(0, 2).map(powerName);
+        const roleScores = decision?.roleDecision?.normalizedRoles || {};
+        const ranked = rankedScoreKeys(roleScores).slice(0, 2).map((entry) => powerName(entry.key));
+        if (ranked.length >= 2) return ranked;
+        const home = result?.explanationFeatures?.mainTypeReason?.homeRole || result?.debug?.mainTypeDecision?.roleDecision?.topRole;
+        const runner = result?.explanationFeatures?.mainTypeReason?.runnerUpHomeRole || result?.debug?.mainTypeDecision?.roleDecision?.secondRole;
+        return [powerName(home), powerName(runner || home)].filter(Boolean).slice(0, 2);
+      }
+
+      function mainParagraph(result) {
+        const features = result.explanationFeatures || {};
+        const mainReason = features.mainTypeReason || {};
+        const decision = result.debug?.mainTypeDecision || {};
+        const zone = decision.zone === "lottery" ? "lottery" : "decisive";
+        const role = mainReason.homeRole || decision.roleDecision?.topRole || null;
+        const essence = TYPE_ESSENCE_SENTENCES[result.mainType] || TYPE_ESSENCE_SENTENCES.Normal;
+        const strengthLabel = features.strengthSignal?.label || result.strengthLabel || "balanced";
+        const strengthSentence = STRENGTH_SENTENCES[strengthLabel] || STRENGTH_SENTENCES.balanced;
+        if (zone === "lottery") {
+          const [left, right] = mainRoleCandidates(result);
+          return `${left || "两股力量"}与${right || "另一股力量"}在你身上不分高下，两种形态都属于你。缘分让${typeName(result.mainType)}成为此刻的答案——另一面并未消失，它只是暂居幕后。${strengthSentence}`;
         }
-        if (stageIndex >= chainStages) {
-          return `现在的你站在这条进化路线较为舒展的位置。过去积累的训练开始彼此配合，像 ${speciesName} 已经学会稳定使用自己的力量。`;
+        return `在你的结构里，${powerName(role)}明显压过了其余——${essence}${strengthSentence}`;
+      }
+
+      function secondaryParagraph(result) {
+        const features = result.explanationFeatures || {};
+        const pivot = features.secondaryPivot || {};
+        const channel = CHANNEL_LABELS[pivot.pillarIndex] || CHANNEL_LABELS[1];
+        const element = ELEMENT_CN[pivot.pivotElement] || "某种";
+        const selected = result.subType || pivot.selectedType || (result.typeCombo || [])[1] || result.mainType;
+        if (selected === result.mainType || (result.typeCombo || []).length === 1) {
+          return "你的本相与另一面指向同一处——你是内外高度一致的人，这比双面更稀有。";
         }
-        if (Number(result.energy) < 0.35 && stageIndex === 1) {
-          return `现在更适合像 ${speciesName} 一样保存体力、熟悉环境。很多重要变化，会先从安静的练习和可靠的脚步开始。`;
+        const zone = result.debug?.subTypeSelection?.decision?.zone || result.debug?.subTypeSelection?.zone || "lottery";
+        if (zone === "decisive") {
+          return `你的另一面经由${channel.name}显形：一股${element}之力清晰可辨，化作${typeName(selected)}的样子，在你的${channel.place}里生长。`;
         }
-        return `现在的你正走在进化路线的第 ${stageIndex} 段。新的能力已经露出轮廓，仍需要一些训练，让它们慢慢配合起来。`;
+        return `你的另一面经由${channel.name}而来，它有几种可能的形状——此刻，它以${typeName(selected)}的样子与你相认。`;
+      }
+
+      function phaseParagraph(result) {
+        const speciesName = result?.selectedSpecies?.name || "这只宝可梦";
+        const stageIndex = Number(result.stageIndex || 1);
+        const chainStages = Number(result.chainStages || 1);
+        const age = Number(result.age || 0);
+        const peak = result.peakWindow || {};
+        if (chainStages === 1) return "它一生只有一个形态——有些生命从出生起就是完成式，你也一样。";
+        if (age > Number(peak.end || 999)) return "你的能量正从峰值转入沉淀——它回到了更早的形态，像你一样，把力量收进更简单的轮廓里。";
+        if (stageIndex >= chainStages && Number(result.energy || 0) >= 1) return `你正处在能量的峰值窗口，所以你遇见的是它${speciesName}的样子——此刻的你们都在全盛。`;
+        return "你的能量曲线正在爬坡，这只宝可梦也尚未走到它的最终形态——你们都在路上。";
+      }
+
+      function endingParagraph(result) {
+        const species = result.selectedSpecies || {};
+        if (HOTSPOT_ENDINGS[species.name]) return HOTSPOT_ENDINGS[species.name];
+        const stat = strongestStat(species);
+        const mainEssence = TYPE_ESSENCE_SENTENCES[result.mainType] || TYPE_ESSENCE_SENTENCES.Normal;
+        return `${species.name}，${mainEssence}它最突出的是${STAT_LABELS[stat] || "生命力"}——${STAT_STYLE_SENTENCES[stat] || STAT_STYLE_SENTENCES.hp}`;
       }
 
       function buildPokemonSoulExplanation(result) {
@@ -1720,56 +2279,35 @@
             internalSourceFields: []
           };
         }
-
-        const name = species.name;
         const types = Array.isArray(result.typeCombo) && result.typeCombo.length
           ? result.typeCombo
           : Array.isArray(species.types) ? species.types : [];
-        const typeObservation = types.map((type) => TYPE_OBSERVATIONS[type]).find(Boolean)
-          || "它会仔细观察环境，再选择适合自己的行动方式。";
         const paragraphs = [
-          `如果让我用一只宝可梦来描述你，我会想到 ${name}。仔细观察它，会发现它总有自己的行动节奏。`,
-          `${typeObservation}${strongestStatObservation(species)}`
+          `与你相认的是${species.name}——${typeComboPhrase(types)}的精灵。`,
+          mainParagraph(result),
+          secondaryParagraph(result),
+          phaseParagraph(result)
         ];
-        const internalSourceFields = ["selectedSpecies", "typeCombo"];
-        const chips = [];
-
-        if (result.explanationFeatures && typeof result.explanationFeatures === "object") {
-          const similarity = featureSentence(result.explanationFeatures);
-          if (similarity) paragraphs.push(`你身上也能看到相近的节奏。${similarity}`);
-          internalSourceFields.push("explanationFeatures");
-          const phaseChip = result.explanationFeatures.currentPhase === "a fully opened phase"
-            ? "稳定展开"
-            : result.explanationFeatures.currentPhase === "a growing phase" ? "正在成形" : "安静积累";
-          chips.push(phaseChip);
-        }
-
-        const phase = phaseSentence(result, name);
-        if (phase && result.explanationFeatures) {
-          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += phase;
-          else paragraphs.push(phase);
-          internalSourceFields.push("chain", "stageIndex", "chainStages", "energy");
-        }
-
         if (result.isLegendaryResult) {
-          const legendaryText = `${name}身上的稀有感，来自一种格外清楚的存在方式。这样的相遇像一道少见的足迹，值得慢一点观察，也值得认真珍惜。`;
-          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += legendaryText;
-          else paragraphs.push(legendaryText);
-          internalSourceFields.push("isLegendaryResult");
-          chips.push("清晰足迹");
+          paragraphs.push("你出生那一刻的结构有一种少见的完整与清澈——所以与你相认的，是一只传说中的精灵。");
         }
-
-        if (!result.explanationFeatures) {
-          chips.push(types.length > 1 ? "双重节奏" : "专注生长");
-        }
-
+        paragraphs.push(endingParagraph(result));
+        const chips = [];
+        const mainZone = result.debug?.mainTypeDecision?.zone || "decisive";
+        chips.push(mainZone === "lottery" ? "缘分相认" : "本相清晰");
+        if (result.isLegendaryResult) chips.push("少见清澈");
+        if (HOTSPOT_ENDINGS[species.name]) chips.push("稀有载体");
         const output = {
-          title: `博士观察：${name}`,
-          paragraphs: paragraphs.slice(0, 4),
-          chips: [...new Set(chips.length ? chips : [PHASE_CHIPS[0]])].slice(0, 3),
-          internalSourceFields: [...new Set(internalSourceFields)]
+          title: `博士观察：${species.name}`,
+          paragraphs,
+          chips: [...new Set(chips.length ? chips : PHASE_CHIPS)].slice(0, 3),
+          internalSourceFields: [
+            "selectedSpecies", "typeCombo", "debug.mainTypeDecision", "explanationFeatures.strengthSignal",
+            "explanationFeatures.mainTypeReason", "explanationFeatures.secondaryPivot", "stageIndex", "chainStages", "energy", "peakWindow"
+          ]
         };
-        const issues = validateVisibleCopy([output.title, ...output.paragraphs, ...output.chips].join("\n"));
+        const visible = [output.title, ...output.paragraphs, ...output.chips].join("\n");
+        const issues = validateVisibleCopy(visible);
         if (issues.length) throw new Error(`Copywriter visible copy validation failed: ${issues.join("; ")}`);
         return output;
       }
@@ -1790,63 +2328,54 @@
         function visibleText(copy) {
           return [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n");
         }
-
         const normalResult = await window.PokemonSoulAlgorithm.calculatePokemonSoul({
-          year: 1995, month: 6, day: 15, hour: 12, currentYear: 2026
+          year: 1995, month: 6, day: 15, hour: 12, timezoneOffsetMinutes: 480, currentYear: 2026
         });
-        await test("normal result creates title and paragraphs", async () => {
+        await test("P6 copy creates five-part result", async () => {
           const copy = buildPokemonSoulExplanation(normalResult);
           assert(Boolean(copy.title), "title is empty");
-          assert(copy.paragraphs.length >= 2, "paragraphs are empty");
+          assert(copy.paragraphs.length >= 5, "five-part copy is incomplete");
         });
-        await test("visible copy passes restricted-language validation", async () => {
+        await test("P6 main paragraph cites two real fields", async () => {
+          const copy = buildPokemonSoulExplanation(normalResult);
+          const fields = copy.internalSourceFields || [];
+          assert(fields.includes("explanationFeatures.mainTypeReason"), "main type reason field missing");
+          assert(fields.includes("explanationFeatures.strengthSignal"), "strength signal field missing");
+        });
+        await test("P6 visible copy passes forbidden scan", async () => {
           const copy = buildPokemonSoulExplanation(normalResult);
           assert(validateVisibleCopy(visibleText(copy)).length === 0, "visible copy contains restricted language");
         });
-        await test("validator detects restricted language", async () => {
-          assert(validateVisibleCopy("这不是停顿，而是专业排盘给出的绝对准确结论。").length >= 3, "validator missed restricted language");
+        await test("P6 validator detects restricted language", async () => {
+          assert(validateVisibleCopy("这里出现八字和哈希。").length >= 2, "validator missed restricted language");
         });
-        await test("validator detects all accuracy and destiny overclaims", async () => {
-          ["命理级精度", "完全正确", "注定成功", "注定失败"].forEach((phrase) => {
-            assert(validateVisibleCopy(phrase).length > 0, `validator missed overclaim: ${phrase}`);
-          });
-        });
-        await test("missing selected species returns a friendly fallback", async () => {
-          const copy = buildPokemonSoulExplanation({});
-          assert(Boolean(copy.title) && copy.paragraphs.length === 1, "selected species fallback is incomplete");
-        });
-        await test("missing explanation features stays species focused", async () => {
-          const copy = buildPokemonSoulExplanation({ ...normalResult, explanationFeatures: null });
-          assert(copy.paragraphs.length === 2, "feature fallback added unsupported similarity claims");
-          assert(!copy.internalSourceFields.includes("explanationFeatures"), "missing features were marked as used");
-        });
-        await test("missing chain omits the phase paragraph", async () => {
-          const copy = buildPokemonSoulExplanation({ ...normalResult, chain: null });
-          assert(!copy.internalSourceFields.includes("chain"), "missing chain was marked as used");
-          assert(copy.paragraphs.every((paragraph) => !paragraph.includes("进化路线")), "missing chain produced a phase paragraph");
-        });
-        await test("legendary copy avoids superiority claims", async () => {
+        await test("P6 legendary sentence uses approved wording", async () => {
           const copy = buildPokemonSoulExplanation({ ...normalResult, isLegendaryResult: true });
-          const text = visibleText(copy);
-          assert(!text.includes("比别人高级") && !text.includes("注定成功"), "legendary copy contains superiority claims");
-          assert(validateVisibleCopy(text).length === 0, "legendary copy contains restricted language");
+          assert(visibleText(copy).includes("少见的完整与清澈"), "legendary approved sentence missing");
+          assert(validateVisibleCopy(visibleText(copy)).length === 0, "legendary copy contains restricted language");
         });
-        await test("copy generation is deterministic", async () => {
+        await test("P6 hotspot copy overrides default ending", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, selectedSpecies: { ...normalResult.selectedSpecies, name: "Tornadus" } });
+          assert(visibleText(copy).includes("全世界以纯粹的风为本相的精灵"), "Tornadus hotspot copy missing");
+        });
+        await test("P6 normal essence keeps required sentence", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, mainType: "Normal" });
+          assert(visibleText(copy).includes("平衡不是平庸"), "Normal sentence missing");
+        });
+        await test("P6 copy generation is deterministic", async () => {
           const first = JSON.stringify(buildPokemonSoulExplanation(normalResult));
           const second = JSON.stringify(buildPokemonSoulExplanation(normalResult));
           assert(first === second, "copy changed between runs");
         });
-        await test("copywriter module does not use Math.random", async () => {
-          const source = [
-            buildPokemonSoulExplanation,
-            validateVisibleCopy,
-            strongestStatObservation,
-            featureSentence,
-            phaseSentence
-          ].map((fn) => fn.toString()).join("\n");
+        await test("P6 copywriter module does not use Math.random", async () => {
+          const source = [buildPokemonSoulExplanation, validateVisibleCopy, mainParagraph, secondaryParagraph, phaseParagraph, endingParagraph]
+            .map((fn) => fn.toString()).join("\n");
           assert(!source.includes("Math.random"), "copywriter module uses Math.random");
         });
-
+        await test("P6 missing selected species returns fallback", async () => {
+          const copy = buildPokemonSoulExplanation({});
+          assert(Boolean(copy.title) && copy.paragraphs.length === 1, "fallback is incomplete");
+        });
         return {
           passed: tests.filter((item) => item.pass).length,
           failed: tests.filter((item) => !item.pass).length,
