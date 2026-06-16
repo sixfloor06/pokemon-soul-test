@@ -413,7 +413,7 @@
       </div>
       <div class="pix-box has-tab speech">
         <span id="prof-name" class="pix-tab">大木博士</span>
-        <p>请告诉我你的生日，我将为你准备测试内容。</p>
+        <p>请告诉我你的生日，我会据此整理观察样本。</p>
       </div>
       <form id="resonance-form" class="pix-form" novalidate>
         <div class="pix-field">
@@ -481,7 +481,7 @@
             <div class="scope"></div>
             <div class="lcd">
               <span id="lcd-line1" class="l1 blink">分析中</span>
-              <span id="lcd-line2" class="l2">读取出生坐标…</span>
+              <span id="lcd-line2" class="l2">整理观察样本…</span>
             </div>
           </div>
           <span class="knob"></span>
@@ -1737,11 +1737,12 @@
     (() => {
       "use strict";
 
+      /* ============ P6 sealed copywriter: fixed modular text from copywriter_spec_v6_1.md ============ */
       const FORBIDDEN_COPY_TERMS = [
         "八字", "日主", "五行", "十神", "用神", "身强", "身弱", "命格", "旺相休囚死",
         "刑冲", "旺衰", "官杀", "比劫", "食伤", "财星", "印星", "算命", "吉凶",
         "你的命注定", "你命里", "专业排盘", "专业命理", "绝对准确", "绝对正确",
-        "命理级精度", "完全正确", "注定成功", "注定失败"
+        "命理级精度", "完全正确", "注定成功", "注定失败", "之力"
       ];
       const FORBIDDEN_COPY_PATTERNS = [
         { label: "不是……而是……", pattern: /不是[^。！？]*而是/ },
@@ -1758,39 +1759,64 @@
         { label: "你是一个……的人", pattern: /你是一个[^。！？]*的人/ },
         { label: "你拥有 A、B、C 三种特质", pattern: /你拥有[^。！？]*[、，][^。！？]*[、，][^。！？]*特质/ }
       ];
-      const TYPE_OBSERVATIONS = {
-        Grass: "它懂得沿着自己的节奏生长，像叶片追着光慢慢舒展开。",
-        Bug: "它对周围细小的变化很敏感，也知道怎样在一次次蜕变中调整自己。",
-        Fairy: "它身上有轻盈而鲜明的气息，常能让紧绷的场面松动下来。",
-        Flying: "它习惯先看清更远的方向，再决定翅膀落向哪里。",
-        Fire: "它的力量像尾焰，找到目标后会稳定地亮起来。",
-        Electric: "它捕捉时机很快，行动常带着清脆直接的节奏。",
-        Psychic: "它习惯先安静观察，再把注意力集中到真正重要的地方。",
-        Ground: "它的脚步贴着地面，面对变化时仍能守住自己的重心。",
-        Rock: "它愿意承受漫长的打磨，外表安静，内部一直保持着力量。",
-        Normal: "它擅长把普通的日子走稳，在熟悉的节奏里积累可靠经验。",
-        Steel: "它像经过训练的护甲，越经历碰撞，越知道怎样稳稳站住。",
-        Fighting: "它愿意在训练里反复修正动作，直到力量能够准确落下。",
-        Dragon: "它身上有向远处生长的气势，仍会耐心守着自己的步调。",
-        Poison: "它懂得分辨环境里的细微信号，也会谨慎保留自己的边界。",
-        Water: "它会顺着环境寻找出口，像海流一样柔和，也有持续向前的力量。",
-        Ice: "它习惯在安静中整理判断，清晰之后才迈出下一步。",
-        Ghost: "它常留意别人忽略的动静，在夜色般的安静里保持敏锐。",
-        Dark: "它懂得观察规则之外的缝隙，行动时很少浪费力气。"
+
+      const TYPE_ZH = {
+        Normal: "一般", Fire: "火", Water: "水", Electric: "电", Grass: "草", Ice: "冰",
+        Fighting: "格斗", Poison: "毒", Ground: "地面", Flying: "飞行", Psychic: "超能力",
+        Bug: "虫", Rock: "岩石", Ghost: "幽灵", Dragon: "龙", Dark: "恶", Steel: "钢", Fairy: "妖精"
       };
-      const FEATURE_TRANSLATIONS = {
-        "quietly observant": "你通常会先留意周围的动静，让判断在安静里慢慢变清楚。",
-        "steady and attentive": "你做事时愿意把注意力放稳，细小变化也很少从眼前溜走。",
-        "keeps going through long stretches": "面对漫长的路，你往往能保留耐心，一步一步继续走。",
-        "acts with direct force": "当方向清楚时，你的行动会变得直接，脚步也很坚定。",
-        "holds steady under pressure": "压力靠近时，你会先守住重心，再寻找可以推进的位置。",
-        "expresses power with precision": "你更习惯把力量放在关键处，让一次行动真正产生作用。",
-        "absorbs pressure without losing focus": "周围变得嘈杂时，你仍会努力守住注意力。",
-        "moves before the moment passes": "你对时机很敏感，看到窗口时常能及时迈出一步。",
-        "combines two different strengths": "你的成长常来自两种节奏的配合，让彼此都能发挥作用。",
-        "deepens one clear strength": "你愿意沿着清楚的方向持续练习，把熟悉的能力磨得更稳。"
+      const TYPE_TRAIT = {
+        Grass: "你更适合长期投入的事，起步虽慢，却能在多数人放弃之后依然坚持。",
+        Bug: "你务实而主动，遇到需要调整的地方会直接着手，环境变化时也能较快适应。",
+        Fairy: "面对摩擦与冲突，你往往是主动缓和气氛的一方。",
+        Flying: "你向往新的方向与更开阔的空间，不太愿意长期停留在一成不变的环境里。",
+        Fire: "你习惯于平稳而持续地燃烧，认定方向之后，即便热情退去也不会轻易停下。",
+        Psychic: "你观察多于表达，往往先完整了解情况，再补充一些别人没有想到的角度。",
+        Electric: "你的反应很快，看到机会就会立刻行动，不喜欢拖延。",
+        Ghost: "你并不张扬，遇事会先以客观的视角想清楚，再决定如何行动。",
+        Normal: "你不依赖极端的方式取胜，处理日常事务很稳定，别人也愿意把事情放心交给你。",
+        Rock: "你经得起时间的考验，一件事持续得越久，反而越显得可靠。",
+        Ground: "你愿意承担责任，别人遇到困难时也习惯依靠你，因为你确实承担得起。",
+        Steel: "你做事讲究方法与条理，已经安排好的事情很少出现差错。",
+        Fighting: "你想清楚之后便会付诸行动，不绕弯子，精力都投入在能够真正完成的事情上。",
+        Poison: "你善于处理复杂的局面，对于与人保持怎样的距离，心里有清楚的分寸。",
+        Ice: "你足够冷静，做判断时很少被情绪影响，看待问题往往比别人更清晰。",
+        Water: "你能根据不同的场合调整自己，进入新环境也不会感到拘束，但始终守得住自己的原则。",
+        Dark: "你不轻易表露自己的判断，但对事态的发展通常早有预见。",
+        Dragon: "你平日收敛锋芒、并不张扬，但在关键时刻总能拿出真正的实力。"
       };
-      const PHASE_CHIPS = ["安静积累", "正在成形", "稳定展开"];
+      const DISPOSITION = {
+        strong: "你倾向于先行动，许多想法是在实践的过程中逐渐清晰的。",
+        weak: "你倾向于先想清楚再行动，独处时往往最能进入状态。",
+        balanced: "你能在专注投入与适度放松之间自然切换。"
+      };
+      const SUB_PHRASE = {
+        Grass: "适合长期投入", Bug: "务实主动", Fairy: "善于缓和", Flying: "向往新方向",
+        Fire: "平稳持续", Psychic: "先观察后表达", Electric: "反应迅速", Ghost: "客观审慎",
+        Normal: "稳定可靠", Rock: "经得起时间", Ground: "勇于承担", Steel: "讲究条理",
+        Fighting: "果断行动", Poison: "分寸清楚", Ice: "冷静清晰", Water: "灵活而有原则",
+        Dark: "深思而内敛", Dragon: "厚积薄发"
+      };
+      const CHANNEL = { 0: "你的来处", 1: "你所处的环境", 2: "你前行的方向", 3: "你前行的方向" };
+      const STAT_PHRASE = {
+        hp: "持久的耐力", atk: "行动的力度", def: "承受压力的能力",
+        spa: "在关键处精准发力", spd: "内在的稳定与韧性", spe: "对时机的把握"
+      };
+      const RELATION_TAG = {
+        Grass: "厚积薄发", Fire: "厚积薄发", Rock: "厚积薄发", Steel: "厚积薄发", Dragon: "厚积薄发",
+        Normal: "表里如一",
+        Flying: "推陈出新", Psychic: "推陈出新", Ground: "推陈出新", Fighting: "推陈出新", Water: "推陈出新",
+        Bug: "运筹帷幄", Electric: "运筹帷幄", Poison: "运筹帷幄", Dark: "运筹帷幄",
+        Fairy: "千锤百炼", Ghost: "千锤百炼", Ice: "千锤百炼"
+      };
+      const ENERGY_TAG = { strong: "能量外放", weak: "能量内收", balanced: "能量均衡" };
+      const STAT_TAG = {
+        hp: "持之以恒", atk: "雷厉风行", spe: "当机立断", def: "处变不惊", spd: "处变不惊", spa: "入木三分"
+      };
+      const TYPE_BEHAVIOR_TAG = {
+        Psychic: "静观其变", Ghost: "静观其变", Poison: "坚守底线", Dark: "三思后行", Water: "随机应变"
+      };
+      const STAGE_TAG = { rising: "正在成形", peak: "稳定展开", settling: "安静积累", single: "完成式" };
 
       function validateVisibleCopy(text) {
         const visibleText = String(text ?? "");
@@ -1804,100 +1830,127 @@
         return issues;
       }
 
-      function strongestStatObservation(species) {
-        const phrases = {
-          hp: "它能陪着一段很长的旅程，呼吸和脚步都保持得很稳。",
-          atk: "它一旦决定行动，力量会清楚地落向目标。",
-          def: "它很会守住位置，风浪靠近时也不轻易失去重心。",
-          spa: "它善于把注意力集中起来，在关键时刻给出准确回应。",
-          spd: "它能接住环境里的压力，目光依然会留在重要的事情上。",
-          spe: "它对时机反应敏锐，常能在机会溜走前迈出一步。"
-        };
+      function rankedScores(scoreObj) {
+        return Object.entries(scoreObj || {})
+          .map(([key, value]) => [key, Number(value) || 0])
+          .filter(([, value]) => value > 0)
+          .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
+      }
+
+      function isDecisiveMain(result) {
+        const ranked = rankedScores(result?.debug?.mainTypeScores);
+        if (ranked.length < 2) return true;
+        return ranked[0][1] - ranked[1][1] >= 0.08;
+      }
+
+      function isDecisiveSub(result) {
+        const scores = result?.debug?.subTypeSelection?.weights || result?.debug?.subTypeSelection?.scores;
+        const ranked = rankedScores(scores);
+        if (ranked.length < 2) return true;
+        const top = ranked[0][1] || 1;
+        return ranked[0][1] - ranked[1][1] >= Math.max(0.08, 0.18 * top);
+      }
+
+      function strongestStatKey(species) {
         const stats = species?.baseStats && typeof species.baseStats === "object" ? Object.entries(species.baseStats) : [];
         stats.sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
-        return phrases[stats[0]?.[0]] || "它会仔细观察环境，再选择适合自己的行动方式。";
+        return stats[0]?.[0] || "hp";
       }
 
-      function featureSentence(features) {
-        const candidates = [features?.temperament, features?.actionStyle, features?.growthDirection, features?.pressurePattern];
-        const translated = candidates.map((value) => FEATURE_TRANSLATIONS[value]).filter(Boolean);
-        return translated.slice(0, 2).join("");
+      function bestSubChannel(result, subType) {
+        const pivots = result?.debug?.subTypeSelection?.pivots || [];
+        let best = null;
+        let bestScore = -1;
+        pivots.forEach((pivot) => {
+          const score = Number(pivot?.scores?.[subType]) || Number(pivot?.rawScores?.[subType]) || 0;
+          if (score > bestScore) { best = pivot; bestScore = score; }
+        });
+        return CHANNEL[best?.pillarIndex] || "你所处的环境";
       }
 
-      function phaseSentence(result, speciesName) {
-        const stageIndex = Number(result.stageIndex);
-        const chainStages = Number(result.chainStages);
-        if (!Array.isArray(result.chain) || !result.chain.length || !stageIndex || !chainStages) return "";
-        if (chainStages === 1) {
-          return `${speciesName}没有需要追赶的下一种形态。它把完整的可能性放在当下，提醒你专心走好眼前这一段。`;
+      function stageKind(result) {
+        const stages = Number(result?.chainStages) || 1;
+        if (stages <= 1) return "single";
+        const age = Number(result?.age);
+        const win = result?.peakWindow || {};
+        if (Number.isFinite(age) && Number.isFinite(win.start) && Number.isFinite(win.end)) {
+          if (age > win.end) return "settling";
+          if (age >= win.start && age <= win.end) return "peak";
+          return "rising";
         }
-        if (stageIndex >= chainStages) {
-          return `现在的你站在这条进化路线较为舒展的位置。过去积累的训练开始彼此配合，像 ${speciesName} 已经学会稳定使用自己的力量。`;
+        return Number(result?.stageIndex) >= stages ? "peak" : "rising";
+      }
+
+      function stageSentence(result) {
+        const kind = stageKind(result);
+        if (kind === "single") return "它一生只有一种形态。有些生命从一开始便是完整的，你也是如此。";
+        if (kind === "peak") return "你正处在状态的高点，因此与你相遇的，是它最舒展的形态。";
+        if (kind === "settling") return "你的能量正从高点转入沉淀，它也回到了更为简练的形态，将力量收敛得更加节省。";
+        return "你正处在上升的阶段，这只宝可梦也尚未抵达最终形态，你们都还在成长的途中。";
+      }
+
+      function buildTags(result, mainType, typeCombo, statKey) {
+        const tags = [];
+        const add = (value) => { if (value && !tags.includes(value)) tags.push(value); };
+        add(ENERGY_TAG[result?.strengthLabel] || ENERGY_TAG.balanced);
+        add(RELATION_TAG[mainType]);
+        add(STAT_TAG[statKey]);
+        add(TYPE_BEHAVIOR_TAG[mainType] || (typeCombo.length > 1 ? "双管齐下" : "从一而终"));
+        add(STAGE_TAG[stageKind(result)]);
+        if (result?.isLegendaryResult) {
+          const base = tags.slice(0, 4);
+          base.push("本相精纯");
+          return base;
         }
-        if (Number(result.energy) < 0.35 && stageIndex === 1) {
-          return `现在更适合像 ${speciesName} 一样保存体力、熟悉环境。很多重要变化，会先从安静的练习和可靠的脚步开始。`;
-        }
-        return `现在的你正走在进化路线的第 ${stageIndex} 段。新的能力已经露出轮廓，仍需要一些训练，让它们慢慢配合起来。`;
+        return tags.slice(0, 5);
       }
 
       function buildPokemonSoulExplanation(result) {
         const species = result?.selectedSpecies;
         if (!species?.name) {
-          return {
+          const fallback = {
             title: "博士还需要再观察一下",
-            paragraphs: ["这次没有取得足够的宝可梦资料。等资料准备好后，再回来看看与你并肩的伙伴。"],
+            paragraphs: ["这次没有取得足够的宝可梦资料。等资料准备好后，再回来看看与你共鸣的伙伴。"],
             chips: [],
             internalSourceFields: []
           };
+          const issues = validateVisibleCopy([fallback.title, ...fallback.paragraphs].join("\n"));
+          if (issues.length) throw new Error(`Copywriter visible copy validation failed: ${issues.join("; ")}`);
+          return fallback;
         }
 
         const name = species.name;
-        const types = Array.isArray(result.typeCombo) && result.typeCombo.length
-          ? result.typeCombo
-          : Array.isArray(species.types) ? species.types : [];
-        const typeObservation = types.map((type) => TYPE_OBSERVATIONS[type]).find(Boolean)
-          || "它会仔细观察环境，再选择适合自己的行动方式。";
-        const paragraphs = [
-          `如果让我用一只宝可梦来描述你，我会想到 ${name}。仔细观察它，会发现它总有自己的行动节奏。`,
-          `${typeObservation}${strongestStatObservation(species)}`
-        ];
-        const internalSourceFields = ["selectedSpecies", "typeCombo"];
-        const chips = [];
+        const typeCombo = Array.isArray(result?.typeCombo) && result.typeCombo.length
+          ? [...new Set(result.typeCombo)]
+          : (Array.isArray(species.types) && species.types.length ? [...new Set(species.types)] : ["Normal"]);
+        const mainType = result?.mainType || typeCombo[0] || "Normal";
+        const subType = result?.subType || typeCombo[1] || mainType;
+        const singleType = typeCombo.length <= 1 || mainType === subType;
+        const statKey = strongestStatKey(species);
 
-        if (result.explanationFeatures && typeof result.explanationFeatures === "object") {
-          const similarity = featureSentence(result.explanationFeatures);
-          if (similarity) paragraphs.push(`你身上也能看到相近的节奏。${similarity}`);
-          internalSourceFields.push("explanationFeatures");
-          const phaseChip = result.explanationFeatures.currentPhase === "a fully opened phase"
-            ? "稳定展开"
-            : result.explanationFeatures.currentPhase === "a growing phase" ? "正在成形" : "安静积累";
-          chips.push(phaseChip);
-        }
-
-        const phase = phaseSentence(result, name);
-        if (phase && result.explanationFeatures) {
-          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += phase;
-          else paragraphs.push(phase);
-          internalSourceFields.push("chain", "stageIndex", "chainStages", "energy");
-        }
-
-        if (result.isLegendaryResult) {
-          const legendaryText = `${name}身上的稀有感，来自一种格外清楚的存在方式。这样的相遇像一道少见的足迹，值得慢一点观察，也值得认真珍惜。`;
-          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += legendaryText;
-          else paragraphs.push(legendaryText);
-          internalSourceFields.push("isLegendaryResult");
-          chips.push("清晰足迹");
-        }
-
-        if (!result.explanationFeatures) {
-          chips.push(types.length > 1 ? "双重节奏" : "专注生长");
+        const opening = `与你共鸣最深的是${name}。仔细观察它，会发现你们在行事方式上有不少相通之处。`;
+        const mainParagraph = isDecisiveMain(result)
+          ? `从你出生时刻的能量结构来看，${TYPE_ZH[mainType] || mainType}这一面最为明显。${TYPE_TRAIT[mainType] || TYPE_TRAIT.Normal}${DISPOSITION[result?.strengthLabel] || DISPOSITION.balanced}`
+          : `你身上有两种几乎并列的倾向，它们都属于你。这一次率先显现的是${TYPE_ZH[mainType] || mainType}，另一种并未消失，只是暂时退居其次。${DISPOSITION[result?.strengthLabel] || DISPOSITION.balanced}`;
+        const subParagraph = singleType
+          ? "你的两面指向同一个方向，内外高度一致，这种情形比兼具双面更为少见。"
+          : (isDecisiveSub(result)
+            ? `从${bestSubChannel(result, subType)}还能看到你的另一面：${SUB_PHRASE[subType] || "稳定可靠"}，与主导的一面正好互补。`
+            : `你的另一面存在几种可能，这一次它以${TYPE_ZH[subType] || subType}的形态呈现：${SUB_PHRASE[subType] || "稳定可靠"}。`);
+        let closing = `${stageSentence(result)}${name}最擅长的是${STAT_PHRASE[statKey] || STAT_PHRASE.hp}，而这恰好也是你最突出的地方。`;
+        if (result?.isLegendaryResult) {
+          closing += "另外值得一提：你的能量结构在数据中相当少见，因此与你共鸣的是一只传说级宝可梦，这样的结果并不常见。";
         }
 
         const output = {
-          title: `博士观察：${name}`,
-          paragraphs: paragraphs.slice(0, 4),
-          chips: [...new Set(chips.length ? chips : [PHASE_CHIPS[0]])].slice(0, 3),
-          internalSourceFields: [...new Set(internalSourceFields)]
+          title: "为什么这只宝可梦会愿意靠近你",
+          paragraphs: [opening, mainParagraph, subParagraph, closing],
+          chips: buildTags(result, mainType, typeCombo, statKey),
+          internalSourceFields: [
+            "selectedSpecies", "mainType", "subType", "typeCombo", "strengthLabel",
+            "debug.mainTypeScores", "debug.subTypeSelection", "stageIndex", "chainStages",
+            "energy", "peakWindow", "selectedSpecies.baseStats", "isLegendaryResult"
+          ]
         };
         const issues = validateVisibleCopy([output.title, ...output.paragraphs, ...output.chips].join("\n"));
         if (issues.length) throw new Error(`Copywriter visible copy validation failed: ${issues.join("; ")}`);
@@ -1907,57 +1960,40 @@
       async function runCopywriterSelfTests() {
         const tests = [];
         async function test(name, callback) {
-          try {
-            await callback();
-            tests.push({ name, pass: true });
-          } catch (error) {
-            tests.push({ name, pass: false, error: error.message });
-          }
+          try { await callback(); tests.push({ name, pass: true }); }
+          catch (error) { tests.push({ name, pass: false, error: error.message }); }
         }
-        function assert(condition, message) {
-          if (!condition) throw new Error(message);
-        }
-        function visibleText(copy) {
-          return [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n");
-        }
+        function assert(condition, message) { if (!condition) throw new Error(message); }
+        function visibleText(copy) { return [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n"); }
 
         const normalResult = await window.PokemonSoulAlgorithm.calculatePokemonSoul({
           year: 1995, month: 6, day: 15, hour: 12, currentYear: 2026
         });
-        await test("normal result creates title and paragraphs", async () => {
+        await test("P6 result uses four fixed modules", async () => {
           const copy = buildPokemonSoulExplanation(normalResult);
-          assert(Boolean(copy.title), "title is empty");
-          assert(copy.paragraphs.length >= 2, "paragraphs are empty");
+          assert(copy.title === "为什么这只宝可梦会愿意靠近你", "title is not the P6 result title");
+          assert(copy.paragraphs.length === 4, "P6 copy must contain four paragraphs");
+          assert(copy.chips.length >= 4 && copy.chips.length <= 5, "tags must stay within P6 range");
         });
         await test("visible copy passes restricted-language validation", async () => {
           const copy = buildPokemonSoulExplanation(normalResult);
           assert(validateVisibleCopy(visibleText(copy)).length === 0, "visible copy contains restricted language");
         });
         await test("validator detects restricted language", async () => {
-          assert(validateVisibleCopy("这不是停顿，而是专业排盘给出的绝对准确结论。").length >= 3, "validator missed restricted language");
-        });
-        await test("validator detects all accuracy and destiny overclaims", async () => {
-          ["命理级精度", "完全正确", "注定成功", "注定失败"].forEach((phrase) => {
-            assert(validateVisibleCopy(phrase).length > 0, `validator missed overclaim: ${phrase}`);
-          });
+          assert(validateVisibleCopy("这不是停顿，而是专业排盘给出的绝对准确结论。掌控之力。命格。").length >= 4, "validator missed restricted language");
         });
         await test("missing selected species returns a friendly fallback", async () => {
           const copy = buildPokemonSoulExplanation({});
           assert(Boolean(copy.title) && copy.paragraphs.length === 1, "selected species fallback is incomplete");
         });
-        await test("missing explanation features stays species focused", async () => {
-          const copy = buildPokemonSoulExplanation({ ...normalResult, explanationFeatures: null });
-          assert(copy.paragraphs.length === 2, "feature fallback added unsupported similarity claims");
-          assert(!copy.internalSourceFields.includes("explanationFeatures"), "missing features were marked as used");
-        });
-        await test("missing chain omits the phase paragraph", async () => {
-          const copy = buildPokemonSoulExplanation({ ...normalResult, chain: null });
-          assert(!copy.internalSourceFields.includes("chain"), "missing chain was marked as used");
-          assert(copy.paragraphs.every((paragraph) => !paragraph.includes("进化路线")), "missing chain produced a phase paragraph");
+        await test("single-type result uses folded-side sentence", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, typeCombo: [normalResult.mainType], subType: normalResult.mainType });
+          assert(copy.paragraphs.some((paragraph) => paragraph.includes("内外高度一致")), "single-type folded copy is missing");
         });
         await test("legendary copy avoids superiority claims", async () => {
           const copy = buildPokemonSoulExplanation({ ...normalResult, isLegendaryResult: true });
           const text = visibleText(copy);
+          assert(text.includes("本相精纯") && text.includes("传说级宝可梦"), "legendary copy is missing its P6 additions");
           assert(!text.includes("比别人高级") && !text.includes("注定成功"), "legendary copy contains superiority claims");
           assert(validateVisibleCopy(text).length === 0, "legendary copy contains restricted language");
         });
@@ -1967,13 +2003,8 @@
           assert(first === second, "copy changed between runs");
         });
         await test("copywriter module does not use Math.random", async () => {
-          const source = [
-            buildPokemonSoulExplanation,
-            validateVisibleCopy,
-            strongestStatObservation,
-            featureSentence,
-            phaseSentence
-          ].map((fn) => fn.toString()).join("\n");
+          const source = [buildPokemonSoulExplanation, validateVisibleCopy, rankedScores, bestSubChannel, stageSentence]
+            .map((fn) => fn.toString()).join("\n");
           assert(!source.includes("Math.random"), "copywriter module uses Math.random");
         });
 
@@ -2160,9 +2191,14 @@
         return clean.length > limit ? `${clean.slice(0, limit - 1)}…` : clean;
       }
 
+      /* ---- 博士的观察：P6 sealed copy display ---- */
+      function buildConciseObservation(result) {
+        return window.PokemonSoulCopywriter?.buildPokemonSoulExplanation(result) || null;
+      }
+
       function safeExplanation(result) {
         const fallback = {
-          title: `博士观察：${result?.selectedSpecies?.name || "这位伙伴"}`,
+          title: "博士的观察",
           paragraphs: ["这次的观察记录还没有整理完整。先看看这位伙伴和它走过的进化路线。"],
           chips: []
         };
@@ -2171,13 +2207,13 @@
           const visible = [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n");
           const issues = window.PokemonSoulCopywriter.validateVisibleCopy(visible);
           if (issues.length) {
-            console.warn("Copywriter visible-copy validation failed.", issues);
+            console.warn("Copywriter output failed guard.", issues);
             return fallback;
           }
           return {
             title: shorten(copy.title, 60),
-            paragraphs: (copy.paragraphs || []).slice(0, 3).map((paragraph) => shorten(paragraph)),
-            chips: (copy.chips || []).slice(0, 3)
+            paragraphs: (copy.paragraphs || []).slice(0, 4).map((paragraph) => shorten(paragraph, 240)),
+            chips: (copy.chips || []).slice(0, 5)
           };
         } catch (error) {
           console.warn("Copywriter output fallback used.", error);
@@ -2285,7 +2321,7 @@
         const mainType = combo[0];
         const subType = combo[1] || combo[0];
 
-        const script = ["读取出生坐标…", "展开能量图谱…", "扫描能量曲线…", ...signalLines(result)];
+        const script = ["整理观察样本…", "建立能量结构…", "观察属性倾向…", ...signalLines(result)];
         for (const line of script) {
           if (!guard()) return;
           setLcd("分析中", line, true);
@@ -2303,7 +2339,7 @@
         await stopReelAt(subStrip, subType);
         if (!guard()) return;
         machineEl.classList.add("locked");
-        setLcd("分析结束", "共鸣体匹配完成", false);
+        setLcd("分析结束", "共鸣伙伴匹配完成", false);
         seeReportBtn.classList.remove("is-hidden");
       }
 
@@ -2323,7 +2359,7 @@
         syncReelMetrics();
         startSpin(document.getElementById("reel-main"));
         startSpin(document.getElementById("reel-sub"));
-        setLcd("分析中", "读取出生坐标…", true);
+        setLcd("分析中", "整理观察样本…", true);
         try {
           const result = await window.PokemonSoulAlgorithm.calculatePokemonSoul({
             ...date,
@@ -2411,7 +2447,7 @@
         showScreen("input");
       });
 
-      window.PokemonSoulFrontend = { showScreen, runFrontendSelfTests, lookupHeightWeight, signalLines };
+      window.PokemonSoulFrontend = { showScreen, runFrontendSelfTests, lookupHeightWeight, signalLines, safeExplanation, buildConciseObservation };
       showScreen("home");
     })();
   </script>
