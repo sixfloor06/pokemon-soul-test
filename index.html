@@ -1334,9 +1334,9 @@
       }
 
       function calculatePeakWindow(pillarIndex) {
-        if (pillarIndex === 0) return { start: 25, end: 45, pattern: "early" };
-        if (pillarIndex === 3) return { start: 40, end: 60, pattern: "late" };
-        return { start: 30, end: 50, pattern: "steady" };
+        if (pillarIndex === 0) return { start: 25, end: 40, pattern: "early" };
+        if (pillarIndex === 3) return { start: 45, end: 60, pattern: "late" };
+        return { start: 35, end: 50, pattern: "steady" };
       }
 
       function calculateEnergy(age, peakWindow) {
