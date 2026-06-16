@@ -373,9 +373,6 @@
     .error-panel { display: none; margin: 0; padding: 12px; color: #a31f1f; background: #ffecec; border: 3px solid #d88; }
     .error-panel.is-visible { display: block; }
 
-    .dev-tools { margin: 8px 16px 26px; font-size: 13px; color: #6c5f5f; }
-    .dev-tools button { margin: 4px 6px 4px 0; padding: 4px 8px; }
-    .dev-tools pre { white-space: pre-wrap; background: #fff; border: 1px solid #ccc; padding: 8px; }
 
     @media (max-width: 380px) {
       .info-bar { font-size: 19px; }
@@ -532,13 +529,6 @@
       </div>
     </section>
 
-    <details class="dev-tools">
-      <summary>开发测试</summary>
-      <button id="run-tests" type="button">运行 Algorithm 自测</button>
-      <button id="run-copy-tests" type="button">运行 Copywriter 自测</button>
-      <button id="run-frontend-tests" type="button">运行 Frontend 自测</button>
-      <pre id="test-output" aria-live="polite">Ready.</pre>
-    </details>
   </main>
 
 <script>
@@ -1721,17 +1711,6 @@
         calculatePokemonSoul,
         runAlgorithmSelfTests
       };
-
-      document.getElementById("run-tests").addEventListener("click", async () => {
-        const output = document.getElementById("test-output");
-        output.textContent = "Running...";
-        try {
-          const result = await runAlgorithmSelfTests();
-          output.textContent = `${result.visibleText}\n\n${result.passed} passed, ${result.failed} failed`;
-        } catch (error) {
-          output.textContent = `FAIL self-test runner: ${error.message}`;
-        }
-      });
     })();
 
     (() => {
@@ -2163,30 +2142,57 @@
       }
 
       /* ---------- result rendering ---------- */
-      function compactUnique(values) {
-        return values.filter((value, index, array) => value && array.indexOf(value) === index);
+      function uniqueList(items) {
+        return Array.from(new Set(items.filter(Boolean)));
       }
 
-      function pokemonSlug(name, apostropheMode = "remove") {
-        let value = String(name || "")
+      function normalizePokemonName(name) {
+        return String(name || "")
           .trim()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
-        value = apostropheMode === "hyphen"
-          ? value.replace(/[’']/g, "-")
-          : value.replace(/[’']/g, "");
-        return value
+          .replace(/[’']/g, "");
+      }
+
+      const SPRITE_SLUG_ALIASES = {
+        "basculin-blue-striped": ["basculin-bluestriped"],
+        "basculin-white-striped": ["basculin-whitestriped"],
+        "tauros-paldea-aqua": ["tauros-paldeaaqua", "tauros-paldea-aqua-breed"],
+        "tauros-paldea-blaze": ["tauros-paldeablaze", "tauros-paldea-blaze-breed"],
+        "tauros-paldea-combat": ["tauros-paldeacombat", "tauros-paldea-combat-breed"],
+        "darmanitan-galar-zen": ["darmanitan-galarzen"],
+        "toxtricity-low-key": ["toxtricity-lowkey"],
+        "urshifu-rapid-strike": ["urshifu-rapidstrike"],
+        "urshifu-single-strike": ["urshifu-singlestrike"],
+        "dudunsparce-three-segment": ["dudunsparce-threesegment"],
+        "dudunsparce-two-segment": ["dudunsparce-twosegment"]
+      };
+
+      function pokemonSlugs(name) {
+        const normalized = normalizePokemonName(name).toLowerCase();
+        if (!normalized) return [];
+        const hyphenSlug = normalized
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-+|-+$/g, "");
+        const compactSlug = normalized.replace(/[^a-z0-9]+/g, "");
+        const patternAliases = [
+          hyphenSlug.replace(/-(blue|white)-striped$/u, "-$1striped"),
+          hyphenSlug.replace(/-paldea-(aqua|blaze|combat)$/u, "-paldea$1"),
+          hyphenSlug.replace(/-(rapid|single)-strike$/u, "-$1strike"),
+          hyphenSlug.replace(/-low-key$/u, "-lowkey"),
+          hyphenSlug.replace(/-(two|three|four)-segment$/u, "-$1segment")
+        ];
+        return uniqueList([
+          hyphenSlug,
+          ...(SPRITE_SLUG_ALIASES[hyphenSlug] || []),
+          ...patternAliases,
+          compactSlug
+        ]);
       }
 
       function spriteCandidates(species) {
-        const name = species?.name || "";
-        return compactUnique([
-          pokemonSlug(name, "remove"),
-          pokemonSlug(name, "hyphen")
-        ]).map((slug) => `${LOCAL_SPRITE_BASE_URL}/${slug}.png`);
+        return pokemonSlugs(species?.name)
+          .map((slug) => `${LOCAL_SPRITE_BASE_URL}/${slug}.png`);
       }
 
       function spriteUrl(species) {
@@ -2201,17 +2207,14 @@
         fallback.textContent = name.slice(0, 1).toUpperCase();
         image.hidden = true;
         fallback.classList.add("is-visible");
-        image.onload = null;
-        image.onerror = null;
 
-        function showFallback() {
-          image.hidden = true;
-          fallback.classList.add("is-visible");
-        }
-
-        function tryNext() {
+        function tryNextSprite() {
           if (index >= candidates.length) {
-            showFallback();
+            image.onload = null;
+            image.onerror = null;
+            image.removeAttribute("src");
+            image.hidden = true;
+            fallback.classList.add("is-visible");
             return;
           }
           image.onload = () => {
@@ -2220,12 +2223,12 @@
           };
           image.onerror = () => {
             index += 1;
-            tryNext();
+            tryNextSprite();
           };
           image.src = candidates[index];
         }
 
-        tryNext();
+        tryNextSprite();
       }
 
       function lookupHeightWeight(name) {
@@ -2472,14 +2475,6 @@
         const failed = tests.filter((t) => !t.pass);
         return { passed: tests.length - failed.length, failed: failed.length, tests };
       }
-
-      document.getElementById("run-frontend-tests").addEventListener("click", async () => {
-        const output = document.getElementById("test-output");
-        output.textContent = "Running...";
-        const report = await runFrontendSelfTests();
-        const details = (report.tests || []).filter((t) => !t.pass).map((t) => `FAIL: ${t.name} - ${t.error}`).join("\n");
-        output.textContent = `Frontend: ${report.passed} passed, ${report.failed} failed${details ? `\n${details}` : ""}`;
-      });
 
       /* ---------- wiring ---------- */
       buildReel(document.getElementById("reel-main"));
