@@ -172,7 +172,7 @@
     .machine {
       position: relative;
       width: min(82vw, 312px);
-      margin: 4px auto 14px;
+      margin: 3px auto 12px;
       padding: 0 0 4px;
       background:
         linear-gradient(90deg, rgba(0,0,0,.16), rgba(255,255,255,.10) 12%, rgba(255,255,255,0) 30%,
@@ -197,7 +197,7 @@
 
     /* side pull lever */
     .machine .lever {
-      position: absolute; right: -13px; top: 62px; width: 14px; height: 74px; z-index: 4;
+      position: absolute; right: -13px; top: 56px; width: 14px; height: 67px; z-index: 4;
       background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAABKCAYAAACLgWWrAAAA10lEQVR42mNgwAM2KMj8xyXHgk+xhYocwwYGBjg/4METRhibEV2ThYocAwMDA4N4kAfDy3U7UAw9cecRXDMTsZrgLoC6iAmb+7FpQgdMDGQCRnRnEgNO3HkEsTHgwRPGE3ceEa0p4METRrKdSrlGYpyLHI+MhFIOsmHIKYeB3LSK1Y85RTX/33368Z9h2hKGnKKa/7QJnFGNoxpHNY5qHNU4qnFU46jGUY2jGmnc74ABGweP/4Q0HDmwgxFrb05BSQWnpgf37oxGBwxUVZSRp7Gto2tEp1UARLJQw5D0xeEAAAAASUVORK5CYII=") center / contain no-repeat; image-rendering: pixelated;
       transform-origin: 50% 88%;
       filter: drop-shadow(2px 2px 0 var(--shadow));
@@ -209,7 +209,7 @@
     /* teal lab marquee with diode rows + label readout */
     .machine-crown {
       position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
-      height: 30px; margin: 4px 6px 0; padding: 0 10px;
+      height: 27px; margin: 3px 6px 0; padding: 0 10px;
       background: linear-gradient(#63d6cd, #2fb3aa 48%, #18837c);
       border: 3px solid #0f5d57;
       box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -3px 0 rgba(0,0,0,.28);
@@ -227,9 +227,9 @@
     }
 
     /* gauges */
-    .gauge-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 16px 2px; }
-    .gauge { position: relative; width: 34px; height: 34px; background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAA+UlEQVR42mNgoDJgxCVx7daj//g0aqnJMRJlICGDCBnMiMuwA4eO4DXIwc4Gq6GM+AyrqChh+Pj6KQO/qDQDAwMDnN3R0QM3tK2ji4GBgYFhybwpjAwMDAws6DYfOHSEITM5Em4IjEZmwyyaPnc5hsuZkF0HcxmyIbgATI2VlRUDAwMDQ0xSzn+4gcggMzmS6AjBppYJl83EAGxqmYjReOLYCaItIcpAWExSzcBNm9ZR10BSAIaBsERLDMCmlgk56yBnJ2LBsWPH8OcUBzsbuM0VFSV4XQYzDG/hAItRWA4g5DJk12EtvmBZiFiAbBjeApaQwegG0QwAAHQXYHDe2I6vAAAAAElFTkSuQmCC") center / contain no-repeat; image-rendering: pixelated; filter: drop-shadow(1px 2px 0 rgba(0,0,0,.3)); }
-    .gauge .needle { position: absolute; left: calc(50% - 1px); bottom: 50%; width: 2px; height: 11px; background: var(--lcd-green); transform-origin: 50% 100%; box-shadow: 0 0 3px rgba(65,240,106,.7); }
+    .gauge-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px 1px; }
+    .gauge { position: relative; width: 31px; height: 31px; background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAA+UlEQVR42mNgoDJgxCVx7daj//g0aqnJMRJlICGDCBnMiMuwA4eO4DXIwc4Gq6GM+AyrqChh+Pj6KQO/qDQDAwMDnN3R0QM3tK2ji4GBgYFhybwpjAwMDAws6DYfOHSEITM5Em4IjEZmwyyaPnc5hsuZkF0HcxmyIbgATI2VlRUDAwMDQ0xSzn+4gcggMzmS6AjBppYJl83EAGxqmYjReOLYCaItIcpAWExSzcBNm9ZR10BSAIaBsERLDMCmlgk56yBnJ2LBsWPH8OcUBzsbuM0VFSV4XQYzDG/hAItRWA4g5DJk12EtvmBZiFiAbBjeApaQwegG0QwAAHQXYHDe2I6vAAAAAElFTkSuQmCC") center / contain no-repeat; image-rendering: pixelated; filter: drop-shadow(1px 2px 0 rgba(0,0,0,.3)); }
+    .gauge .needle { position: absolute; left: calc(50% - 1px); bottom: 50%; width: 2px; height: 10px; background: var(--lcd-green); transform-origin: 50% 100%; box-shadow: 0 0 3px rgba(65,240,106,.7); }
     .machine:not(.locked) .gauge .needle { animation: gsweep 1.4s ease-in-out infinite alternate; }
     .machine:not(.locked) .gauge.g2 .needle { animation-duration: 1.05s; }
     @keyframes gsweep { from { transform: rotate(-58deg); } to { transform: rotate(58deg); } }
@@ -240,14 +240,14 @@
     /* recessed reel bay */
     .machine-reels {
       display: flex; align-items: stretch; gap: 0;
-      margin: 4px 10px; padding: 8px 10px;
+      margin: 3px 10px; padding: 7px 10px;
       background: linear-gradient(#4a1411, #5a1714);
       border: 4px solid #7a1d18;
       box-shadow: inset 0 5px 9px rgba(0,0,0,.55), inset 0 -3px 0 rgba(255,255,255,.06);
     }
     .reel-window {
       position: relative; flex: 1 1 0;
-      height: 36vw; max-height: 168px; min-height: 120px;
+      height: 32vw; max-height: 150px; min-height: 108px;
       overflow: hidden; background: #fff;
       border: 10px solid transparent; border-image: var(--frame-black) 5 fill stretch;
       image-rendering: pixelated;
@@ -278,7 +278,7 @@
     /* metal control deck: knobs + scope + LCD */
     .machine-deck {
       display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center;
-      margin: 4px 10px 0; padding: 7px 8px 8px;
+      margin: 3px 10px 0; padding: 6px 8px 7px;
       background: linear-gradient(#d2d6dd, #aeb4bd 55%, #8b919b);
       border-top: 4px solid #eef0f4; border-bottom: 5px solid #595d65;
       box-shadow: inset 2px 0 0 rgba(255,255,255,.4), inset -2px 0 0 rgba(0,0,0,.2);
@@ -290,10 +290,10 @@
     }
     .machine:not(.locked) .machine-deck .knob { animation: knobturn 2.2s linear infinite; }
     @keyframes knobturn { to { transform: rotate(300deg); } }
-    .deck-screens { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .deck-screens { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .scope {
-      height: 18px; background: #061009 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAWCAYAAABwvpo0AAAA70lEQVR42u2YPQ6DMAyFX6UcgSN07Ya6s/QwnCBH4GxVN67RgRukk1UrIg0/cRxKPEUKzmeewdgA1U5uzeNqz7wfF8i2TjVBwnwTA9/sHSPgAOA9vC65b1yab36BAWAcnt91BiFy840P52CCEZgHIiGCCp8XiW7qXWNbx987vk973dQ7iSKlwYd/eOpr12Rfje+rusQoW4fnE3ztYVv9SuPvUnJvECX4RxuNaJGJBBHyXxq8NL/WkL+o4gXwg9/xOXCyRy8B36QMINS2zrW3EraJn3rc5CpTRvjaz442P8tQw/t6lWlSgX+a/wnVjm4fsjZgzyJZsI8AAAAASUVORK5CYII=") repeat-x left center;
-      background-size: 64px 18px; image-rendering: pixelated;
+      height: 16px; background: #061009 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAWCAYAAABwvpo0AAAA70lEQVR42u2YPQ6DMAyFX6UcgSN07Ya6s/QwnCBH4GxVN67RgRukk1UrIg0/cRxKPEUKzmeewdgA1U5uzeNqz7wfF8i2TjVBwnwTA9/sHSPgAOA9vC65b1yab36BAWAcnt91BiFy840P52CCEZgHIiGCCp8XiW7qXWNbx987vk973dQ7iSKlwYd/eOpr12Rfje+rusQoW4fnE3ztYVv9SuPvUnJvECX4RxuNaJGJBBHyXxq8NL/WkL+o4gXwg9/xOXCyRy8B36QMINS2zrW3EraJn3rc5CpTRvjaz442P8tQw/t6lWlSgX+a/wnVjm4fsjZgzyJZsI8AAAAASUVORK5CYII=") repeat-x left center;
+      background-size: 64px 16px; image-rendering: pixelated;
       border: 3px solid #0c3a22;
       box-shadow: inset 0 0 8px rgba(65,240,106,.25);
       animation: scopescroll 1.1s linear infinite;
@@ -301,7 +301,7 @@
     @keyframes scopescroll { to { background-position: -64px center; } }
     .machine.locked .scope { animation-play-state: paused; }
     .lcd {
-      position: relative; min-height: 42px; padding: 5px 7px 6px;
+      position: relative; min-height: 38px; padding: 4px 7px 5px;
       display: flex; flex-direction: column; justify-content: center; gap: 3px;
       color: var(--lcd-green); text-align: center; background: var(--lcd);
       border: 4px solid transparent; border-image: var(--frame-black) 5 fill stretch;
@@ -320,13 +320,13 @@
 
     /* bottom vent grille + payout slot */
     .machine-vent {
-      height: 13px; margin: 5px 14px 0;
+      height: 11px; margin: 4px 14px 0;
       background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAGCAYAAAD+Bd/7AAAALklEQVR42mO8duvRfwY8gDEmKQevApYH9+7gk2dgYiAAWBSUVPAqYBQRkcDrBgCt1QoHp0iFPAAAAABJRU5ErkJggg==") repeat; background-size: 100% 6px; image-rendering: pixelated;
       border: 2px solid #4a4e56;
       box-shadow: inset 0 2px 3px rgba(0,0,0,.5);
     }
     .machine-tray {
-      height: 10px; margin: 5px 28px 5px;
+      height: 9px; margin: 4px 28px 4px;
       background: linear-gradient(#1c0a09, #2e0f0d);
       border: 2px solid #5a1714;
       box-shadow: inset 0 4px 5px rgba(0,0,0,.8);
