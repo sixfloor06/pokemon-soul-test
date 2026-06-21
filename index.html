@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>宝可梦共鸣测试 v7.4.2 slot25 supply balanced protected</title>
+  <title>宝可梦共鸣测试 v7.4.7 new mapping · v6.3 copywriter</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -542,6 +542,7 @@
   </main>
 
 <script>
+
     (() => {
       "use strict";
 
@@ -564,10 +565,10 @@
       const ELEMENT_ROLE_TYPE_SLOT = Object.freeze({
         Wood: Object.freeze({
           "比劫": "Grass",
-          "印": "Flying",
-          "食伤": "Electric",
-          "财": "Bug",
-          "官杀": "Fairy"
+          "印": "Bug",
+          "食伤": "Fairy",
+          "财": "Flying",
+          "官杀": "Electric"
         }),
         Fire: Object.freeze({
           "比劫": "Fire",
@@ -578,17 +579,17 @@
         }),
         Earth: Object.freeze({
           "比劫": "Ground",
-          "印": "Ghost",
-          "食伤": "Rock",
-          "财": "Normal",
-          "官杀": "Bug"
+          "印": "Rock",
+          "食伤": "Bug",
+          "财": "Ghost",
+          "官杀": "Normal"
         }),
         Metal: Object.freeze({
           "比劫": "Steel",
-          "印": "Rock",
+          "印": "Ice",
           "食伤": "Fighting",
-          "财": "Poison",
-          "官杀": "Ice"
+          "财": "Rock",
+          "官杀": "Poison"
         }),
         Water: Object.freeze({
           "比劫": "Water",
@@ -612,35 +613,20 @@
       ));
       // v7.4 供给修正:主属性倍率 = (最终形态池占比 / 输出占比)^λ,v7.4.1:在 v7.3 基础上用 v7.4 的 R 做了一次 λ₂=0.5 温和二次修正
       const SUPPLY_LAMBDA = 0.6;
-      const TYPE_MAIN_MULT = Object.freeze({
-        Normal: 1.1974, Fighting: 1.1943, Flying: 0.755, Poison: 1.1091, Ground: 0.7314,
-        Rock: 0.7983, Bug: 0.8229, Ghost: 0.6862, Steel: 1.0411, Fire: 1.2253,
-        Water: 2.1875, Grass: 1.4956, Electric: 0.8951, Psychic: 0.8682, Ice: 1.0508,
-        Dragon: 1.2512, Dark: 1.1687, Fairy: 0.7101
-      });
+      const TYPE_MAIN_MULT = Object.freeze({ Normal: 1.2622, Fighting: 1.1564, Flying: 0.25, Poison: 1.0944, Ground: 0.8173, Rock: 0.9272, Bug: 0.9567, Ghost: 0.6633, Steel: 1.0005, Fire: 1.2056, Water: 2.4733, Grass: 1.5183, Electric: 0.8667, Psychic: 0.8319, Ice: 0.7901, Dragon: 1.3217, Dark: 1.2442, Fairy: 0.5859 });
       // v7.4 组合容量惩罚强度:副属性按 (该有序组合的最终形态数)^γ 加权,γ=0.5
       const COMBO_CAPACITY_GAMMA = 0.4;
       // v7.4.2 语义保护:未乘供给倍率时,第一名至少达到第二名 1.75 倍,则不允许供给倍率翻转主属性
       const MAIN_TYPE_SEMANTIC_PROTECT_RATIO = 1.75;
       // v7.4.4 最终形态覆盖漏入口: 一部分流量从同主属性的非精确最终形态池中选择。主属性保持精确,副属性允许近似。
       const COVERAGE_LEAK_RATE = 0.15;
-      const TARGETED_COVERAGE_LEAK_FINALS = new Set(["Alomomola", "Araquanid", "Archaludon", "Audino", "Avalugg-Hisui", "Barbaracle", "Basculin-Blue-Striped", "Beartic", "Camerupt", "Castform", "Clawitzer", "Cloyster", "Coalossal", "Cradily", "Delcatty", "Delibird", "Diggersby", "Dracovish", "Dragalge", "Dubwool", "Dudunsparce", "Dudunsparce-Three-Segment", "Dugtrio-Alola", "Empoleon", "Escavalier", "Excadrill", "Exploud", "Ferrothorn", "Flapple", "Flygon", "Forretress", "Furfrou", "Gastrodon", "Gliscor", "Golduck", "Golisopod", "Goodra-Hisui", "Gorebyss", "Gumshoos", "Hitmonlee", "Hitmontop", "Huntail", "Hydrapple", "Incineroar", "Inteleon", "Kabutops", "Kangaskhan", "Komala", "Krookodile", "Ledian", "Lickilicky", "Liepard", "Linoone", "Lopunny", "Lucario", "Luvdisc", "Mamoswine", "Maushold", "Maushold-Four", "Meganium", "Milotic", "Miltank", "Muk-Alola", "Oinkologne", "Omastar", "Politoed", "Poliwrath", "Pyukumuku", "Quagsire", "Quaquaval", "Samurott", "Samurott-Hisui", "Sandslash-Alola", "Scizor", "Scovillain", "Seaking", "Seismitoad", "Simipour", "Skuntank", "Slaking", "Spinda", "Steelix", "Stoutland", "Stunfisk-Galar", "Tatsugiri", "Tatsugiri-Droopy", "Tatsugiri-Stretchy", "Tauros-Paldea-Blaze", "Toedscruel", "Torterra", "Toxapex", "Tyranitar", "Tyrantrum", "Vanilluxe", "Vivillon-Fancy", "Volcarona", "Wailord", "Walrein", "Wishiwashi", "Wormadam-Trash"]);
+      const TARGETED_COVERAGE_LEAK_FINALS = new Set(["Archaludon", "Aurorus", "Barbaracle", "Bastiodon", "Camerupt", "Chandelure", "Crabominable", "Crobat", "Diggersby", "Drapion", "Drifblim", "Dugtrio-Alola", "Empoleon", "Excadrill", "Flygon", "Golem", "Hitmonchan", "Incineroar", "Kabutops", "Leavanny", "Muk-Alola", "Ninetales-Alola", "Omastar", "Parasect", "Probopass", "Sandslash-Alola", "Scrafty", "Seismitoad", "Skuntank", "Stunfisk", "Stunfisk-Galar", "Tatsugiri", "Tatsugiri-Droopy", "Tatsugiri-Stretchy", "Tauros-Paldea-Blaze", "Toedscruel", "Toxapex", "Tyranitar", "Tyrantrum", "Volcarona", "Walrein", "Wormadam"]);
 
-      const SECONDARY_PIVOT_FACTOR = { Wood: 1, Fire: 1, Earth: 0.75, Metal: 1, Water: 0.75 };
-      const SECONDARY_SOURCE_ELEMENT_FACTOR = { Wood: 1, Fire: 1, Earth: 0.84, Metal: 1, Water: 1 };
-      const SECONDARY_FALLBACK_FACTOR = {
-        Rock: 1.045,
-        Ground: 1.025,
-        Water: 1.015,
-        Fighting: 0.970,
-        Dark: 0.965,
-        Bug: 1.000
-      };
+      const SECONDARY_PIVOT_FACTOR = {"Wood": 1, "Fire": 1, "Earth": 1, "Metal": 1, "Water": 1};
+      const SECONDARY_SOURCE_ELEMENT_FACTOR = {"Wood": 1.1404, "Fire": 1.0844, "Earth": 0.9796, "Metal": 1.0205, "Water": 0.9941};
+      const SECONDARY_FALLBACK_FACTOR = {"Normal": 0.6197, "Fighting": 1.273, "Flying": 0.853, "Poison": 1.3073, "Ground": 1.9395, "Rock": 0.8291, "Bug": 0.9965, "Ghost": 0.8101, "Steel": 1.2375, "Fire": 2.1, "Water": 1.8409, "Grass": 2.1, "Electric": 1.1703, "Psychic": 0.5171, "Ice": 0.718, "Dragon": 2.1, "Dark": 0.6307, "Fairy": 1.0926};
 
-      const SPECIFIC_BAZI_MATCH_OVERRIDES = {
-        "丙子庚子丁未癸卯|Ghost": { chainId: "greavard", finalName: "Houndstone" },
-        "丁丑丙午丁未庚子|Electric": { chainId: "pichu", finalName: "Raichu", forceTypeCombo: ["Electric"] }
-      };
+      const SPECIFIC_BAZI_MATCH_OVERRIDES = {};
 
       function baziMatchOverride(seed, targetTypes) {
         const key = `${seed}|${orderedComboKey(targetTypes)}`;
@@ -1725,10 +1711,10 @@
           assert(FORBIDDEN_VISIBLE_TERMS.every((term) => !text.includes(term)), "feature contract contains a restricted term");
         });
         await test("slot25 relation table is active", async () => {
-          assert(ELEMENT_ROLE_TYPE_SLOT.Wood["比劫"] === "Grass" && ELEMENT_ROLE_TYPE_SLOT.Wood["印"] === "Flying", "Wood slot table is incomplete");
-          assert(ELEMENT_ROLE_TYPE_SLOT.Fire["食伤"] === "Psychic" && ELEMENT_ROLE_TYPE_SLOT.Fire["财"] === "Fairy", "Fire slot table is incomplete");
-          assert(ELEMENT_ROLE_TYPE_SLOT.Earth["比劫"] === "Ground" && ELEMENT_ROLE_TYPE_SLOT.Earth["印"] === "Ghost", "Earth slot table is incomplete");
-          assert(ELEMENT_ROLE_TYPE_SLOT.Metal["比劫"] === "Steel" && ELEMENT_ROLE_TYPE_SLOT.Metal["印"] === "Rock", "Metal slot table is incomplete");
+          assert(ELEMENT_ROLE_TYPE_SLOT.Wood["比劫"] === "Grass" && ELEMENT_ROLE_TYPE_SLOT.Wood["印"] === "Bug" && ELEMENT_ROLE_TYPE_SLOT.Wood["官杀"] === "Electric", "Wood slot table is incomplete");
+          assert(ELEMENT_ROLE_TYPE_SLOT.Fire["印"] === "Electric" && ELEMENT_ROLE_TYPE_SLOT.Fire["食伤"] === "Psychic" && ELEMENT_ROLE_TYPE_SLOT.Fire["财"] === "Fairy", "Fire slot table is incomplete");
+          assert(ELEMENT_ROLE_TYPE_SLOT.Earth["比劫"] === "Ground" && ELEMENT_ROLE_TYPE_SLOT.Earth["印"] === "Rock" && ELEMENT_ROLE_TYPE_SLOT.Earth["官杀"] === "Normal", "Earth slot table is incomplete");
+          assert(ELEMENT_ROLE_TYPE_SLOT.Metal["比劫"] === "Steel" && ELEMENT_ROLE_TYPE_SLOT.Metal["印"] === "Ice" && ELEMENT_ROLE_TYPE_SLOT.Metal["官杀"] === "Poison", "Metal slot table is incomplete");
           assert(ELEMENT_ROLE_TYPE_SLOT.Water["比劫"] === "Water" && ELEMENT_ROLE_TYPE_SLOT.Water["印"] === "Dragon", "Water slot table is incomplete");
         });
         await test("visible test output contains no restricted terms", async () => {
@@ -1762,14 +1748,16 @@
       });
     })();
 
+
     (() => {
       "use strict";
 
+      /* ============ P6 文案规范 v6.3：固定模块化文本库 ============ */
       const FORBIDDEN_COPY_TERMS = [
         "八字", "日主", "五行", "十神", "用神", "身强", "身弱", "命格", "旺相休囚死",
         "刑冲", "旺衰", "官杀", "比劫", "食伤", "财星", "印星", "算命", "吉凶",
         "你的命注定", "你命里", "专业排盘", "专业命理", "绝对准确", "绝对正确",
-        "命理级精度", "完全正确", "注定成功", "注定失败"
+        "命理级精度", "完全正确", "注定成功", "注定失败", "之力"
       ];
       const FORBIDDEN_COPY_PATTERNS = [
         { label: "不是……而是……", pattern: /不是[^。！？]*而是/ },
@@ -1786,39 +1774,98 @@
         { label: "你是一个……的人", pattern: /你是一个[^。！？]*的人/ },
         { label: "你拥有 A、B、C 三种特质", pattern: /你拥有[^。！？]*[、，][^。！？]*[、，][^。！？]*特质/ }
       ];
-      const TYPE_OBSERVATIONS = {
-        Grass: "它懂得沿着自己的节奏生长，像叶片追着光慢慢舒展开。",
-        Bug: "它对周围细小的变化很敏感，也知道怎样在一次次蜕变中调整自己。",
-        Fairy: "它身上有轻盈而鲜明的气息，常能让紧绷的场面松动下来。",
-        Flying: "它习惯先看清更远的方向，再决定翅膀落向哪里。",
-        Fire: "它的力量像尾焰，找到目标后会稳定地亮起来。",
-        Electric: "它捕捉时机很快，行动常带着清脆直接的节奏。",
-        Psychic: "它习惯先安静观察，再把注意力集中到真正重要的地方。",
-        Ground: "它的脚步贴着地面，面对变化时仍能守住自己的重心。",
-        Rock: "它愿意承受漫长的打磨，外表安静，内部一直保持着力量。",
-        Normal: "它擅长把普通的日子走稳，在熟悉的节奏里积累可靠经验。",
-        Steel: "它像经过训练的护甲，越经历碰撞，越知道怎样稳稳站住。",
-        Fighting: "它愿意在训练里反复修正动作，直到力量能够准确落下。",
-        Dragon: "它身上有向远处生长的气势，仍会耐心守着自己的步调。",
-        Poison: "它懂得分辨环境里的细微信号，也会谨慎保留自己的边界。",
-        Water: "它会顺着环境寻找出口，像海流一样柔和，也有持续向前的力量。",
-        Ice: "它习惯在安静中整理判断，清晰之后才迈出下一步。",
-        Ghost: "它常留意别人忽略的动静，在夜色般的安静里保持敏锐。",
-        Dark: "它懂得观察规则之外的缝隙，行动时很少浪费力气。"
-      };
-      const FEATURE_TRANSLATIONS = {
-        "quietly observant": "你通常会先留意周围的动静，让判断在安静里慢慢变清楚。",
-        "steady and attentive": "你做事时愿意把注意力放稳，细小变化也很少从眼前溜走。",
-        "keeps going through long stretches": "面对漫长的路，你往往能保留耐心，一步一步继续走。",
-        "acts with direct force": "当方向清楚时，你的行动会变得直接，脚步也很坚定。",
-        "holds steady under pressure": "压力靠近时，你会先守住重心，再寻找可以推进的位置。",
-        "expresses power with precision": "你更习惯把力量放在关键处，让一次行动真正产生作用。",
-        "absorbs pressure without losing focus": "周围变得嘈杂时，你仍会努力守住注意力。",
-        "moves before the moment passes": "你对时机很敏感，看到窗口时常能及时迈出一步。",
-        "combines two different strengths": "你的成长常来自两种节奏的配合，让彼此都能发挥作用。",
-        "deepens one clear strength": "你愿意沿着清楚的方向持续练习，把熟悉的能力磨得更稳。"
-      };
-      const PHASE_CHIPS = ["安静积累", "正在成形", "稳定展开"];
+
+      const TYPE_ZH = Object.freeze({
+        Normal:"一般", Fighting:"格斗", Flying:"飞行", Poison:"毒", Ground:"地面", Rock:"岩石",
+        Bug:"虫", Ghost:"幽灵", Steel:"钢", Fire:"火", Water:"水", Grass:"草",
+        Electric:"电", Psychic:"超能力", Ice:"冰", Dragon:"龙", Dark:"恶", Fairy:"妖精"
+      });
+      const CHANNEL = Object.freeze({ 0: "你的来处", 1: "你所处的环境", 2: "你前行的方向" });
+      const ENERGY_TAG = Object.freeze({ strong: "能量外放", weak: "能量内收", balanced: "能量均衡" });
+      const ROLE_TAG = Object.freeze({ "印": "厚积薄发", "比劫": "表里如一", "食伤": "推陈出新", "财": "运筹帷幄", "官杀": "千锤百炼" });
+      const STAGE_TAG = Object.freeze({ rising: "正在成形", peak: "稳定展开", settling: "安静积累", single: "完成式" });
+      const STAT_PHRASE = Object.freeze({
+        hp: "持久的耐力",
+        atk: "行动的力度",
+        def: "承受压力的能力",
+        spa: "在关键处精准发力",
+        spd: "内在的稳定与韧性",
+        spe: "对时机的把握"
+      });
+      const STAT_TAG = Object.freeze({ hp: "持之以恒", atk: "雷厉风行", def: "处变不惊", spa: "入木三分", spd: "处变不惊", spe: "当机立断" });
+      const TYPE_BEHAVIOR_TAG = Object.freeze({ Psychic: "静观其变", Ghost: "静观其变", Poison: "坚守底线", Dark: "三思后行", Water: "随机应变" });
+      const DISPOSITION = Object.freeze({
+        strong: "你倾向于先行动，许多想法是在实践的过程中逐渐清晰的。",
+        weak: "你倾向于先想清楚再行动，独处时往往最能进入状态。",
+        balanced: "你能在专注投入与适度放松之间自然切换。"
+      });
+
+      const COPYWRITER_ELEMENT_ROLE_TYPE_SLOT = Object.freeze({
+        Wood: Object.freeze({ "比劫": "Grass", "印": "Bug", "食伤": "Fairy", "财": "Flying", "官杀": "Electric" }),
+        Fire: Object.freeze({ "比劫": "Fire", "印": "Electric", "食伤": "Psychic", "财": "Fairy", "官杀": "Ghost" }),
+        Earth: Object.freeze({ "比劫": "Ground", "印": "Rock", "食伤": "Bug", "财": "Ghost", "官杀": "Normal" }),
+        Metal: Object.freeze({ "比劫": "Steel", "印": "Ice", "食伤": "Fighting", "财": "Rock", "官杀": "Poison" }),
+        Water: Object.freeze({ "比劫": "Water", "印": "Dragon", "食伤": "Normal", "财": "Psychic", "官杀": "Dark" })
+      });
+
+      const SLOT_COPY = Object.freeze({
+        Wood: Object.freeze({
+          "比劫": Object.freeze({ type:"Grass", trait:"平稳而长期的投入是你的本色，起步虽慢，却能在多数人放弃之后依然坚持。", subSentence:"你对认定的事有长性，不容易被一时的快慢带动。", subPhrase:"适合长期投入" }),
+          "印": Object.freeze({ type:"Bug", trait:"你的务实是一点一点积累起来的，遇到需要调整的地方就着手处理，久而久之成为可靠的底色。", subSentence:"你习惯把遇到的问题就手解决，靠日积月累攒出底气。", subPhrase:"务实积累" }),
+          "食伤": Object.freeze({ type:"Fairy", trait:"面对摩擦与冲突，你善于主动创造出让各方都能缓和下来的余地。", subSentence:"你能敏锐察觉气氛的紧绷，并主动让它松弛下来。", subPhrase:"化解有余" }),
+          "财": Object.freeze({ type:"Flying", trait:"你不断为自己取得新的方向与更开阔的空间，不愿长期停留在不变的环境里。", subSentence:"你需要新鲜的方向和空间，旧的框架留不住你太久。", subPhrase:"取道开阔" }),
+          "官杀": Object.freeze({ type:"Electric", trait:"越是紧要、容不得迟疑的处境，你反应迅速、当即行动的一面越被磨砺出来。", subSentence:"越是紧要关头，你越能当机立断，不在迟疑里耗着。", subPhrase:"临机即应" })
+        }),
+        Fire: Object.freeze({
+          "比劫": Object.freeze({ type:"Fire", trait:"平稳而持续地燃烧是你的本色，认定方向之后，即便热情退去也不会轻易停下。", subSentence:"你的热度稳而长，不靠一时的冲劲，而靠持续的投入。", subPhrase:"平稳持续" }),
+          "印": Object.freeze({ type:"Electric", trait:"你的敏捷是长期养成的本能，机会一出现就能接住，不必临时催促自己。", subSentence:"你对机会有天生的灵敏，反应往往快人一步。", subPhrase:"本能敏捷" }),
+          "食伤": Object.freeze({ type:"Psychic", trait:"你把观察转化为别人没有想到的角度再表达出来，洞察是你创造价值的方式。", subSentence:"你看得比说得多，常能补上别人没留意的那个角度。", subPhrase:"以察生见" }),
+          "财": Object.freeze({ type:"Fairy", trait:"你懂得如何与人保持温和的关系，把信任与善意稳稳地维系在自己手中。", subSentence:"你懂得经营关系里的温度，让信任慢慢沉淀下来。", subPhrase:"以和维系" }),
+          "官杀": Object.freeze({ type:"Ghost", trait:"越被推到要紧的关头，你越能退到客观的位置，把局面看清后再决定如何行动。", subSentence:"面对压力，你会先退一步把全局看清，再决定怎么走。", subPhrase:"临要抽离" })
+        }),
+        Earth: Object.freeze({
+          "比劫": Object.freeze({ type:"Ground", trait:"愿意承担是你的本色，别人遇到困难时习惯依靠你，因为你确实承担得起。", subSentence:"你承担得起，别人遇到难处也愿意把重量交到你手里。", subPhrase:"勇于承担" }),
+          "印": Object.freeze({ type:"Rock", trait:"你经得起时间的考验，一件事持续得越久，沉淀下来的可靠便越深厚。", subSentence:"你经得起时间，事情持续得越久，你显得越稳。", subPhrase:"历久弥坚" }),
+          "食伤": Object.freeze({ type:"Bug", trait:"你把务实变成持续的产出，遇到需要调整的地方就主动处理，让进展实际地发生。", subSentence:"你不空谈，遇到要改的地方就着手处理，让进展实际发生。", subPhrase:"实干见效" }),
+          "财": Object.freeze({ type:"Ghost", trait:"你不张扬地把握着对事态的判断，对该如何行动、与人保持多少距离，心里始终有数。", subSentence:"你不动声色，却对事态的走向心里始终有数。", subPhrase:"静观有数" }),
+          "官杀": Object.freeze({ type:"Normal", trait:"面对再复杂的处境，你也不靠极端取胜，而是以稳定把事情一件件办妥，让人放心。", subSentence:"再乱的局面，你也靠稳定一件件办妥，不靠极端。", subPhrase:"稳中办妥" })
+        }),
+        Metal: Object.freeze({
+          "比劫": Object.freeze({ type:"Steel", trait:"讲究方法与条理是你的本色，已经安排好的事情很少出现偏差。", subSentence:"你做事有章法，安排好的事很少出现偏差。", subPhrase:"讲究条理" }),
+          "印": Object.freeze({ type:"Ice", trait:"你的冷静是长期养成的，做判断时很少被情绪左右，看待问题往往比别人更清晰。", subSentence:"你冷静得早已成性，判断很少被情绪牵着走。", subPhrase:"冷静清晰" }),
+          "食伤": Object.freeze({ type:"Fighting", trait:"你想清楚之后便付诸行动，不绕弯路，力量都投入在能够真正完成的事情上。", subSentence:"你想清楚就直接行动，力量都用在能完成的事上。", subPhrase:"果断行动" }),
+          "财": Object.freeze({ type:"Rock", trait:"你把稳固变成可以倚靠的分量，交到你手中的事，时间越久越显得扎实。", subSentence:"你把稳固变成别人能倚靠的分量，越久越扎实。", subPhrase:"稳重可倚" }),
+          "官杀": Object.freeze({ type:"Poison", trait:"越是复杂的局面，你越能处理得当，对与人保持多少距离始终有清楚的分寸。", subSentence:"越复杂的局面你越拿捏得住，与人的距离心里有分寸。", subPhrase:"分寸清楚" })
+        }),
+        Water: Object.freeze({
+          "比劫": Object.freeze({ type:"Water", trait:"能依不同场合调整自己是你的本色，进入新环境也不拘束，但始终守得住自己的原则。", subSentence:"你能随场合调整自己，进新环境不拘束，却守得住原则。", subPhrase:"灵活而有原则" }),
+          "印": Object.freeze({ type:"Dragon", trait:"你平日收敛锋芒、并不张扬，长久的积蓄让你在关键时刻总能拿出真正的实力。", subSentence:"你平时不显山露水，关键时刻才拿出真正的分量。", subPhrase:"厚积薄发" }),
+          "食伤": Object.freeze({ type:"Normal", trait:"你以一种不慌不忙的平常方式把事情交付出去，稳定本身就是你持续的产出。", subSentence:"你用一种不慌不忙的方式把事情交出去，让人放心。", subPhrase:"平常交付" }),
+          "财": Object.freeze({ type:"Psychic", trait:"你先把情况看透，再据此从容行事，理解对你而言是一种握在手中的优势。", subSentence:"你常先把情况看透，再据此从容行事。", subPhrase:"察局取势" }),
+          "官杀": Object.freeze({ type:"Dark", trait:"越是局面紧绷，你越不轻易表露判断，但对事态的发展通常早有预见。", subSentence:"你不急于表态，却常在别人之前就看清事情会怎样发展。", subPhrase:"深思而内敛" })
+        })
+      });
+
+      const FALLBACK_TYPE_COPY = Object.freeze({
+        Grass: { trait: SLOT_COPY.Wood["比劫"].trait, subSentence: SLOT_COPY.Wood["比劫"].subSentence, subPhrase: "适合长期投入" },
+        Flying: { trait: SLOT_COPY.Wood["财"].trait, subSentence: SLOT_COPY.Wood["财"].subSentence, subPhrase: "取道开阔" },
+        Fire: { trait: SLOT_COPY.Fire["比劫"].trait, subSentence: SLOT_COPY.Fire["比劫"].subSentence, subPhrase: "平稳持续" },
+        Ground: { trait: SLOT_COPY.Earth["比劫"].trait, subSentence: SLOT_COPY.Earth["比劫"].subSentence, subPhrase: "勇于承担" },
+        Steel: { trait: SLOT_COPY.Metal["比劫"].trait, subSentence: SLOT_COPY.Metal["比劫"].subSentence, subPhrase: "讲究条理" },
+        Ice: { trait: SLOT_COPY.Metal["印"].trait, subSentence: SLOT_COPY.Metal["印"].subSentence, subPhrase: "冷静清晰" },
+        Fighting: { trait: SLOT_COPY.Metal["食伤"].trait, subSentence: SLOT_COPY.Metal["食伤"].subSentence, subPhrase: "果断行动" },
+        Poison: { trait: SLOT_COPY.Metal["官杀"].trait, subSentence: SLOT_COPY.Metal["官杀"].subSentence, subPhrase: "分寸清楚" },
+        Water: { trait: SLOT_COPY.Water["比劫"].trait, subSentence: SLOT_COPY.Water["比劫"].subSentence, subPhrase: "灵活而有原则" },
+        Dragon: { trait: SLOT_COPY.Water["印"].trait, subSentence: SLOT_COPY.Water["印"].subSentence, subPhrase: "厚积薄发" },
+        Dark: { trait: SLOT_COPY.Water["官杀"].trait, subSentence: SLOT_COPY.Water["官杀"].subSentence, subPhrase: "深思而内敛" },
+        Normal: { trait: SLOT_COPY.Water["食伤"].trait, subSentence: SLOT_COPY.Water["食伤"].subSentence, subPhrase: "平常交付" },
+        Bug: { trait: SLOT_COPY.Earth["食伤"].trait, subSentence: SLOT_COPY.Earth["食伤"].subSentence, subPhrase: "实干见效" },
+        Fairy: { trait: SLOT_COPY.Fire["财"].trait, subSentence: SLOT_COPY.Fire["财"].subSentence, subPhrase: "以和维系" },
+        Electric: { trait: SLOT_COPY.Fire["印"].trait, subSentence: SLOT_COPY.Fire["印"].subSentence, subPhrase: "本能敏捷" },
+        Psychic: { trait: SLOT_COPY.Water["财"].trait, subSentence: SLOT_COPY.Water["财"].subSentence, subPhrase: "察局取势" },
+        Ghost: { trait: SLOT_COPY.Earth["财"].trait, subSentence: SLOT_COPY.Earth["财"].subSentence, subPhrase: "静观有数" },
+        Rock: { trait: SLOT_COPY.Metal["财"].trait, subSentence: SLOT_COPY.Metal["财"].subSentence, subPhrase: "稳重可倚" }
+      });
 
       function validateVisibleCopy(text) {
         const visibleText = String(text ?? "");
@@ -1832,100 +1879,161 @@
         return issues;
       }
 
-      function strongestStatObservation(species) {
-        const phrases = {
-          hp: "它能陪着一段很长的旅程，呼吸和脚步都保持得很稳。",
-          atk: "它一旦决定行动，力量会清楚地落向目标。",
-          def: "它很会守住位置，风浪靠近时也不轻易失去重心。",
-          spa: "它善于把注意力集中起来，在关键时刻给出准确回应。",
-          spd: "它能接住环境里的压力，目光依然会留在重要的事情上。",
-          spe: "它对时机反应敏锐，常能在机会溜走前迈出一步。"
-        };
+      function rankedScores(scoreObj) {
+        return Object.entries(scoreObj || {})
+          .map(([key, value]) => [key, Number(value) || 0])
+          .filter(([, value]) => value > 0)
+          .sort((left, right) => right[1] - left[1] || String(left[0]).localeCompare(String(right[0])));
+      }
+
+      function isDecisiveMain(result) {
+        const ranked = rankedScores(result?.debug?.mainTypeScores);
+        if (ranked.length < 2) return true;
+        return ranked[0][1] - ranked[1][1] >= 0.08;
+      }
+
+      function isDecisiveSub(result) {
+        const scores = result?.debug?.subTypeSelection?.weights || result?.debug?.subTypeSelection?.scores;
+        const ranked = rankedScores(scores);
+        if (ranked.length < 2) return true;
+        const top = ranked[0][1] || 1;
+        return ranked[0][1] - ranked[1][1] >= Math.max(0.08, 0.18 * top);
+      }
+
+      function strongestStatKey(species) {
         const stats = species?.baseStats && typeof species.baseStats === "object" ? Object.entries(species.baseStats) : [];
         stats.sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
-        return phrases[stats[0]?.[0]] || "它会仔细观察环境，再选择适合自己的行动方式。";
+        return stats[0]?.[0] || "hp";
       }
 
-      function featureSentence(features) {
-        const candidates = [features?.temperament, features?.actionStyle, features?.growthDirection, features?.pressurePattern];
-        const translated = candidates.map((value) => FEATURE_TRANSLATIONS[value]).filter(Boolean);
-        return translated.slice(0, 2).join("");
+      function slotRoleForType(element, type) {
+        const roleMap = COPYWRITER_ELEMENT_ROLE_TYPE_SLOT[element] || {};
+        return Object.entries(roleMap).find(([, mappedType]) => mappedType === type)?.[0] || null;
       }
 
-      function phaseSentence(result, speciesName) {
-        const stageIndex = Number(result.stageIndex);
-        const chainStages = Number(result.chainStages);
-        if (!Array.isArray(result.chain) || !result.chain.length || !stageIndex || !chainStages) return "";
-        if (chainStages === 1) {
-          return `${speciesName}没有需要追赶的下一种形态。它把完整的可能性放在当下，提醒你专心走好眼前这一段。`;
+      function slotToneForType(element, type) {
+        const role = slotRoleForType(element, type);
+        const copy = role ? SLOT_COPY[element]?.[role] : null;
+        return copy ? { role, element, ...copy } : null;
+      }
+
+      function mainSlotTone(result, mainType) {
+        return slotToneForType(result?.dmWx, mainType) || { role: null, type: mainType, ...(FALLBACK_TYPE_COPY[mainType] || FALLBACK_TYPE_COPY.Normal) };
+      }
+
+      function bestSubPivot(result, subType) {
+        const pivots = result?.debug?.subTypeSelection?.pivots || [];
+        let best = null;
+        let bestScore = -1;
+        pivots.forEach((pivot) => {
+          const score = Number(pivot?.scores?.[subType]) || Number(pivot?.rawScores?.[subType]) || 0;
+          const tone = slotToneForType(pivot?.element, subType);
+          if (tone && score > bestScore) { best = { ...pivot, tone }; bestScore = score; }
+        });
+        return best;
+      }
+
+      function subSlotTone(result, subType) {
+        return bestSubPivot(result, subType)?.tone || mainSlotTone(result, subType);
+      }
+
+      function bestSubChannel(result, subType) {
+        const pivot = bestSubPivot(result, subType);
+        return CHANNEL[pivot?.pillarIndex] || "你所处的环境";
+      }
+
+      function stageKind(result) {
+        const stages = Number(result?.chainStages) || 1;
+        if (stages <= 1) return "single";
+        const age = Number(result?.age);
+        const win = result?.peakWindow || {};
+        if (Number.isFinite(age) && Number.isFinite(win.start) && Number.isFinite(win.end)) {
+          if (age > win.end) return "settling";
+          if (age >= win.start && age <= win.end) return "peak";
+          return "rising";
         }
-        if (stageIndex >= chainStages) {
-          return `现在的你站在这条进化路线较为舒展的位置。过去积累的训练开始彼此配合，像 ${speciesName} 已经学会稳定使用自己的力量。`;
+        return Number(result?.stageIndex) >= stages ? "peak" : "rising";
+      }
+
+      function stageSentence(result) {
+        const kind = stageKind(result);
+        if (kind === "single") return "它一生只有一种形态。有些生命从一开始便是完整的，你也是如此。";
+        if (kind === "peak") return "你正处在状态的高点，因此与你相遇的，是它最舒展的形态。";
+        if (kind === "settling") return "你的能量正从高点转入沉淀，它也回到了更为简练的形态，将力量收敛得更加节省。";
+        return "你正处在上升的阶段，这只宝可梦也尚未抵达最终形态，你们都还在成长的途中。";
+      }
+
+      function normalizeSentenceEnd(text) {
+        const value = String(text || "").trim();
+        return /[。！？]$/.test(value) ? value : `${value}。`;
+      }
+
+      function buildTags(result, mainType, typeCombo, statKey) {
+        const tags = [];
+        const add = (value) => { if (value && !tags.includes(value)) tags.push(value); };
+        const tone = mainSlotTone(result, mainType);
+        add(ENERGY_TAG[result?.strengthLabel] || ENERGY_TAG.balanced);
+        add(ROLE_TAG[tone.role] || null);
+        add(STAT_TAG[statKey]);
+        add(TYPE_BEHAVIOR_TAG[mainType] || (typeCombo.length > 1 ? "双管齐下" : "从一而终"));
+        if (tags.length < 4) add(typeCombo.length > 1 ? "双管齐下" : "从一而终");
+        add(STAGE_TAG[stageKind(result)]);
+        if (result?.isLegendaryResult) {
+          const base = tags.slice(0, 4);
+          base.push("本相精纯");
+          return base;
         }
-        if (Number(result.energy) < 0.35 && stageIndex === 1) {
-          return `现在更适合像 ${speciesName} 一样保存体力、熟悉环境。很多重要变化，会先从安静的练习和可靠的脚步开始。`;
-        }
-        return `现在的你正走在进化路线的第 ${stageIndex} 段。新的能力已经露出轮廓，仍需要一些训练，让它们慢慢配合起来。`;
+        return tags.slice(0, 5);
       }
 
       function buildPokemonSoulExplanation(result) {
         const species = result?.selectedSpecies;
         if (!species?.name) {
-          return {
+          const fallback = {
             title: "博士还需要再观察一下",
-            paragraphs: ["这次没有取得足够的宝可梦资料。等资料准备好后，再回来看看与你并肩的伙伴。"],
+            paragraphs: ["这次没有取得足够的宝可梦资料。等资料准备好后，再回来看看与你共鸣的伙伴。"],
             chips: [],
             internalSourceFields: []
           };
+          const issues = validateVisibleCopy([fallback.title, ...fallback.paragraphs].join("\n"));
+          if (issues.length) throw new Error(`Copywriter visible copy validation failed: ${issues.join("; ")}`);
+          return fallback;
         }
 
         const name = species.name;
-        const types = Array.isArray(result.typeCombo) && result.typeCombo.length
-          ? result.typeCombo
-          : Array.isArray(species.types) ? species.types : [];
-        const typeObservation = types.map((type) => TYPE_OBSERVATIONS[type]).find(Boolean)
-          || "它会仔细观察环境，再选择适合自己的行动方式。";
-        const paragraphs = [
-          `如果让我用一只宝可梦来描述你，我会想到 ${name}。仔细观察它，会发现它总有自己的行动节奏。`,
-          `${typeObservation}${strongestStatObservation(species)}`
-        ];
-        const internalSourceFields = ["selectedSpecies", "typeCombo"];
-        const chips = [];
+        const typeCombo = Array.isArray(result?.typeCombo) && result.typeCombo.length
+          ? [...new Set(result.typeCombo)]
+          : (Array.isArray(species.types) && species.types.length ? [...new Set(species.types)] : ["Normal"]);
+        const mainType = result?.mainType || typeCombo[0] || "Normal";
+        const subType = result?.subType || typeCombo[1] || mainType;
+        const singleType = typeCombo.length <= 1 || mainType === subType;
+        const statKey = strongestStatKey(species);
+        const mainTone = mainSlotTone(result, mainType);
+        const subTone = subSlotTone(result, subType);
 
-        if (result.explanationFeatures && typeof result.explanationFeatures === "object") {
-          const similarity = featureSentence(result.explanationFeatures);
-          if (similarity) paragraphs.push(`你身上也能看到相近的节奏。${similarity}`);
-          internalSourceFields.push("explanationFeatures");
-          const phaseChip = result.explanationFeatures.currentPhase === "a fully opened phase"
-            ? "稳定展开"
-            : result.explanationFeatures.currentPhase === "a growing phase" ? "正在成形" : "安静积累";
-          chips.push(phaseChip);
-        }
-
-        const phase = phaseSentence(result, name);
-        if (phase && result.explanationFeatures) {
-          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += phase;
-          else paragraphs.push(phase);
-          internalSourceFields.push("chain", "stageIndex", "chainStages", "energy");
-        }
-
-        if (result.isLegendaryResult) {
-          const legendaryText = `${name}身上的稀有感，来自一种格外清楚的存在方式。这样的相遇像一道少见的足迹，值得慢一点观察，也值得认真珍惜。`;
-          if (paragraphs.length >= 4) paragraphs[paragraphs.length - 1] += legendaryText;
-          else paragraphs.push(legendaryText);
-          internalSourceFields.push("isLegendaryResult");
-          chips.push("清晰足迹");
-        }
-
-        if (!result.explanationFeatures) {
-          chips.push(types.length > 1 ? "双重节奏" : "专注生长");
+        const opening = `与你共鸣最深的是${name}。仔细观察它，会发现你们在行事方式上有不少相通之处。`;
+        const mainParagraph = isDecisiveMain(result)
+          ? `从你出生时刻的能量结构来看，${TYPE_ZH[mainType] || mainType}这一面最为明显。${mainTone.trait || FALLBACK_TYPE_COPY[mainType]?.trait || FALLBACK_TYPE_COPY.Normal.trait}${DISPOSITION[result?.strengthLabel] || DISPOSITION.balanced}`
+          : `你身上有两种几乎并列的倾向，它们都属于你。这一次率先显现的是${TYPE_ZH[mainType] || mainType}，另一种并未消失，只是暂时退居其次。${DISPOSITION[result?.strengthLabel] || DISPOSITION.balanced}`;
+        const subParagraph = singleType
+          ? "你的两面指向同一个方向，内外高度一致，这种情形比兼具双面更为少见。"
+          : (isDecisiveSub(result)
+            ? `从${bestSubChannel(result, subType)}，还能看到你的另一面：${normalizeSentenceEnd(subTone.subSentence || FALLBACK_TYPE_COPY[subType]?.subSentence || FALLBACK_TYPE_COPY.Normal.subSentence)}这一面与你主导的部分正好互补。`
+            : `你的另一面存在几种可能，这一次它以${TYPE_ZH[subType] || subType}的形态呈现——${normalizeSentenceEnd(subTone.subSentence || FALLBACK_TYPE_COPY[subType]?.subSentence || FALLBACK_TYPE_COPY.Normal.subSentence)}`);
+        let closing = `${stageSentence(result)}${name}最擅长的是${STAT_PHRASE[statKey] || STAT_PHRASE.hp}，而这恰好也是你最突出的地方。`;
+        if (result?.isLegendaryResult) {
+          closing += "另外值得一提：你的能量结构在数据中相当少见，因此与你共鸣的是一只传说级宝可梦，这样的结果并不常见。";
         }
 
         const output = {
-          title: `博士观察：${name}`,
-          paragraphs: paragraphs.slice(0, 4),
-          chips: [...new Set(chips.length ? chips : [PHASE_CHIPS[0]])].slice(0, 3),
-          internalSourceFields: [...new Set(internalSourceFields)]
+          title: "为什么这只宝可梦会愿意靠近你",
+          paragraphs: [opening, mainParagraph, subParagraph, closing],
+          chips: buildTags(result, mainType, typeCombo, statKey),
+          internalSourceFields: [
+            "selectedSpecies", "dmWx", "mainType", "subType", "typeCombo", "strengthLabel",
+            "debug.mainTypeScores", "debug.subTypeSelection", "stageIndex", "chainStages",
+            "energy", "peakWindow", "selectedSpecies.baseStats", "isLegendaryResult"
+          ]
         };
         const issues = validateVisibleCopy([output.title, ...output.paragraphs, ...output.chips].join("\n"));
         if (issues.length) throw new Error(`Copywriter visible copy validation failed: ${issues.join("; ")}`);
@@ -1935,57 +2043,52 @@
       async function runCopywriterSelfTests() {
         const tests = [];
         async function test(name, callback) {
-          try {
-            await callback();
-            tests.push({ name, pass: true });
-          } catch (error) {
-            tests.push({ name, pass: false, error: error.message });
-          }
+          try { await callback(); tests.push({ name, pass: true }); }
+          catch (error) { tests.push({ name, pass: false, error: error.message }); }
         }
-        function assert(condition, message) {
-          if (!condition) throw new Error(message);
-        }
-        function visibleText(copy) {
-          return [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n");
-        }
+        function assert(condition, message) { if (!condition) throw new Error(message); }
+        function visibleText(copy) { return [copy.title, ...(copy.paragraphs || []), ...(copy.chips || [])].join("\n"); }
 
         const normalResult = await window.PokemonSoulAlgorithm.calculatePokemonSoul({
-          year: 1995, month: 6, day: 15, hour: 12, currentYear: 2026
+          year: 1995, month: 6, day: 15, hour: 12, timezoneOffsetMinutes: 480, currentYear: 2026
         });
-        await test("normal result creates title and paragraphs", async () => {
+        await test("P6 v6.3 result uses four fixed modules", async () => {
           const copy = buildPokemonSoulExplanation(normalResult);
-          assert(Boolean(copy.title), "title is empty");
-          assert(copy.paragraphs.length >= 2, "paragraphs are empty");
+          assert(copy.title === "为什么这只宝可梦会愿意靠近你", "title is not the P6 result title");
+          assert(copy.paragraphs.length === 4, "P6 copy must contain four paragraphs");
+          assert(copy.chips.length >= 4 && copy.chips.length <= 5, "tags must stay within P6 range");
         });
         await test("visible copy passes restricted-language validation", async () => {
           const copy = buildPokemonSoulExplanation(normalResult);
           assert(validateVisibleCopy(visibleText(copy)).length === 0, "visible copy contains restricted language");
         });
         await test("validator detects restricted language", async () => {
-          assert(validateVisibleCopy("这不是停顿，而是专业排盘给出的绝对准确结论。").length >= 3, "validator missed restricted language");
+          assert(validateVisibleCopy("这不是停顿，而是专业排盘给出的绝对准确结论。掌控之力。命格。官杀。").length >= 5, "validator missed restricted language");
         });
-        await test("validator detects all accuracy and destiny overclaims", async () => {
-          ["命理级精度", "完全正确", "注定成功", "注定失败"].forEach((phrase) => {
-            assert(validateVisibleCopy(phrase).length > 0, `validator missed overclaim: ${phrase}`);
-          });
+        await test("new mapping slot table is active", async () => {
+          assert(COPYWRITER_ELEMENT_ROLE_TYPE_SLOT.Wood["印"] === "Bug", "Wood 印 must be Bug");
+          assert(COPYWRITER_ELEMENT_ROLE_TYPE_SLOT.Wood["官杀"] === "Electric", "Wood 官杀 must be Electric");
+          assert(COPYWRITER_ELEMENT_ROLE_TYPE_SLOT.Earth["官杀"] === "Normal", "Earth 官杀 must be Normal");
+          assert(COPYWRITER_ELEMENT_ROLE_TYPE_SLOT.Metal["印"] === "Ice", "Metal 印 must be Ice");
+        });
+        await test("duplicated type copy is slot-aware", async () => {
+          assert(slotToneForType("Wood", "Electric").subPhrase === "临机即应", "Wood Electric copy is wrong");
+          assert(slotToneForType("Fire", "Electric").subPhrase === "本能敏捷", "Fire Electric copy is wrong");
+          assert(slotToneForType("Earth", "Bug").subPhrase === "实干见效", "Earth Bug copy is wrong");
+          assert(slotToneForType("Wood", "Bug").subPhrase === "务实积累", "Wood Bug copy is wrong");
         });
         await test("missing selected species returns a friendly fallback", async () => {
           const copy = buildPokemonSoulExplanation({});
           assert(Boolean(copy.title) && copy.paragraphs.length === 1, "selected species fallback is incomplete");
         });
-        await test("missing explanation features stays species focused", async () => {
-          const copy = buildPokemonSoulExplanation({ ...normalResult, explanationFeatures: null });
-          assert(copy.paragraphs.length === 2, "feature fallback added unsupported similarity claims");
-          assert(!copy.internalSourceFields.includes("explanationFeatures"), "missing features were marked as used");
-        });
-        await test("missing chain omits the phase paragraph", async () => {
-          const copy = buildPokemonSoulExplanation({ ...normalResult, chain: null });
-          assert(!copy.internalSourceFields.includes("chain"), "missing chain was marked as used");
-          assert(copy.paragraphs.every((paragraph) => !paragraph.includes("进化路线")), "missing chain produced a phase paragraph");
+        await test("single type uses folded paragraph", async () => {
+          const copy = buildPokemonSoulExplanation({ ...normalResult, typeCombo: [normalResult.mainType], subType: normalResult.mainType });
+          assert(copy.paragraphs[2].includes("两面指向同一个方向"), "single type did not fold the sub paragraph");
         });
         await test("legendary copy avoids superiority claims", async () => {
           const copy = buildPokemonSoulExplanation({ ...normalResult, isLegendaryResult: true });
           const text = visibleText(copy);
+          assert(copy.chips.includes("本相精纯"), "legendary tag is missing");
           assert(!text.includes("比别人高级") && !text.includes("注定成功"), "legendary copy contains superiority claims");
           assert(validateVisibleCopy(text).length === 0, "legendary copy contains restricted language");
         });
@@ -1995,13 +2098,7 @@
           assert(first === second, "copy changed between runs");
         });
         await test("copywriter module does not use Math.random", async () => {
-          const source = [
-            buildPokemonSoulExplanation,
-            validateVisibleCopy,
-            strongestStatObservation,
-            featureSentence,
-            phaseSentence
-          ].map((fn) => fn.toString()).join("\n");
+          const source = [buildPokemonSoulExplanation, validateVisibleCopy, mainSlotTone, subSlotTone, buildTags].map((fn) => fn.toString()).join("\n");
           assert(!source.includes("Math.random"), "copywriter module uses Math.random");
         });
 
@@ -2026,7 +2123,7 @@
 
       /* ============ UI layer v7.1-slot (Frontend only; algorithm untouched) ============ */
 
-      const SPRITE_BASE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
+      const LOCAL_SPRITE_BASE_URL = "./assets/sprites/front";
       const TYPE_ICONS = {"Normal":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADUElEQVR42s2X0VHjTBCEP1y8470MGIUwCmEJQYQghyCH4A1BSkEhsCHshuAhA9aXwPl/kCxsMNw9QPFPlV3lUlnbPd2tGd1wpe7v75tf0PHrRsA5frRK4eVoLxCen5/Ht1dvzn+IiF9DV3v13jeoCE7kZ+Gbkc2IcSTFHA8QzCy+IyAinTi3a7sO7/3MvUApXwpojJEYI957mvmcT8s53GyCGCNDCFgpWzMLC4GqqvR+vU7dboeqUswopTBB/xoClo2YM2bG09MTDw8PqCoAOedzF+BVET0p73CAcw4nQs6ZsN3yfDjU+/0+rwDujsdd07aoKmaGlcIE/+u6H3Om6zpSSjjnSCkB0HhPSmn5dF1HPCMEExYrBTNDVWnalrvjcQewqqpKKxHfNA2lTJ3/SuCLAvPhdV1T1zU5Z2TOVxxH6romhPBZGiZXFKNpGioRX1WVroDON82r578B/Hntuo6+718tPpM42elEdhzjhyQAZszdar0+elWdA/v9T5VtCBdgVZUxxiUHqkpKCZn9foUDpRRUlfX66G/BIc7NTrvOYBzj9ZtdfWg4vCrq9SLA51XXNX3foyKEEC4UAdhsNlM+Gn9NAxwFcQ5w3C4xLx97F1hC9/exU3h8fLwgEHNeQJ7fJ8S4EDpV3/c03jPG+JdOTd+3UEqx4nAOh3unwiSlXRzyLwqcl1dls9mQUiKEcDEgVQTtusVGqkq92dC17Qe4p84XK0Apt8dCzjl73zQfRqBp/FU5/7VEBcZXRdu2XZTdhkBKiTFG+r4njiOqihP3aZNijBwLeXWAEGe53Oyr76yc8zJZT6GN40jf94gIYRjeKXjR/7OpfICwMrOYU8oxRpzIt5A4zYBSCs65CzvmnNF5pXDO4b0nDAPjGGebXIJ3IsQYySllM4srgBcIwxAwM0QEmfPwVURytmXvKaWQUkJV8fMUNrNlwJ2mdeP9PJEnLOIcIoKZMQyBFwhvl7mdONe1bTsPiTLtcV+wzFmxqWvZUBVizEuAsxkqgveebHm55v1EUETnhd4Rx5FhGLBSgplt363TVVXp3fG4q733TXP688++DpRSMMuMYyTFGH/f3Gz3+32++j5wRqRd//nT/p9eaA6r1bDf74e3V/8DMffnfoDxQD0AAAAASUVORK5CYII=","Fighting":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADoklEQVR42s2X4XHbSAyFP3v830Y6MFjCsgSkBKYEXgliCWQLLEEswVsCtwTBHRhOA+H9kMSTIinxZC6TYIbD4S6X+7B4wAPvuGLPz8/NJ9jw6U5BhD9qEbwt/gbD6+vr9P3s3emDqtoTbOqUzMxIqsgfxh8RFHdyzsyl5HcY3D1fOKCqGxXp27bBkgFBuEMEAMWd4oElRX/BqakUsjtJlOy+jpsqwNlYEqFEYKq0jSGqgJBLZhwnPKJz92F1oKqq9Pz0NG82G5IqUTLhhYiAACdwNcyMaehoRJgiKHEOUgFTUC4dHDzYvrxQSsHM1vFxHFHVszF3R1Wp65peBVFBNCHJKO4Mw8Dr+3u92+3KPcDjsvRN05BU8TzhJRO+B39gIaqKqhIHhyQZ8zyfXf12S/YfRyLnTF3XANR1TZlGpqGj6zoigrquyTnvnTjSyAMvGc8TSZWmaXhclh7gvqqqVKlaY7Y/dS8rcIApgunk2YHJoW1b3J26rqnrGndHRIgP0Gme5/UuyZBk9H2PiKxzl8nAiq8xo1K1qqrS/eOy9MfwRSkX60rsN2rbFlVlnme2Ly+IyBp6M0NVGYaB9IH0OI1AlEyUfBaBHyb1AeMB8+bhTkgpKeG+cv7Ukuw32m63Ky+PGJu2pe/7lRpRMs1PEtzM1jXzPJNzPgXEPM+4++0oEEQ4KSlP02IPIKKihGe4QoDmUBH0UC36vmfsOvxkU4CUEl2AR5AE7IYjOe9P+/SAAE6GaNv27NuXXsRamR5+Fu4SQdu2a3UwM/QQjdOQ933PPM9EBF8+f8Z+EIj2SqVq5L/9PqJtsl8vDxAREXJLcEtAb7aGta5rFGj7HjM7Szp3558vXz6UB79uAiJ4BBBxvwSleEFUEdGzV51ADwl65KoeKpGZ0XXdWoXqukZVSWbob3RARBBV3AtLUO7fYci5APuJKxp0szLknOlV9mJzkH1+9+EfVTkX3mF4cPdclqXkUpIlQyJWLVAEPK/8vGad/3+gj+re3gS/V+NcCmWei7++5geANxjGcdxqv0GtIYqsrYSGUG7I003R+QVb1f1QYt19zwY50mYP3sMZx5E3GL5v5noV2TRNQ2OXzVwuTnHHklI8zpqvszqvSmvpZjNnqjQpXV075rJ+N4lgSUkprbSZcmaaJjxicPfuop2uqio9Lktfp2TNIXn/hnba3ZkO7fTXu7tut9uVq/8DJ460T9++tX/TD837/f242+3G72f/BXeeMPLwago6AAAAAElFTkSuQmCC","Flying":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADxUlEQVR42s2X0W3jOhBFT5z8Lh6YDjIuYVwCXQJTglSCXIJUglRCWIJYQWBW8JBxB+GHv9d5H3K8cWRnF3gL7BIwZIgmeYf3ztzxDRfGcrmsvn371tze3opzjj85Sil8//7d9vt99/LyMnyev/kM/HA4NOv1WtQHRBSRPxuAWcEsk1NkHEdbLBZngZwCEJFWRJpQNXjvKQWsQCm/E0zCUkTUIxp+aY1zIG56ppSIQ4eZdWa2OQWwXC714eFhWzUtqkrK5+CLJUqOlJKvHyQBmBY5DTjx8wBiTdtWpJRIGYrFL/cT35wF4RVyzgzdBjNbm1m6AzgcDk8+VKgqMYPZJx3mSNtO89dGXdcE73EibDbDLIBiiVIyqsowDBTLbLfbq/utViugOeYB5AIFCKqEUNG2TQ8s70TEq6p4H8g2Bw/gNLDZDFcZGMcREfkB/pM8SsmUHOn7npwzZtMNTyC/YvSzBCE7UB9YpSiLxUIXb29vrfcB5yDblUpg+QS+73u22y3jONI2zcTvcagqIhfW50hTeUSEerN5f/uT8mMUS7PX2aYj1QcOh0N/d39/r6KK2fUti8UT3TlnVqsVbdOQzXAIdqRttVrR9/1MQk4CMQ1shoG2qnAiFDN8aK/izzlfluKRCVXl/v5e76YkEaxcv5R3ulWVqqpm8hiGgb7v8d5fWa9YElTAh2kvJ55N1539ru/7qdLEiHM6k+J7BAUQN1F9xy8Q+pEB4PTdA03TUEphtVoRQiAlmx1seUCcnXLAOUV8O6tQp5Lum4s5cGks3t3uK7t6Z6Cu65OEUox0XUdd1yf9N01DU/mZdotF2rYl5/wbHXqS7eL19dXM8sksLg3xDeL7D+YyL6dVVdF1HZthACezC1g/PpJS+t/A3z3Bcub19dUWwCaleJr4SkbB+wnEh0gnSTjqusZ7z/j0NDMo0QrR6rfc/MmVcwLY3O12u/jP87OllMR7f8ryzxoulvChZXNMwI9s5JwJIUxycu6X9Wup+9KNZ+BlcuOUEv8+P9tut4sLgP1+3x17DIKCyrmcikXGcaTruhk4p566rmmahu12S1tVUOznGraMOGO73Z4+qnosyTKTjQoEBTMjDh37/b47a+aWy+XTw8NDCKHCh3DWzOU0YDkiGlBfUYqRU0REEA3k2JFzPMoloD7g3NzRLEcsJ8QHRPzZuh9mGNDQXG7mYiTGgd1uF19eXh5n7bSI+Le3t369fhTvA07kr2inixkpRcbxyW5ubmqzH2Xu5rLWpHHONYD7G/7QTI/SmVn3ef4/MzsrzPcBdvEAAAAASUVORK5CYII=","Poison":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADBElEQVR42sVXwZHqSgxsWK5bv4YMkEOQQ5BDmBcCDsGEgEOAEHZCYCLY8kTwCzkDdOC88A8DrsfCewX+h9XBrqlx2Wqp1dOe4EEURbF8f39v3t7eyDmHnwwzw9fXlx6Px3a/32+/70++J346nZqqqkhYQEQgRz8KQE2hqogpYrfb6XQ6vQEyACCiNRE1S7+EsMDMADOYAfnyeoQUEDVBiOHZv/4C5+Dc9e4QU8Q2bKGqraquBgBFUfBiseiaZQMmhsYE00vyeC75ZAnJ0s3TzIzNZoOyLG+eZUcQJ8+igHOAIwcSRtKEdttCVStVjTMAOJ1OH178kLwmfblYyRI+djs8mpmu627WbdsiRQU/Rc9cSEu5NCwMLx7rzXoDoJgRkTAzeRFoUmgaRxd2jF9VddeB5XKJuq7/Rwd+m4dkgFN4EcQUaTqd8ux8Pq+FBYCDaXqaMt+VwmAQ79E0zV87YGaoqgpAHAHCYKoAC4QFXddtpvP5nJk5b4wrPhIS/PJx8vdz6dB1HZLpSF0FTBXMjPl8zrPrS/PQjqQPGGEbsGrbFyhHo88FszzUAJABYHTxh6oKBGrbPw7yNWIICNswagYexSwfFpb1diQUNb2R0KtsMjO8yNCZ9YVimT5xJIgsq1e2zA6Hg6oqCfNlA6MktNmswcwPZbPz/m5dliXEjel2pk9KEYfDQacAVjHGjIzdaAlt6xXKsoSZoSxLlGWJGALath3WKaVhPXYGco4OMSYAWM36vg+f/3xqTJGEBTC8fJCRIxgAFjeozDUEuFEnZoaIoK1XmbGvfIcJxIyYIj7//dS+78MUAI7HY3vxGCBhEBNedaFqKSd2qXBd10M3rny9rtt6BXb8kkgQE0gYqopt2OJ4PLY3Zq4oio/FYuG9eHjxWa7ULsL7zBxkx8jEEGJEjYORi5pgZlmtiCEkz85rpjblzoYYEGJA3/dhv9//urPTRCTn83lTVRX5i512P2yn7WKnw8VOTyaTWlXjw/+B34A0zrkmd+/nf2jyzVpVvTsp/wMGZrRCFPKtlAAAAABJRU5ErkJggg==","Ground":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADe0lEQVR42s1X0XEqOww9MPkPSgd4S/CW4FeCbwlOCUsJ69sBvh3EJUQlrF4HiA4ibgOX97ELSYAw8ObN5OmDGexZ+ZwjWZJnuGDL5TI+AR2eZg4gwreaGd72+gbk7XZbT3dnH/8458IC6NrgQwwBzjk49734VQ2qisqMgYV3QFZVPiPgnOscUZ+6hBj8xF0BGGAAiyB4/8k5i4JZEII72/tPjMYfIgcAqCwouUDNVqqajwSapvHLxWLo+w7eO5jKBF4noAZDAIHhiMBiE0FD6tZgZhAYwX8drVLt+N2tFjwhRXckQc5DRLFaZWx3u3az2cgDADzu931KcQLP78pPJmJIXQAzwMIIIY2K1PwJYKmG4AnBE5zDSbQMwzDcReD5+RmiCu8IZgaowfuAlCL6XHoAfz00TeOb5TLEGGAmZ+BLNYhePuCwnlJC13Uj0FrBXJBO7k7whLZtz3y8vr6ilIJa68UI+KMfG7GZIMaAWjn8ns38w+N+38cYPuf8F8p578H1XdrDupmhbVv0E4mv0kHU8PLyCjopbF3XHQU4WNu28O6sIsFMQeQRYsDfP3918xnBe+8ndnbx4LZtISLIeUyZECNCjMg5Q0RQSrma/wchutQdwXGt4FrRti3atkXO+SiEiGC9Xl++MzaSCN5jsdiHOUBEjiblzz9IkT4pEWI8Hq5S7y4swtcvOxHAzNf6AgCbokiY3wvgUh4fFL7XQowYhgHDMJyl0G0lFjQHzExtWqGbSttZlFLCMAwIMUJUzyrQl2l1kkK3IyeMmM3me4OI6tgsbpgaLildSjkCuSet/lUEaOwJooK9QeY7IHPliZu7GoWD0u++CCU/g8B46R28A1K3hiHclFL3R4AmjABXwQ7Ic1VlGQZhFpDzU9umT33A+QjvPYjeazk5B5axR5Rq+LFSiALOOajq1WBeI2d2BfzUjZkFMgyiqjw7TJ9N8/TS9x28ex8lRAUsDuv1euyKIlfr+di1BSU/o0vupOnZ0dctlnOexpOTUULHUWKzefux3W7rx2Gud0RdShExhrGgmqKUisqKEBy6qeFVFjAL9IJa3hFC8NPBJ6Aqg1lvux/BoUthzAZyIAC1MkqpULOsqquzcbppGv+43/dt8CHGaZz+5ueA2jRO13Gc/j2brTabjVx8D3wgkhZ//qT/04NmN5+XzWZTTnf/AUgWE8aqQockAAAAAElFTkSuQmCC","Rock":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADaUlEQVR42s1X0ZXiSAws9vE/9GSAHIIcgiaEJgQTggnBvgzsy2AcwnQI1maAyGDEJrDchzHDgIG523dvVx9+D9t0l6TqUnmGiVgul/EZKPE8IyAE/NZwx/vB3oF6t9t1l09n5z+ISBZAmQuLiICJEIh+L3wzqBlSSuiTpj1Qm1m6SoCISgqhKsoCIgK4w90A+OTCqoaUFCIM5v8zyYAQBiKklNDWLcx9Y2b1KYEsy3i5WPRlVYKZ4ZbgbnAfwHfJoOpgDohCMHOoBRRFgbpeo4gMd0fS4X3hgHDBPFVDUof716GP+4UwJBFIoKqoNzV2+32+3W51DgBPh0MViwhmhml3rPz55o6+75HnOaIA7g4iBhGdACV1RCmOCbeI8jmBpI7X17erxO7Fer2GmYMIcFcEdzBHxCKiqdsKwMs8yzLOlkuJUeCmV+AvY1MrACDG0xH7uCe3/yccsFq9fOpA0zRwM2zq+mYH6OwMuhvcFDEKUpfkx2zG86fDoZIoAALc9S74vu8f3ktddwMMgfmDTuYEZsa6bVFEAlH4oiYpAhgSBd//+ruczwKYmYfKTxBU1RACkOf5v+LurTDzI50qpK6DqkL1Nv+nVNXdwMxYLFqZAyFQCEN7Jjb8L9yt6xqq6UqdRjFomgYhBEiM6EcuXsR43q7wAwjuoEAAAuZHpcItebjkblWWCERYr9cP1WMK/Ei51HU3ud80DWKMk0W41Ng54O7mYchimrvmw+ZVWUKOFZs6D+6O1eplsvUjeD3jy1SibacPpsJwGSTefX5wqJqJCCN4OGn/eeUAQt83Dyv39vYGIj5KX7jqSp7nIALKsvmFuTbMhJQSDg6d74E6dUlEBCHQJyUycwCEpmmwXq9RFMXNytXt/cpFIUR5XOHH+Afup6TYA/XczJIeDppSYhFBOFkIgChAzU6VO6eD6q8BubcO3fBf4zROKUH7Xm23S7PRfWbZ82tVVcN0vbASIzfLsgGPYn5nejL5TV0fbUjT3KdRnueoSj4C/7ASZobNZoPt9n212+26czNXUQhlUcThoF6YudG8qd03M8KEopC777RtQlL74jpnZq7r0LYdzL02s82Vnc6yjJ8OhyoXligC+kPstJmhO9rpH7PZZrvd6uT3wFkixeLnz+JP+qDZf/vWbrfb9vLpP+eKFs12d/7CAAAAAElFTkSuQmCC","Bug":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADFUlEQVR42s2X0ZXbOAxFr33mf4x0MHQHC5VAl8CUIJWgKcEqwSrBaoElmCUY7mDgNBDlw45jz2QTR96zu9TRB0EeCcDDewRn/GS8vLykT9DyaRZAhP90uPM22ht0h8NheL86u56EEOIC2ipqjFEJGggP+D8MmTwUYlJSipO+Ye5YMXIu7HLJR+jMLH8IIITQBpF13SZiVMBxNxwH/K6f5cHJ2fDz9pQSdV2zWq0ue2IUUh3udF9OjwRAyLnQdwPm/mpm3SWA5XKpL4vFrl3XqAbMB9wN+OHMPaPvYLvdIb9Ares6nB7VO0MQgIBIIEiiFKN77Tkcj9V+vy9zgOdxXKc6XjmfT9n3aaVTVRVVVdF1HaWUy7yUMoUBZ18y5gOqgVQnnsdxDfC0XC51+ddLTClins/OP0a73W73t/Oc81QqAxlDSCmSc4hfZjOdP4/jOsZ43lQmO292gnu1Wv0WAbfJeoR7OXNJAdqnmaCq4Vzz01NfMrTtFv1JcV8joKo0jWGWCWFSGLgbqspiMcQ5iIQgOIY/UDsi0DQNTdPc8OAaDXenqqqHjwXHkCCA8PRPHDVmAJHdbnOTdXen73vatr2xl1Loukyop+Qf5PwCMgd3cz/r7WOBlFJomgZ3vyDx3f6dD9f2aUifzgYzB9zno1OsGCIKhIc+rqpsNhtEhM1mc2Nv2/ay/tgQRBQzY3TK/AhdHvI5Op2EwomMmaqqLghUVYWZUUp/o0h5GMh5GoFFOCca8pA5QvdkZrmMY8m5aIwRw4E/OwvMThK3bltiSjccUK3ZbttrmFB3Pn/u0finzkeCRHIulN2+2OGQnwDeoOv7YRtCIITESabLWbLul1A3u1GZzWZDjPGD8qzblhDiXVJ6qohT2QRJmDl9P/AG3ftmbh1E2lQnUtJTE3dnM1eKUwZHAmgMhPDDBqBJUJULWiUbqkJQ+X29IyABQRiGwtAPmHtnZq8f2unlcqnP47iuosaUIiHILxuzf+c24Jg5w5DZ5ZK/zGav+/2+/PQ+cBVIvfj6tf4/XWiO83m/3+/796vfAMTl0Q+Q2E8XAAAAAElFTkSuQmCC","Ghost":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADqklEQVR42s2X3ZHiSgyFP6h9XzQZTBOCHEITgjcEE4IJwQ4Bh7AOgQ7BCgGRwWg2geU+8HOH+WP25e7tKlfREtU+p6UjyTPeWY+Pj/UDtDzMEojwV1cET0d/gv5wOIyvvbOXm5RSXkBbqWbNNSklUkp/Fb674+5YGZnMyjP07l7eEEgptUmkq5uWnDMR4B5EAMQHhxdSyn8AxnArePjd/2rKaG4QgZQEESilMA49HrFx9/5KYLlc6uNiMTVth6pSir8ADxFGhCEkPIwkCiKogtnJL6IQcfXLO8TcB7quRVXvEqiqCtUO4Eoi54SZMfQbDs/P1X6/tznA9+Oxy3VzBW92C14Vuq7Fw9jtfiIpUOUcKaPrWkQczcJu9xMP+wCWsF6vqarq+vR9j5nd2KqqQiQR53MiwCwoxVFVct3w/XjsAL4tl0tdPj7mnGvMArO4eztmftVGRHxJJxFGzom23b7rn6bp1TuMzaY/RfZqC0SCnGusjPnXbKZzoNVcI3LK+c9WXWfcne22I+dTiqgm3J06Z5qmuUukjCNm9mb/0tb3/Sc6CkRAcw3QzheLY1ZV3OMugZwzpRRUlfCTEOuLLWeslP+gKp1wqiqLxTHPQRCRa85/WBVUUVXatiUisDOBXNe0bXsKsX9cXUSUUgxJ6Srivu/JdX3dX6LQti3DMNykz6vOgIgAwhwQkC/k/UloZsYwDFdSF9uf3P56vb6CNTPW6/W7vs9xCYB8g4gI/xKJSxQAwh0zu9qKO/rFprfdnoR8ScftdnsFffHdLwoORMyPgbnbuVl8TqJpGso4Eu7IGWzTNPR9j+aM5nznpbcV65J6ry/n3FjfbaAiQkqCu3EM7Nsz9KWUnHNNSqfG9NHtn38QZ8FcCKsqZRzvEkiirFY/gGC327FarVBVmqZhvV7TtS3mzjiOiCgp1W/POE9npRSeoZ+7e/FpslIKOSdSkk81UFUVq9WKYRhubJu+v6uDIKjrzDRNbDYbpmmiPpPu2hZJiZwzu92OCCe8vAJ/6salFHyazN3L7DJ9Lh8efrbdlpTSzShx6cQvw31P7JtNT0rNm0b2J+dEBKvVD1Tbm1HC3ek3a/ZPTz8Oh8P4cpjrkkhb1w25rm+GOSsD5l+rMkkSSTMpvS2BVsYvnyMi54Gu/neYG0fGccAjenffvBmnl8ulfj8euyrnnHM+5+Hf/Rw4XaJRSmEqpfyazTb7/d7e/R54QaRZ/P7d/J8+aJ7n82G/3w+vvf8AX542qu+pVrsAAAAASUVORK5CYII=","Steel":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADBUlEQVR42s2X0XHjOgxFjzz5j7kdmC6BKgEugS3IJcglWCVEJZglmCWIJRjuIPA2sN6PyBonz/teYmdmH76kIYcELoB7wYobtlgs4g9o+VF5cI6/ama8nvUVuuPxmD6uVtc/3nuZQ1tLEJGI9x7v/ZeuK6UQQvg291UVVSXnxJBLPkGnqvkfAXjvW+/ctmlbRAQzMLMLCp+6LPUJw3CA856c89UZ702CEJv4Hye+Jd85h3OQc6bvOtRso6rdFMByuQyL+Xxot1tCCGPU9jXkc8YwXl5eyCnR9T273Q73hwpcr9d4Hz6dYe8d3ntKKXSbDcfTqT4cDuUJ4Pl83samIYRAKfpH1P7N+aKF3W5HTokggnXd5OjH0tput3eUkmGmhBCITcNL122B1dNyuQzLxUJijOMm+3KNXpzv+56UElGVYRgwM6IIEiN1XRNFCCIPtLOhasQYySnJz6oKs+fzeSsxThu+jkyhbRpUlbZtGYaBtm3pxgyknMkpEWMkiLBarR7kpDcfR5/bp8oRQgiY2V0BeB9IY7OqKvv9ntVqhXOOpmloxtK84H7JzCMBmBkhBObzs8zAOec89555aUJVvbne9z11XWNmrNdr6rr+DmUYycHx9B1cXUphGIbp/xrlKDI17fX34+YA3AzMzPSho0II1HU9IV3XNZvN5h1LXTf99+izAmazs1FU9Y98/Vkm2u/3E03GGL8R6RvYO0cphbNRZifocko49yYWd2XAB/q+J44UKSLvMiAx4py7MMdD5v2bKpecOUE3U9VchqHknPHe35UJw0gpsbkSr1LKtJ5Toq7rSdQeQd6PI0oZhqKq+QngFbq+63bee0LwXx4lbjXxhfLSWP8xNqTU3z3oXUYJVaXvOl6hA95Y6Hg8pqqqus163camIcaIc58XNglykx6dc4gIIqNQqk77JAjySVW+DHMpJVLfo2bTaP1unF4ul+H5fN7WIiIi47D1d58DqoZqIefMkHP+WVWbw+FQbr4HrgJp5r9+Nf+nB81pNusPh0P/cfU3EkbChC0xcfQAAAAASUVORK5CYII=","Fire":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAAC70lEQVR42s2XzXGkSBCFvyb2ri55oMKEwoRyoWQCmIBMaEwAE1QmbJlAmkC2B8peB4Y9IGkUMz0R2/RGzOQFiEyI9/LnVXLgij09PaVH6Hk8eHCO32pmvK36BsP5fM4/eg9fH7z38Qh9E0JMMRC8x/1m/GaGqJKLMIuUCwyqWn4i4L3vvXOnvk3EEMAMVLfrTsuqFDWSd0Tv933EOfBbIxQRhimjZi+qOnwSqOs6PB2P86lvCd5DKaCygd9JIAMaW2KMTN0z495COvdOIkCMiCovw8T5cmmWZZEK4GFdT22KG/icQcqu7CswGHS/eK2w+Trb7v/rCKC6YcqZ4D1tSjys6wmgqus61N7HFCOIfM/8nqwbhP5EO75S7Lq/HV9px1ey3T7LqIAIKQZq72Nd16F6WNdTinELknJXzyvgvMdU8VeyT4iEEJimieT2CRKy1S7FANBXB0cI3t89sACCI4RALgXvrmS/bRERkEK8Q1VRJfjA8bjGCpzz3oHdR2AwSClhZpgU1Nhm6sPuzf5XAqZ47wBH9d1xn15nHH3fbwC/tFMIAWFD3DQN/p7sX9Gov8DMzJz7kKsdVRAghEDTNCQM50BsaycRIaUEedovpVdkVc0As2o1RFQ3nd156gag1cLsjOC2fh/HERGhlELf92Qcg/1PBHxARFkNqS4w5FLA8U6C3SQGgxdztOMrIQS6rkPzhIgwzzMaIs/G7RL6Cf4dI1CkcIGhUtUi8yJFBGIEH2+uxGDQmIPUMs8z3vvPdkoOpu6ZkjPjODL+PTPsqYZzG7YYKSLIvIiqlsPH9lk/Pr6Ofb9N942rRGOOeZ4B6LoOk0KCT7XRdxnNfI8bhgFftoG/ZZVQNbphYHl7ez6fz/nrMnfyzvVtStshccMyN4iQdYtL3tGHcFfcr5a5XIQpZ9RsUNWXn9bpuq7Dw7qemhBiGyPeuz9inVY1plKYRco/h8PLsixy9X/gC5H2+O1b+yf90FyqalqWZfrR+y9tPq5UGEpHcwAAAABJRU5ErkJggg==","Water":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAAC50lEQVR42s2X723bPBDGfzbyPWY38HmE8wjMCFxBGUEaQRzBGiEcIRxBHMGXDUJ3gaof5MZOUuB9IxdoDxAgkRT53P+HK34j2+02fIOWbysB5/irUiuvk71CfHl5SR9nV9cfIuI30O7Uex8CIoqTv4u/WsWskFPiWHI+QTSz/EkBEWnFuT60Peo9tYJVqLMNFh6esZwQH3Div/y/c+AAcfN7yZkUO6zWzszimwK73U63m83Y9AdElVRuB08tqA00TcNjHMAfFm1zrURQsFIYukdeTqf98Xgsa4D7aep9076BL7+sX2/yPSKCiEC1eawkSA+Q42XsvzMAqzOmVEBU8U3L/TT1AHe73U532633PpBtXvhl4NVmcPYhx0K4vOcIlnh+fqbkTJcS+PYrqUwBnIH3gZIG/3210vX9NPUaGnBQbKHVS6IPwjiO7545BBwqApYYxxEzo0sZNCypRxQDHOhsnPZu5VBRncEvDRcNs0Xj/mz4QNM0b9N93+OcI8ZIKgYSwMmyyGRWQtSz2UR/B845J7fFvJNzOLSQH/HeU3I+W63inGO/38/AFybztRcqIE4Ax5rZI39GLKMOVJUuxkv4p8ThcADsT7cJt4Zaa604buy5lsESTdOQU5qtfZYuRlSVoDIn8y2Iz2W11rnIr6dKsVLmZrF015KgRA5tg4jQDQOIvDs1xkjbtqizm5T41ROsZKZKWZ8g5jzgHKhb6AUbeH56QlV5eHgAaT4tSeUSSkFZpMQ1xpITJ4hrM8s2jqXkjNeFSkhD13WXRC3xM0ANdMnIKV08UcuXwXudKYWNYzGzfAfwCjHF7sm5pzlOy5xu/5tKaKBUAQG1gcO5BwCUUuYq5eR9uZUAThdQCSPFjleIH8lcL861vmnxISwmc5YiVtJVhdU/RuZySuQhYrVGM+s+0endbqf309Tvvffq/y06XXJizDl/X6264/FYfnsfuFKk2fz40fxLF5rTej0cj8fh4+xPaHigNmdlz18AAAAASUVORK5CYII=","Grass":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAACvElEQVR42s2X33XiSgzGf3B4D9oOEB2sKGEowSkhLoGUYJcAJcQlZEpgtgNEBxHbwPo+OMmShHsXyD1nIz9ZmmN/+v/NiBMym82qb7Di20hBhL8qETz1/gTtfr/v3ltHxy+qmqawWiRLKSXUFNG/iz888OLknNnmkg/Qunv+4ICqrlSkqVZ3pMqICF4eIs7+YclO6QpWGZb0X3VniQivjwi5K3TtBo+4d/f21YH5fG6z6XS7Wq9QU4pnHAfiLOyeg8i/zz4+PrJcLt+cea/TBFrpOT4AgqKYJrw4bd2yPxwWu92uTABu+r6p7qoj8OWSoBM5eHh4RI7aZbvdfjh3rKvrmnD/Y4kOOAKXAg5miequYt1uGmA5ms/n9v37bNusG5xCiXwR+JcMiCulFMyM9XrNYrH4AP5Yd24G3mfDJKEY9/U9P37sF+Obvm9SSiDg4ReDH8AIoY4IlFI+gAdedSKglVwM/iUbHg4ClhLAajISTE0H8MT10+JEGZ0GEdzeLiFdN92CwMMxU7ppn8YgoqrPDRt8dRmCHIgqIEx+G/4fqeuaUspJm5nRNM1nPQCB5/zJBCIiQkQEEfhsEtbr9R9L6DPyMlaH70RM+qCU4ikloyBX50KScHu7fBOAqqpIKVHX9RsAkj6z3YedkEumD8r4AG3uMggodhXz8c7x7rylFwHeBd75VdFXDARyVzhAO3H3LH1fclcsVQY+LI1LMu359OL6r6XWti1eMmJyEXhTI3cF326L7/d5AvAEbbfZPKiuMEvg4HI+ldDEydl/qoTeLLJ0HZXoNhueoH1P5hoVWVWrilSlZzLnQ0dc2XglO14cS4aaXNWx8gx/IHOZru3wiNbd7z/Q6fl8bjd93yySpVQlVL8InXYndwOd/jka3e92u3LyPnDkyN3016+7r3ShOYzHm91ut3lv/Qezjo51B7kx6wAAAABJRU5ErkJggg==","Electric":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAACzUlEQVR42s2X3XHbOhCFP2n0Hm06ENiBoRKgEpASqBLIEogSzBKMEoQSuO5AUAeG00CUB8qOpDgZ/WSu75nhAwEQ3MXZs7uY8AEWi4X/Cg1fJwZE+FSUwss+v0DY7XbxfHZy/GKMcXNols467xzWCiLmk83PqBZiSgxJ0yuEnHP6zQFjTGNEuqbxOOeAAmQo+eKfhV6Jqfx1jbWCdwZnLyRWDGAAIaVECJFcSptzDgAzgKqq7GI+77quxloLJULRgxOXISVAPMPQ/HWdqtKHNe5SYguAgFic84gIbdt3k6pK2+1WJwAPxmzapnbeOyj9wfjLkTPEBPHsM+9HNtfr9SkLBrwDZ6+MJ7EgNTEmutCn55xXk6qq7MPDYnh67KCk8fSvROjBugbn/UXr31h4bG4QhXgQx7d1y/Pzbjn9st933rm3re8SXIqRUn6FXQgBVUVVT8buw7iXH+lrZhPBWmvGiVLuzhrrbyty+RVCAH1Yo/lNxPburIoo1lrm8+imIGKMHIy/zQHvQFOg7wOPTxuGYWAYhvf5unk8GevDGu9u9gBKwRgBZMxC98KYUZAZixzVvaZpPnDWoUmvF/AfFDGDUkopIiK3EnDGcGG1Wr2HS13X71nIe481/6Awihy0VspsX1DV7Jyzh4KR79xbTsIHOHlPMd7LN2BQVfYFnb5CiFEPxeK/aRv0UDduO6GxKseovEKY5ZyT7veaUrLO+YNIrk+n1oLJynK5PBo7DaE3bDYb2rbFqHJVUhIL4kkpocOgebdLM4AXCKGPT8YYjKmB61sJgMaPz1isoNfRifOQUlUo1xgv78bnnAl95AXCeTPXGZGmrj3euyMmblf2n5q76xq6g/EIMSb6PpJLCTnn9rd2uqoq+2W/71bOOu8dxpiTtPg57XQh50yMiU3S9H0yabfbrX54HzhypJ7/+FH/ny40r9Npv91u+/PZnxDoZoB1c705AAAAAElFTkSuQmCC","Psychic":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAAEU0lEQVR42s2X23HbOhCGP3n8HsMdCCoBKAEuASmBKgEqgSyBTAdCCUQJ2NOB4A4Mp4HgPFBiZFs5ztNJdoYzlHDZ+/8vN9yQ7XbrHyHwuNGgFH9UauWllRcYnp+f4/vVzfUPrbV7gGCNcd55jNaoP2x/rRUphZgiWSS9wlBKSR8c0FoHrVQfug5nHAAxRpII3hicNp8qi5KIRfDa4I2jlEIsglYabz4/n4oQ3+tTCvQSxCSJYZootR5KKcPqwG63M9uHh9yHHqM1wzAshniPc479fv9LpV5pgloc/lomxnlmmiZijHilMZ1HSoEkxFo+nLmWfYl0Y880TXRFYZT+6YRRYDRSCofhwPPrqz2dTnIP8KW1vvMdRmtkihQFOef14uv3D0r3e6QUEgXj/Zq5nDPWWta4O0MORwCstQQFQ02rU1eVsNxbE9SrQBVNqB3GaTrf0U9DDzzd73Y7s9tunXcOpECtoBYltzIwzzOHwwERYZ7npU6BWAs5HLHWMo4jAOM4UkshhICIYK1dM8DlzI3gXM5/CJQkjHJ454gpuu+bjbn/0lrv3RI5Sl2suZGBYRh+NpbIm/eIWpVe9u73e+Z5RkphGAZKTG9KKibBK706da3r/X/jOOKdI00RUyoY8M7xz7dv4X6jMEbrs/GVQkVrffMSYwz7/Z5xnlFKUeuSY6c0KSXMuVFDCIQQSHFBPaM1kYrUitMaAwhCUI5wBjmphUlXaq1o4Ki7tS/eoyqlYrTh4WFyd6CU1npZqOCVWWvYe79GdtofsNYiIjw9PWGt5enp6WejASlGrLVYaxmGAaU1cZjWyOacSSkhU8Sj3yIQBe8W5FJ8hG4pBY1aKqTWc68o7j+DNmMMOWdEZI3w+9rU5z503pPPjQwgIvjQLchxzmjOGRstQb9FIamFzjmmacIp/bs0oe6g1lrrG8LVZwK5GGGtXSJ3fr88lz2/ysBFQghrBoZhWJv4IkNNK4JJjHj1CWes5VvrXauIFFnIQimkFpQxKKVwbomS4ffY2Hm/GhpC+GngMKyOkeSMF2U1PtYFqaZp+mB8PfdkuZTQmdhEhFaRu1cYYjozs1FrE4vIislCJcaI1no1MOeMpLRA7ycZeFOSncd0nkhhqImi1dIbMUISChVbpvUx3qPUYrBReiG0M+u/wqLEbLd5HsfW8ql1zrecc+v7vnljWt/37b8k59w641rf920+HlvXdevafDzePN91XcsurHv7vm+98+3kQjPGfNg/H4+td761fm4tn9o8js1st3kdJbbbrd89Ph7H0FPqEm2nNB59ky3fRBSFV4bKAsEXgnpPWLfGj8vd16PFLX1eabxxaL+g1H44cHp5+fr8/Byvh7leKxU63+GdW+GKd436v4s6172CmBJTnCi1DqWUw4dxerfbmS+t9U/GOe8c+i8Zp0spxJSYJaXvm83hdDrJze+BK0e6hx8/ur/pg+b17m46nU7T+9V/ASscAmK5NNxNAAAAAElFTkSuQmCC","Ice":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAADFUlEQVR42s2X3W3jOBSFPwv7HnM6CFXCVQlMCXQJdAlyCVIJUQlhCWEJYgm+6SD0NDDaBymerD0LRPYCWQKEIFACzrk/51xu+MN6fHz0P6Dlx8aCMXzrKoX3Sd+hf3t7i5enm88v1lq3hbZxzjnvsdZirP1e+KqoKilGxpTSCXpVTVcErLWtNabzbYfzjjJzp9wJQFMip4g4j3Vu9f+GuQYMkGIi9ge0lIOq9mcCdV3L43Y7hudnRIRcQFeALzmhKWKMwTiPsXI+y/2eLgQOw4C0zzcFwQDWgBjIOTPs97ydTs3xeMwVwMM0dT60iAipQF4ZeU2RLgSCCCXFC3IZEaHkPH8bB/L+CY3D18uIGVMqICL4tuVhmjqAqq5rqcU6F/w58muXdZ5hGHDeoymRds15X2aqpMjLy8sV0S8Fagmu855arKvrWqqHaeqcD2emN6VYHKpKKQXvPeM4nnfXtgB47+dMdd19Tb08xXmAttoYxIrMNX9HxxoRckqItTRNQ9M05JzJqgA45+hCwFrLbrfDzABuEVW0gDjHdju5Coyxxs6qc0dkjPMMOdOnhLQdxhistehCQGRu7A/wdsn6LRkogDEGMFTnNv8P9FqMoQsBTRG3SGZemjfnTFHFiNwM/p/KZABMBaUU1bs5lJxwzlFUQZUQAsPwW2k+N/kaBfo3WdWiQCnVVMg559kszD0EZrmMKdF13eyeS/l8ZCDFyOvrKyVFSk63gTezJ2jOTIVcnaBPMc5mcavbxgHvPaUUQgiICPv9HnvRqP2Ska7r0BQpmtdL9vJMMXKCvlLVpOOYU0zIwm519FM8l4xdVGh24cNVoz89PSEitM6t9oIPN04xoeOYVTX9BfAOfRwOL9a+4MSSWTdKmMXIMobdbgfAOI7XAHyAojRNg3Xuy1L6eZTQrMThwDv0l8NcZ41pfdvivF89zOUYET8DSn1PvoiuOI9bTO32YS4S+x4tpVfVw9U4Xde1PExT93ucFoz93utA0YJqPo/TPzebw/F4zH+8D3wiEra/foX/04XmVFXD8Xi80t+/AT58ubHeuKAHAAAAAElFTkSuQmCC","Dragon":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAAC40lEQVR42s2X73HiMBDFfzB8P/Y6QC5BLkEpQS1ACXIJuAS7BFTCqQSrBDYdRFwDx30wOIRk5oBkJrcz9ujPyHqrfbt6nvGBrVYr/xMCP2cGRPhWK4WXo75A+/z8HK9nZ5cdY4xbQqitc855jDGIMd8LXxVVJaXIkFM6QKuq6Z0DxphgRLZ+HXDOUwoUhVIAys0bptSSNWGNw7nwrn+fCSIgJx6kFIl9i5bSqGo7OVBVlV0tl0MIHcZaciqojrjLTUFOaEmUkrHW0nUddV0DvOtPByYOY8INLowvY8A6QXOmbTc8Hw71fr/PC4Afx+PW+/AKPt9z5qAlsd2usdZOY8MwALDZbN70z1bXNYZ/O3AmgOaxYZ3F+0DXN1vgaVFVla1WK+ecRzN3gz+fZrNp2P3a8fT0BEDXdaQ0UjXnPDlyueauXGDEJgLOeVLq3e/ZzM6BYJ0HAdVyN/iRQuOqvu/ZhjBRJ8Y4tYdhmJ6u63hkp8KIEQHrPECYL5dHZ61DdUzaxwpdZPdrRwgB5/1El2EYMF9cxYqCKljrWC6PbjFmuowV58GPiniapqHrujfjOWdU9R2FROzdFLrOCTECCHNAhM/dVSJmolJd19R1/QbwNYXC2lFK/tyep/q0gFJKUQGD8HgURkfkTbXJOX+YxEYcIv5B4GfaKlDK/FjIWTPGXMw+fOnfFoH12lJKfPToMQayZo6FPD9Am1I8TXyOTOcInCvNV5swYuR0Kx+gnatq0mHIKSWsG72TL45Aznkan25oJ3dFYQQP1kFKCR2GrKppAfACbeybnTE7rDdwp5S4Tq4Q1jjvpxw4U+jS4mYD+Ns4fyklVIl9wwu012Jua0SC92Mtv1fM5RzJGrHGU4qSNWHEIiLkV/H4mhc3ibsrMRcjMbZoKa2qNu/kdFVV9sfxuK3dSU6LPdXb75TTBS15lNMppd+zWbPf7/OH/wMXjqyXf/6s/6cfmsN83u/3+/569i8PDrODZqwP4QAAAABJRU5ErkJggg==","Dark":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAAC4ElEQVR42s1X0XGbQBB90vjfXnfgpYSjhKMEVAIqAZXAlWBKCCVwJdyWwKoDr9KAyQdCkWwlg0lmkpthGLgF3u69t/fY4M54eXkpn4EazxsGiPBPhxneRn0DwvF47D7Obq4vmNk/AXXunPfeg5lB/xi/mUFVEWNEEoknIKhq/JQAM9dM1JRVBe8cDAZThZkt+lCMAlFdFOuY4b1bFEtEIGYQCFEEXdtCzQ6qGi4JZFnmXp6eUlXXcMwQidAZ/NIE1JBSWhQbQoDECKZFGYCIwMxwzkNU0YaA4+mUD8MgDwDwOI5NWZZwzIixg6ouBn5ZQQLyPL9c932Pw+EAEUHf9yiK4iaWl1LTDGYGOZ+9L1GWJV7btgFQbLMscxmz995DRFaBn0DR3YrSnURX6eqsBRGB9x4Zs8+yzG0fx7Hx3gMAVGUVeAAwAMQOKSWklD6BnO9XVb1YV/eTkElHE+b6YUNw7Pgn5/9wiAj2+/1VtYFdUcAAzDT9G13JOUbXjX4LEBHxlwT72w7jrlaBHcyAb32PlBLquv4LfXVKgogBEB7u8XQNfey8vLOQ+76/zAG3AicAClsu5E9f+/mqB8DMzCbKEq1aBTNDVdXwZXlz//X19UYD1/G7olhXuXNbnehuth0NIiogdqt3XSJC2wbs93uEEC4amKseQkCe58jzHLHrsCuK1QZl3thUBKNBticgxCigaTdeZX3mJ0rvLzwXmd6Z5zmqqoJzbjquYtZUn5lBAKIITkDYqmrUlCSKwDm/Kom5hfqyvOH6TMZ5E2uaBruigPN+EvgK8M55RBFoSqKqcTO7z+z5+Vtd1+AVVkLPGuhihKlADXdtxWQhOphNNVok4g9WQlURQsDw9rY7Ho/dtZlrmKguyxLe+y+ZOTODiIKZwUy/NHZfMXF3zVyM6LoOahZU9fDJTmdZ5h7Hsfmf7fT3zeYwDIPc/R+4SqR6en+v/qcfmtN22w7D0H6c/QHMTbpOxmcRDgAAAABJRU5ErkJggg==","Fairy":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAASCAYAAAAdZl26AAAEXUlEQVR42s1XIZbjOBD9nW4SMEB9g1RgsykfQYEDq49gw4E2XWbRZfYRrCNEJ+gnwVkWBS6zQciQaS9Q4sSdZN7ukpl6T0+WLEu/qn5VyQ+4Iev1Ov/06VP5+PhISin8ShmGAT9+/IiHw8Hsdrv24/uHj8Df39/LzWZDogVMDEW/WIE4IMQA6yy2221cLBYzRR5PD0RUE1FtKqO+5l9BRFhiCfwNxBDRWoPvfw0g9QIM+N/N2hZ/mAoYvuNF8TTvnIP502D5fQla0jS/VEvQC+GL/oKX9Yv6Fr99AbAchsFNHiAiTUTbuqzBzEA8HojUG1eBNSPECB4IUAo2WIQYrizGxBAWaNKzeRta2GChiFDXNYrXVyhFsz2apkFRFNNYWKOUOg0UAAJCCKhMhRjjJsboAACr1WrXNd049uM4+nEct+M4dql1ZTOK1qP3ftx23cjMYy756L0fb4n3fswln74/NdF67Pt+zPN87Pt+3Hbd3T1OwsznPbZHbP04dk03rlarHQA8rddr/vz5M4nI2fLDpeUsmq6DUgpghheBMQataSfree+RZdnMA/eEiJJBieCcmyzOzKjrGpvNZuaBczAc+wiICKyztFgs+On9/b0RLedFw/xAYUFVVajrGlVVgYigtUYbWvjSIzPZtNaX/i5wpQgxxpkiMUZst1tcZjrv0x4hBLTmQ9K5wCZa4L1vFs/Pz8zMV8DPCuQIIUAphRDOfA0xzMADQGYyZCaDcdW15ZVCURSTEpvNBqI17qVpZgYxwQV7IzWl98/Pz/yUNqeb1gcAFyxEBCEEMDH4SIGTpT5aDgCKokCIDnwRyDa42RrvPYwxqLLsrteENbSWay8MR8wAnqYIv+MBGx3yModz7i53T9nj5CFhPQN/msuyDHVZQougKAoMNyg0efgWhWacTN0iFYuYJtStShhBRMjzHCEGMDOstfClh7CG6AQ0z3MwMXzpUer6ap9S1yClwBfrLz2WZdnUjDE/B66OmAEs+r6PIYab4E9BXLy+Tm4/UclFlxTSGsaYVD9Uyve3xEUHdaTfMAwgomncNA2891Mry/Ln5VmlGOz7Pi4AVPZIj1teEE6WrarqQ2GyKOtk6eAcnLWo6xo2WMThusDZYJMXj2edjPKf5ALfEXO12O/39u3tLTrnALpWwrgKNjg0TQNjTKJTmUNEg5lTNmFBZQyUUsjzHPZG5jhRcTIWzjT4VxRS52rsnMPb21vc7/d2AQCHw8GY1qQUd6mEOmcPZy0Qh8lyWgRZlqU44BzCGkVRQIsApK7S3yUVb0mtS4jIRKEhRpBSMywgIMYI0xocDgczu42u1+tutVpJLjlEZMpKpjWwzkJ0AhqHCOvSPUi0oJQzX409rZ3Pz6jk2mlNGqdn0fn0fSpU6TximjxgrUVrW+z3e7vb7V6vrtNEpMdxbF43ryQiKdB+g/+BGCOstei2XXx4eCimS9xHBS4UKZVSJQD1OyiQusHEGK+C4x+w4NryG80q8AAAAABJRU5ErkJggg=="};
       const DECO = {"pokeball":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAApElEQVR42mNgoBAwogtoSEn9x6fhxrNnjDgNgGk+oKWAVbPDtQcYhjAia8alEZtBMEOYsDlbfPdRgobA9DDBBJBtf+lqDbcJ5mxkgKyWCZ8zrz+GYGyGoIQBtpC//hhVk6asAtYYYWKgBtCQkvr//+8vFIwshkuegYGBgQWXodcfP4A7G907OMMAn0Js4QEPA/TkSQyA6cGalHG5BNlmqmUmigEApvV3zj9exeUAAAAASUVORK5CYII=","spark":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAN0lEQVR42n2OwQkAIAwDg/sPUkerS1w/KrWo9ztCQqQEQPaWRaPrCm4A4MYxtYPF9H+zTutFfRtJXz5bne0p8wAAAABJRU5ErkJggg==","spark2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAALUlEQVR42mNggIL/////h7GZYAyGVyvhTIb///////9yxX9kGiH5cgWCg81MAHFHIC+jSxgmAAAAAElFTkSuQmCC","chevron":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAANklEQVR42mO44RH//4ZH/H8GLIAJxsCmiAldNbIiJgYc4IZH/H+ckho7FjKyYBOEsVmwCcIAAAZwFgmqx2xNAAAAAElFTkSuQmCC","triangle":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAECAYAAABCxiV9AAAAJElEQVR42mP8////fwYcgImRkZERmwQjIyMjE4yBLoGhGt0KAAPICA7i0Dm7AAAAAElFTkSuQmCC","flask":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAAaElEQVR42mNkgAK3qpb/DEhgV1sNIzKfCZmzqqGCYVVDBQM2wMRAJCBaIdx9H379QcHobibaREa3qpb/OxlUsEq6M9yB+54FJnjz3HYURepGnqR75v/LFf9ZcJmA4j7xCEZGbLGCLYYADgYtFgG3oukAAAAASUVORK5CYII=","frame":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAApElEQVR42mNkwAJ6pET+MxABSp69YUQXY8FmSPHT1wxEAWnR/+iGMyIbBjPo+8qtRJnHGe7NwMDAwNArLQo3lAXZVcQaBAMw9cVPX8MNZcFnM7EGYkTA/////39bseX/txVb/v///////7+/iMNo+nqkRP4zMVAZjBo4auBgMBB3biECoOcSnHmZ1EICa3nYKy1KcfEFLw/JLWCRDUIpYKlZBQAAPj6/WtbnJPQAAAAASUVORK5CYII=","frameBlack":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAXklEQVR42mNkQAIaUlL/GUgAN549Y4SxGckxAJuBTAxUAozIrrn+9ClJmjWlpeFsFnTJN2/eEGWIiIgICp+FGEXEWEa1MBo1aCgaxEJsOiHZIEKJEWdeG3y5n1oFGwCJLx2Dits32gAAAABJRU5ErkJggg==","button":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAxElEQVR42mNkwAF6pET+M5AASp69YcQmzoLL0OKaPAaSQMuk/9gsY0Q2HNnQl+t2kGS+eJAHnN3bMgluCSO64aQajMsimCVMyJKUGo7NDCYGGgNGWPBQw/XoQdXbMon2Phi1YNSCUQugOVmZjYPBUkWOqgYfv/OI4e6vH3QIopJnbxjv/vqBUp5Toxy6++sHanG9oWsW1SxANosFPdxggNQ4QdaLEsnIVaYyGwdVfAALHhQL0Ct9Ui27++sHA95Kn1bNFgBO/1pqn84O7gAAAABJRU5ErkJggg==","bg":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAYUlEQVR42u3WoQ7AIAxF0Uflwv9/4jIxtTRYprZgaUXNrcJccgyh7brPKUn96NodH/6fo71F47XL9M3HM1U4puIBAAAAAAD1gPVLjUy2t8wlX5fp2Qd4BQAAAAAAoHwfeAEe9CmtIOORvgAAAABJRU5ErkJggg==","scan":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAEUlEQVR42mNggAI3BgYGBgYAAbMAR5tnoFQAAAAASUVORK5CYII=","greatball":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA00lEQVR42mNgoBAwogtoSEn9x6fhxrNnjDgNgGkWCp2GVfO71VkYhjAhaxYKncZwQEsBq+Z1V7sYDmgpMAiFTkNxJROyzeuudjEwMDAwHJ3gj9MLMDUwPSwwCaHQaQxBMEWu1gwM2mVwJx/QUmAI0i6DGyKkjfAOCzZbgqCarz9+wMDAwMCgKavAIKSNJxawhTxMMwxoyipgjREmBmoADSmp/////kLByGK45HGGAcwLMGejewdnGOBTiC084GGAnjyJATA9WJMyLpcg20y1zEQxAADfUXzTHzRzxwAAAABJRU5ErkJggg==","bulb":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAYElEQVR42mNgQAPXpon8RxdjRJfUtNFmuH7kKgMDAwODVtYbRhTd/79fguBL9nAM08iEYu7tXAZsgPHaNJH/mjbaDLjA9SNXGZi0st4wwtyATYFW1htGJgYiAPG+IxROAG7IN2p9RU9TAAAAAElFTkSuQmCC","lever":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAABKCAYAAACLgWWrAAAA10lEQVR42mNgwAM2KMj8xyXHgk+xhYocwwYGBjg/4METRhibEV2ThYocAwMDA4N4kAfDy3U7UAw9cecRXDMTsZrgLoC6iAmb+7FpQgdMDGQCRnRnEgNO3HkEsTHgwRPGE3ceEa0p4METRrKdSrlGYpyLHI+MhFIOsmHIKYeB3LSK1Y85RTX/33368Z9h2hKGnKKa/7QJnFGNoxpHNY5qHNU4qnFU46jGUY2jGmnc74ABGweP/4Q0HDmwgxFrb05BSQWnpgf37oxGBwxUVZSRp7Gto2tEp1UARLJQw5D0xeEAAAAASUVORK5CYII=","gauge":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAA+UlEQVR42mNgoDJgxCVx7daj//g0aqnJMRJlICGDCBnMiMuwA4eO4DXIwc4Gq6GM+AyrqChh+Pj6KQO/qDQDAwMDnN3R0QM3tK2ji4GBgYFhybwpjAwMDAws6DYfOHSEITM5Em4IjEZmwyyaPnc5hsuZkF0HcxmyIbgATI2VlRUDAwMDQ0xSzn+4gcggMzmS6AjBppYJl83EAGxqmYjReOLYCaItIcpAWExSzcBNm9ZR10BSAIaBsERLDMCmlgk56yBnJ2LBsWPH8OcUBzsbuM0VFSV4XQYzDG/hAItRWA4g5DJk12EtvmBZiFiAbBjeApaQwegG0QwAAHQXYHDe2I6vAAAAAElFTkSuQmCC","knob":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAjUlEQVR42mNgIBEwInNsHDz+MzAwMLy6dYlBTE0PLn7kwA5GDJ02Dh7/r9169P/arUf/1aSk4Oxrtx79hxnEwMDAwARTPGvWLKxOaOvoYlBQUoHbzoRN0YYDJ+CK0QETLs9hU4xTAy7FWDXgU4yhgZBilHiwcfD4r6CkglXRg3t34HGBNeLQAdaIIxYAAD15OkaH5OIzAAAAAElFTkSuQmCC","screw":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAXklEQVR42l2NIQqAQBQF5y+eQ0TE4JlMhk2eQxaz2eSZDEYPYDDZ1uJfPztp4DE84WM/zqjetaUAOIDrftIA0A9jBBBbAExhTl4AeO/JqermL22hiP2wbOsiTiUfAF7C9h2ln6PexgAAAABJRU5ErkJggg==","ledg":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAPElEQVR42mNkYGBgEKkw+c8ABW86zjCyiFSY/H/dfprB6WM2AwMDA8NlBob/TAwMDHABGGBiwAIYsZkJABd0ERXGV7bQAAAAAElFTkSuQmCC","ledr":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAPElEQVR42mNkYGBg2KAg858BCgIePGFk2aAg89///mOGl67WDAwMDAwbGBj+MzEwMMAFYICJAQtgxGYmAPmbEIjdVOTwAAAAAElFTkSuQmCC","leda":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAPElEQVR42mNkYGBg2JLH9Z8BCnwmfWNk2ZLH9d974lcGhqO2DAwMDAxbGM79Z2JgYIALwAATAxbAiM1MAP9qEIxDRTlpAAAAAElFTkSuQmCC","vent":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAGCAYAAAD+Bd/7AAAALklEQVR42mO8duvRfwY8gDEmKQevApYH9+7gk2dgYiAAWBSUVPAqYBQRkcDrBgCt1QoHp0iFPAAAAABJRU5ErkJggg==","scope":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAWCAYAAABwvpo0AAAA70lEQVR42u2YPQ6DMAyFX6UcgSN07Ya6s/QwnCBH4GxVN67RgRukk1UrIg0/cRxKPEUKzmeewdgA1U5uzeNqz7wfF8i2TjVBwnwTA9/sHSPgAOA9vC65b1yab36BAWAcnt91BiFy840P52CCEZgHIiGCCp8XiW7qXWNbx987vk973dQ7iSKlwYd/eOpr12Rfje+rusQoW4fnE3ztYVv9SuPvUnJvECX4RxuNaJGJBBHyXxq8NL/WkL+o4gXwg9/xOXCyRy8B36QMINS2zrW3EraJn3rc5CpTRvjaz442P8tQw/t6lWlSgX+a/wnVjm4fsjZgzyJZsI8AAAAASUVORK5CYII="};
       const REEL_ORDER = ["Normal","Fighting","Flying","Poison","Ground","Rock","Bug","Ghost","Steel","Fire","Water","Grass","Electric","Psychic","Ice","Dragon","Dark","Fairy"];
@@ -2160,20 +2257,93 @@
       }
 
       /* ---------- result rendering ---------- */
-      function spriteUrl(species) {
-        return Number.isInteger(Number(species?.num)) && Number(species.num) > 0
-          ? `${SPRITE_BASE_URL}/${Number(species.num)}.png`
-          : "";
+      function uniqueList(items) {
+        return Array.from(new Set(items.filter(Boolean)));
       }
+
+      function normalizePokemonName(name) {
+        return String(name || "")
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[’']/g, "");
+      }
+
+      const SPRITE_SLUG_ALIASES = {
+        "basculin-blue-striped": ["basculin-bluestriped"],
+        "basculin-white-striped": ["basculin-whitestriped"],
+        "tauros-paldea-aqua": ["tauros-paldeaaqua", "tauros-paldea-aqua-breed"],
+        "tauros-paldea-blaze": ["tauros-paldeablaze", "tauros-paldea-blaze-breed"],
+        "tauros-paldea-combat": ["tauros-paldeacombat", "tauros-paldea-combat-breed"],
+        "darmanitan-galar-zen": ["darmanitan-galarzen"],
+        "toxtricity-low-key": ["toxtricity-lowkey"],
+        "urshifu-rapid-strike": ["urshifu-rapidstrike"],
+        "urshifu-single-strike": ["urshifu-singlestrike"],
+        "dudunsparce-three-segment": ["dudunsparce-threesegment"],
+        "dudunsparce-two-segment": ["dudunsparce-twosegment"]
+      };
+
+      function pokemonSlugs(name) {
+        const normalized = normalizePokemonName(name).toLowerCase();
+        if (!normalized) return [];
+        const hyphenSlug = normalized
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        const compactSlug = normalized.replace(/[^a-z0-9]+/g, "");
+        const patternAliases = [
+          hyphenSlug.replace(/-(blue|white)-striped$/u, "-$1striped"),
+          hyphenSlug.replace(/-paldea-(aqua|blaze|combat)$/u, "-paldea$1"),
+          hyphenSlug.replace(/-(rapid|single)-strike$/u, "-$1strike"),
+          hyphenSlug.replace(/-low-key$/u, "-lowkey"),
+          hyphenSlug.replace(/-(two|three|four)-segment$/u, "-$1segment")
+        ];
+        return uniqueList([
+          hyphenSlug,
+          ...(SPRITE_SLUG_ALIASES[hyphenSlug] || []),
+          ...patternAliases,
+          compactSlug
+        ]);
+      }
+
+      function spriteCandidates(species) {
+        return pokemonSlugs(species?.name)
+          .map((slug) => `${LOCAL_SPRITE_BASE_URL}/${slug}.png`);
+      }
+
+      function spriteUrl(species) {
+        return spriteCandidates(species)[0] || "";
+      }
+
       function setSprite(image, fallback, species) {
         const name = species?.name || "Pokémon";
+        const candidates = spriteCandidates(species);
+        let index = 0;
         image.alt = `${name} sprite`;
         fallback.textContent = name.slice(0, 1).toUpperCase();
         image.hidden = true;
         fallback.classList.add("is-visible");
-        image.onload = () => { image.hidden = false; fallback.classList.remove("is-visible"); };
-        image.onerror = () => { image.hidden = true; fallback.classList.add("is-visible"); };
-        image.src = spriteUrl(species);
+
+        function tryNextSprite() {
+          if (index >= candidates.length) {
+            image.onload = null;
+            image.onerror = null;
+            image.removeAttribute("src");
+            image.hidden = true;
+            fallback.classList.add("is-visible");
+            return;
+          }
+          image.onload = () => {
+            image.hidden = false;
+            fallback.classList.remove("is-visible");
+          };
+          image.onerror = () => {
+            index += 1;
+            tryNextSprite();
+          };
+          image.src = candidates[index];
+        }
+
+        tryNextSprite();
       }
 
       function lookupHeightWeight(name) {
@@ -2204,8 +2374,8 @@
           }
           return {
             title: shorten(copy.title, 60),
-            paragraphs: (copy.paragraphs || []).slice(0, 3).map((paragraph) => shorten(paragraph)),
-            chips: (copy.chips || []).slice(0, 3)
+            paragraphs: (copy.paragraphs || []).slice(0, 4).map((paragraph) => shorten(paragraph)),
+            chips: (copy.chips || []).slice(0, 5)
           };
         } catch (error) {
           console.warn("Copywriter output fallback used.", error);
