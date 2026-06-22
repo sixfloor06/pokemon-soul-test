@@ -143,8 +143,9 @@
       background: #2f7fd0;
       image-rendering: pixelated;
       display: grid; place-items: center;
+      overflow: hidden;
     }
-    .prof-avatar img { width: 52px; height: 52px; }
+    .prof-avatar img { width: 56px; height: 56px; display: block; image-rendering: pixelated; }
     .prof-row .spark { width: 22px; margin-bottom: 26px; animation: twinkle 1.7s steps(3) infinite .2s; }
     .speech { width: 100%; min-height: 62px; }
     .speech p { margin: 0; font-size: 14px; line-height: 1.65; }
@@ -405,7 +406,7 @@
     <!-- 第一页：博士 + 生日输入 -->
     <section id="screen-input" class="screen input-screen" aria-labelledby="prof-name">
       <div class="prof-row">
-        <div class="prof-avatar"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAMAAAApWqozAAAA/1BMVEUAgP/o0Fj44MjYuJhYUC74+PjAoCCwmGDg2LCosMBgQDgAAACYeCiwqIiIeEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwVABJAAAAQHRSTlP///////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI2G5+AAAAXxJREFUeNqd0wGSwyAIBVApKFWj9z/uAmp3m0rSWTqTZpJX/JI0hI/C51th4+DXGSM2R/be+XnWrTv4l8wDanU/hNxl1gXk2FrzsbRWaXicKK4OloiIj8eDUT7yLatg8zA3JapeuDm4SMaJ+cEDdw+rnnjWFRbdsZSCg5ZaZZueVVzK0tXOuot769qwlJe9wKELw1QVl1ITXmFCZfEYmzuiYu+hDIyxjg3WyEh8g3ENG2/wec4XOMi9yRb2rY56sXGsV9YwTsxYwnXJg2B7jCxndzgUxlU13BYtS9/goYm43krKmeTtrMyU6ZqmlGMm+7fKrzKRT0HtxGQY9pzogD/YrGDYcQlwQAKxlIeNihPsOCVtLFi2RSOvLAGKU4L6iWfjDwwnvFJkG93IGwlcPC6DNsyyQpSR25VDY28iSwmOSqP21bgOtp1r7IVtNbOwiWwp3jrfY6sMA6dvMA08bPovFrtw/otfKfZ4HznBOcU7ningSGd87LGN2YYNP0kEFUO7z0CLAAAAAElFTkSuQmCC" alt="博士"></div>
+        <div class="prof-avatar"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAYAAAAehFoBAAAD+klEQVR4nOVYK2zkSBSsrA5YhwYGGraGxDqwcpjDBhoaGloHorA1bGg4WhB5WUNDQ7OYxVoQecmqYcNAa9FoSQ54Xqf9zSTjiS7akkb+9POb6nL1e7bPwJ+esCCk+w2WfX5Ujp167OZsGvjyCwDgr6MyA0h2V93kyoZj+0fltOzzAelkd4XYujueMCEIb16MIRL9O9A/3yfLViswLwDKK3xagOu74miFY+sOAOCrrncHPlSV3u9bRo8pACvWGWOrVed4MUvkZaZtsVOPHYJT6E8KANDIdtsjDgBxUi5H2CQgmwbMdgEANnM6MUWR6glRDABsNpHeV7LW+xQnmwYAlvWwVFWbuJGwmTMg2yd2cN49WWABS4TlJQCARf7hBFSFzSZCUaQHxCow59keRxMW3n27k17CP5A0qfwWtf+8skYQ3r1WWSoFJmskiejExHE46mtCFN5AlG11kXu7MNsGGgk/EgB/Op3CfbJ0zqwAJqx9xQg9F6HnIkkEkkS0FUIpHbcoYeZaej8VW6Riq49JubGJWHZL0kQch4jjcBC7aB2OrTsk9RVktQOi5z8GgDB8hBdWA2IA9DlRViiFjfPzePI/FiUc1Bfwo3+RVEKfI8/ankQqHYTRdnAdTcp1G7hBDVWKQYwsUrDN2emrhJK19m2UyNEYajI0brZ1nt62C2+PD1fW3o2wKgXyNJyNydNw1A4mFvUwwQ+eW6lZd+dqMHBY51tU4cz5AZ7eAsBkvSW8NG6C2S7YJgL4E86WfgklhOXlbGczCfdjzDFGqvOW5kksMQUl6xdtURQpmO0+Nxje1fNkhIV3DySXnW4lVTXa6YDW93kmR7ubiZNZgkDPy37AOm8YcyC/juHD1eGTe5ge8HfFBXj0ssJUZabwrgrPkeHpLXh6i2Dzz2yOkykc1BedYz/8uid2Dav5Wz9uEqgLZsUDsrxELtrrM+dHJ25xwkQ08n8BAB5XoiW8cZEXLUk/YJ1uSMiKBz0x2qJHfLlva3uiW76GrCtN1t8cVhmy4mFybMvXAG/zH0XYvO0e+w0/cN6Uh8hqVUew5WsAH7CsvZlwUF8g8n/pH0HWFZjjDuwQBp/b64wqkBUPHXWn7EMWAxbwsJTti+eUHYioH35FLq41aXOBmbEi+468qHSsuSaApb+t7dUtVXTwYnst3kSY7DCHvKi0ugRSdEzdzrXiGlu+1gvNxNGWMK3AHBeyruDtT3l8jRv+s40z6zDV2t5dyAUGk1yUsJQWzMdb8hptmdMl1BKcXlwABqqa/gU+YFlbrNPRgutjzqtzuQhmzjyrX0/4kAVHuOE/IbLXVwuTZF+Id7fElH/zohqtCiYY2/1/PEyNYgqk9H9W7swE87XIoQAAAABJRU5ErkJggg==" alt="博士"></div>
         <img class="spark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAN0lEQVR42n2OwQkAIAwDg/sPUkerS1w/KrWo9ztCQqQEQPaWRaPrCm4A4MYxtYPF9H+zTutFfRtJXz5bne0p8wAAAABJRU5ErkJggg==" alt="">
       </div>
       <div class="pix-box has-tab speech">
@@ -531,12 +532,14 @@
 
   </main>
 
+
+<!-- V8 sealed: v7.2 final UI/frontend + new-mapping v7.4.7 refit algorithm + v6.3 copywriter; dev-test UI removed. -->
 <script>
     (() => {
       "use strict";
 
       const POKEDEX_URL = "data/pokedex.json";
-      const LEGENDARY_QUALITY_THRESHOLD = 0.86;
+      const LEGENDARY_QUALITY_THRESHOLD = 0.80;
       const SUB_TYPE_SOFTMAX_TEMPERATURE = 0.35;
       const UTC8_OFFSET_MINUTES = 480;
       const MIN_TIMEZONE_OFFSET_MINUTES = -720;
