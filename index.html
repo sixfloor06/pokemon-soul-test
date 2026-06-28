@@ -130,9 +130,24 @@
         3px 3px 0 #fff, -3px 3px 0 #fff, 3px -3px 0 #fff, -3px -3px 0 #fff,
         5px 6px 0 rgba(64,40,40,.22);
     }
+    .home-screen.is-active { display: block; text-align: center; }
+    .home-core {
+      min-height: calc(100svh - 54px);
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    }
     .home-welcome { width: min(100%, 340px); margin: 0 auto; text-align: left; font-size: 14px; line-height: 1.7; position: relative; min-height: 74px; }
     .home-welcome .flask { position: absolute; right: -4px; top: -30px; width: 44px; }
     .home-bottom { width: 100%; padding-bottom: 2vh; }
+    .home-notice {
+      width: min(100%, 340px);
+      margin: 0 auto 38px;
+      text-align: left;
+    }
+    .home-notice .pix-tab { left: 12px; }
+    .home-notice-copy { margin: 0; font-size: 13px; line-height: 1.78; letter-spacing: .5px; }
+    .home-notice-copy p { margin: 0 0 10px; }
+    .home-notice-copy p:last-child { margin-bottom: 0; }
+    .home-notice-copy .notice-footnote { font-size: 12px; line-height: 1.72; color: #7d4b45; }
 
     /* ===== input (professor) ===== */
     .prof-row { display: flex; align-items: flex-end; gap: 12px; margin: 2px 0 14px; }
@@ -388,18 +403,28 @@
 
     <!-- 开场 -->
     <section id="screen-home" class="screen home-screen is-active" aria-labelledby="home-title">
-      <div class="home-crest">
-        <img class="s1" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAN0lEQVR42n2OwQkAIAwDg/sPUkerS1w/KrWo9ztCQqQEQPaWRaPrCm4A4MYxtYPF9H+zTutFfRtJXz5bne0p8wAAAABJRU5ErkJggg==" alt="">
-        <img class="ball" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAApElEQVR42mNgoBAwogtoSEn9x6fhxrNnjDgNgGk+oKWAVbPDtQcYhjAia8alEZtBMEOYsDlbfPdRgobA9DDBBJBtf+lqDbcJ5mxkgKyWCZ8zrz+GYGyGoIQBtpC//hhVk6asAtYYYWKgBtCQkvr//+8vFIwshkuegYGBgQWXodcfP4A7G907OMMAn0Js4QEPA/TkSQyA6cGalHG5BNlmqmUmigEApvV3zj9exeUAAAAASUVORK5CYII=" alt="">
-        <img class="s2" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAALUlEQVR42mNggIL/////h7GZYAyGVyvhTIb///////9yxX9kGiH5cgWCg81MAHFHIC+jSxgmAAAAAElFTkSuQmCC" alt="">
+      <div class="home-core">
+        <div class="home-crest">
+          <img class="s1" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAN0lEQVR42n2OwQkAIAwDg/sPUkerS1w/KrWo9ztCQqQEQPaWRaPrCm4A4MYxtYPF9H+zTutFfRtJXz5bne0p8wAAAABJRU5ErkJggg==" alt="">
+          <img class="ball" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAApElEQVR42mNgoBAwogtoSEn9x6fhxrNnjDgNgGk+oKWAVbPDtQcYhjAia8alEZtBMEOYsDlbfPdRgobA9DDBBJBtf+lqDbcJ5mxkgKyWCZ8zrz+GYGyGoIQBtpC//hhVk6asAtYYYWKgBtCQkvr//+8vFIwshkuegYGBgQWXodcfP4A7G907OMMAn0Js4QEPA/TkSQyA6cGalHG5BNlmqmUmigEApvV3zj9exeUAAAAASUVORK5CYII=" alt="">
+          <img class="s2" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAALUlEQVR42mNggIL/////h7GZYAyGVyvhTIb///////9yxX9kGiH5cgWCg81MAHFHIC+jSxgmAAAAAElFTkSuQmCC" alt="">
+        </div>
+        <h1 id="home-title" class="home-title">宝可梦<br>共鸣测试</h1>
+        <div class="pix-box home-welcome">
+          <img class="flask" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAAaElEQVR42mNkgAK3qpb/DEhgV1sNIzKfCZmzqqGCYVVDBQM2wMRAJCBaIdx9H379QcHobibaREa3qpb/OxlUsEq6M9yB+54FJnjz3HYURepGnqR75v/LFf9ZcJmA4j7xCEZGbLGCLYYADgYtFgG3oukAAAAASUVORK5CYII=" alt="">
+          <p style="margin:0">欢迎来到宝可梦实验室，在这里你可以找到与你共鸣最深的宝可梦。</p>
+        </div>
+        <div class="home-bottom">
+          <button id="go-input" class="pix-button" type="button">开　始</button>
+        </div>
       </div>
-      <h1 id="home-title" class="home-title">宝可梦<br>共鸣测试</h1>
-      <div class="pix-box home-welcome">
-        <img class="flask" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAAaElEQVR42mNkgAK3qpb/DEhgV1sNIzKfCZmzqqGCYVVDBQM2wMRAJCBaIdx9H379QcHobibaREa3qpb/OxlUsEq6M9yB+54FJnjz3HYURepGnqR75v/LFf9ZcJmA4j7xCEZGbLGCLYYADgYtFgG3oukAAAAASUVORK5CYII=" alt="">
-        <p style="margin:0">欢迎来到宝可梦实验室，在这里你可以找到与你共鸣最深的宝可梦。</p>
-      </div>
-      <div class="home-bottom">
-        <button id="go-input" class="pix-button" type="button">开　始</button>
+      <div class="pix-box has-tab home-notice" aria-label="注意事项">
+        <span class="pix-tab">注意事项</span>
+        <div class="home-notice-copy">
+          <p>宝可梦发展到现在已经有一千多种，所有关注宝可梦的大家都有自己喜欢的宝可梦。但在某个不为人知的角落，也许有一只与你合拍但并未被你知晓的冷门宝可梦。</p>
+          <p>希望通过这个测试给你一些意外的惊喜，让冷门的宝可梦也能与你有相见的缘分。</p>
+          <p class="notice-footnote">*本测试仅供娱乐，提供完整的宝可梦库作为测试结果，不会收集任何个人信息。</p>
+        </div>
       </div>
     </section>
 
