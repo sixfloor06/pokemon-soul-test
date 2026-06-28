@@ -832,6 +832,131 @@
       width: min(100%, 300px) !important;
       transform: translateY(-38px) !important;
     }
+
+
+    /* ===== V9.4 MODULE SPACING AUDIT PATCH =====
+       Goal: keep the CTA top-lock accepted in v9.3, but remove module overlaps.
+       Rule: modules in the same page stack must use explicit, consistent vertical gaps.
+       No algorithm / data / sprite / interaction changes. */
+
+    :root {
+      --v94-module-gap: 24px;
+      --v94-field-gap: 20px;
+    }
+
+    /* Accepted CTA lock: keep all non-result main red buttons at the same visual top.
+       Do not use bottom alignment. */
+    #screen-home .home-bottom,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      position: fixed !important;
+      top: var(--cta-reference-top) !important;
+      bottom: auto !important;
+      left: 50% !important;
+      right: auto !important;
+      width: var(--cta-reference-width) !important;
+      margin: 0 !important;
+      transform: translateX(-50%) !important;
+      z-index: 24 !important;
+    }
+
+    /* 首页：保持主视觉 / 文字框 / CTA / 注意事项之间不重叠。 */
+    #screen-home {
+      overflow-y: auto !important;
+      padding-bottom: calc(220px + env(safe-area-inset-bottom)) !important;
+    }
+    #screen-home .home-hero {
+      margin-top: 8px !important;
+      margin-bottom: 16px !important;
+      transform: translateY(-13px) !important;
+    }
+    #screen-home .home-welcome {
+      margin-top: 0 !important;
+      margin-bottom: var(--v94-module-gap) !important;
+      transform: none !important;
+    }
+    #screen-home .home-notice-anchor {
+      position: absolute !important;
+      top: calc(var(--cta-reference-top) + 98px) !important;
+      bottom: auto !important;
+      left: 16px !important;
+      right: 16px !important;
+      padding-bottom: calc(28px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* 生日输入页：清除早期负向位移造成的对话框与字段标题重叠。
+       同类表单模块只通过 grid gap 统一间距，不再对单个 field 做 translate。 */
+    #screen-input {
+      overflow-y: auto !important;
+      padding-top: 28px !important;
+      padding-bottom: calc(220px + env(safe-area-inset-bottom)) !important;
+    }
+    #screen-input .prof-row {
+      transform: translateY(-16px) !important;
+      margin-top: 0 !important;
+      margin-bottom: 18px !important;
+    }
+    #screen-input .speech {
+      transform: none !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    #screen-input .pix-form {
+      transform: none !important;
+      margin-top: 36px !important;
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+      gap: var(--v94-field-gap) !important;
+    }
+    #screen-input .pix-form .pix-field,
+    #screen-input .pix-form #form-error {
+      transform: none !important;
+      margin: 0 !important;
+    }
+    #screen-input .pix-field label {
+      top: -12px !important;
+    }
+
+    /* 老虎虎机页：机器与查看报告按钮保持安全距离，按钮仍在同一 top 锁定高度。 */
+    #screen-machine {
+      overflow-y: auto !important;
+      padding-top: 34px !important;
+      padding-bottom: calc(220px + env(safe-area-inset-bottom)) !important;
+      gap: 0 !important;
+    }
+    #screen-machine .machine {
+      transform: translateY(-26px) !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* 结果页：不参与主按钮同高规则，但各内容块不能互相压叠。 */
+    #screen-result {
+      overflow-y: auto !important;
+      padding-top: 24px !important;
+      gap: 0 !important;
+    }
+    #screen-result #result-content {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 22px !important;
+      align-items: stretch !important;
+    }
+    #screen-result #result-content > div:first-child {
+      transform: translateY(-13px) !important;
+      margin-bottom: -13px !important;
+    }
+    #screen-result #result-content > .pix-box,
+    #screen-result #restart-resonance {
+      transform: translateY(-28px) !important;
+      margin-bottom: 0 !important;
+    }
+    #screen-result #restart-resonance {
+      position: static !important;
+      width: min(100%, 300px) !important;
+      align-self: center !important;
+    }
+
 </style>
 </head>
 <body>
