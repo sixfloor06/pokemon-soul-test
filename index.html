@@ -596,6 +596,124 @@
       #screen-result #restart-resonance { transform: translateY(-34px); }
       #screen-result #restart-resonance { margin-bottom: -34px; }
     }
+
+
+    /* ===== V9.1 strict CTA baseline override =====
+       Hard rule: all non-result red primary buttons share one rendered baseline.
+       Home / input / machine CTA buttons use identical absolute positioning.
+       Result page is intentionally excluded. */
+    :root {
+      --shared-cta-bottom: calc(86px + env(safe-area-inset-bottom));
+      --shared-cta-width: min(calc(100% - 96px), 300px);
+    }
+
+    #screen-home,
+    #screen-input,
+    #screen-machine {
+      position: relative;
+      min-height: calc(100svh - 0px);
+    }
+
+    /* Lock CTA wrappers/buttons to the same absolute baseline. */
+    #screen-home .home-bottom,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      position: absolute !important;
+      left: 50% !important;
+      right: auto !important;
+      bottom: var(--shared-cta-bottom) !important;
+      width: var(--shared-cta-width) !important;
+      margin: 0 !important;
+      padding-bottom: 0 !important;
+      transform: translateX(-50%) !important;
+      z-index: 12;
+    }
+
+    #screen-home .home-bottom .pix-button,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      display: block;
+      width: 100% !important;
+      min-height: 56px;
+      white-space: nowrap;
+    }
+
+    /* Home: content uses the reserved space above the locked CTA. */
+    #screen-home {
+      padding-bottom: calc(var(--shared-cta-bottom) + 102px);
+    }
+    #screen-home .home-hero {
+      margin-top: 8px !important;
+      margin-bottom: 4px !important;
+      transform: translateY(-13px);
+    }
+    #screen-home .home-welcome {
+      margin-top: -2px !important;
+    }
+    #screen-home .home-notice-anchor {
+      top: calc(100% - 34px) !important;
+    }
+
+    /* Input: free the form from earlier page-level translation, then move only content fields upward.
+       The CTA itself is removed from flow and locked to the shared baseline. */
+    #screen-input {
+      overflow: hidden;
+      padding-top: 24px !important;
+      padding-bottom: calc(var(--shared-cta-bottom) + 100px) !important;
+    }
+    #screen-input .prof-row {
+      transform: translateY(-26px) !important;
+      margin-bottom: 14px !important;
+    }
+    #screen-input .speech {
+      transform: translateY(-26px) !important;
+    }
+    #screen-input .pix-form {
+      transform: none !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+      gap: 18px;
+    }
+    #screen-input .pix-form .pix-field,
+    #screen-input .pix-form #form-error {
+      transform: translateY(-26px);
+    }
+
+    /* Machine: machine body moves upward; report CTA is locked to same baseline. */
+    #screen-machine {
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 34px !important;
+      padding-bottom: calc(var(--shared-cta-bottom) + 100px) !important;
+      gap: 0 !important;
+      overflow: hidden;
+    }
+    #screen-machine .machine {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      transform: translateY(-26px);
+    }
+    #screen-machine #see-report.is-hidden {
+      visibility: hidden;
+    }
+
+    /* Remove older small-screen transforms that would break the shared baseline. */
+    @media (max-width: 380px) {
+      :root { --shared-cta-bottom: calc(78px + env(safe-area-inset-bottom)); }
+      #screen-home .home-bottom,
+      #screen-input #start-resonance,
+      #screen-machine #see-report {
+        bottom: var(--shared-cta-bottom) !important;
+        transform: translateX(-50%) !important;
+      }
+      #screen-input .pix-form { transform: none !important; }
+      #screen-input .pix-form .pix-field,
+      #screen-input .pix-form #form-error { transform: translateY(-22px); }
+      #screen-machine .machine { transform: translateY(-22px); }
+      #screen-home .home-hero { transform: translateY(-11px); }
+    }
+
 </style>
 </head>
 <body>
@@ -755,7 +873,7 @@
   </main>
 
 
-<!-- V9 UI position adjusted complete build: headline/home/input/machine/result calibrated; no algorithm changes. -->
+<!-- V9.1 strict CTA aligned complete build: home/input/machine buttons share one absolute baseline; no algorithm changes. -->
 <!-- V8 sealed: v7.2 final UI/frontend + new-mapping v7.4.7 refit algorithm + v6.3 copywriter; dev-test UI removed. -->
 <script>
     (() => {
