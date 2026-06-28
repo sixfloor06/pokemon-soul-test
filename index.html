@@ -522,6 +522,316 @@
       .result-screen { padding-top: 26px; }
     }
 
+
+
+    /* ===== V9 page-position calibration =====
+       User measurement basis: 750 x 1624 px mobile canvas.
+       This build uses the existing 480px app canvas, so offsets are scaled by 480/750 ≈ 0.64:
+       40px -> 26px, 60px -> 38px, 140px -> 90px, 20px -> 13px.
+       UI-only patch: no algorithm / data / sprite / interaction logic changes. */
+
+    /* 首页：开始按钮在现有基础上下移约 40px（scaled: 26px）。 */
+    #screen-home .home-bottom {
+      transform: translateY(26px);
+    }
+
+    /* 生日输入页：博士头像上移约 40px。 */
+    #screen-input .prof-row {
+      transform: translateY(-26px);
+    }
+
+    /* 生日输入页：博士对话框 + 三个输入栏作为同一组，保持相对关系，整体上移约 60px。 */
+    #screen-input .speech,
+    #screen-input .pix-form {
+      transform: translateY(-38px);
+    }
+
+    /* 生日输入页：按钮需要比信息栏组额外上移，使其最终约等于现有基础上移 140px。 */
+    #screen-input #start-resonance {
+      transform: translateY(-52px);
+    }
+
+    /* 拉回按钮上移后留下的视觉空白，不影响控件尺寸。 */
+    #screen-input .pix-form {
+      margin-bottom: -52px;
+    }
+
+    /* 生日页由于上方控件上移，底部不额外挤压。 */
+    #screen-input {
+      overflow: hidden;
+    }
+
+    /* 老虎虎机页：查看报告按钮与首页/生日页红色按钮高度趋同。 */
+    #screen-machine #see-report {
+      transform: translateY(26px);
+    }
+
+    /* 结果页：headline 下方宝可梦图、名字、当前阶段整体上移约 20px。 */
+    #screen-result #result-content > div:first-child {
+      transform: translateY(-13px);
+      margin-bottom: -13px;
+    }
+
+    /* 结果页：检测档案、博士观察、进化链与再次测试按钮整体上移约 60px。 */
+    #screen-result #result-content > .pix-box,
+    #screen-result #restart-resonance {
+      transform: translateY(-38px);
+    }
+
+    /* 减少结果页底部因整体上移产生的空白。 */
+    #screen-result #restart-resonance {
+      margin-bottom: -38px;
+    }
+
+    @media (max-width: 380px) {
+      /* 小屏保持同一比例，不重新定义尺寸，只略微降低极限位移以避免浏览器底栏遮挡。 */
+      #screen-home .home-bottom { transform: translateY(22px); }
+      #screen-input .prof-row { transform: translateY(-22px); }
+      #screen-input .speech,
+      #screen-input .pix-form { transform: translateY(-34px); }
+      #screen-input #start-resonance { transform: translateY(-48px); }
+      #screen-machine #see-report { transform: translateY(22px); }
+      #screen-result #result-content > div:first-child { transform: translateY(-11px); margin-bottom: -11px; }
+      #screen-result #result-content > .pix-box,
+      #screen-result #restart-resonance { transform: translateY(-34px); }
+      #screen-result #restart-resonance { margin-bottom: -34px; }
+    }
+
+
+    /* ===== V9.1 strict CTA baseline override =====
+       Hard rule: all non-result red primary buttons share one rendered baseline.
+       Home / input / machine CTA buttons use identical absolute positioning.
+       Result page is intentionally excluded. */
+    :root {
+      --shared-cta-bottom: calc(86px + env(safe-area-inset-bottom));
+      --shared-cta-width: min(calc(100% - 96px), 300px);
+    }
+
+    #screen-home,
+    #screen-input,
+    #screen-machine {
+      position: relative;
+      min-height: calc(100svh - 0px);
+    }
+
+    /* Lock CTA wrappers/buttons to the same absolute baseline. */
+    #screen-home .home-bottom,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      position: absolute !important;
+      left: 50% !important;
+      right: auto !important;
+      bottom: var(--shared-cta-bottom) !important;
+      width: var(--shared-cta-width) !important;
+      margin: 0 !important;
+      padding-bottom: 0 !important;
+      transform: translateX(-50%) !important;
+      z-index: 12;
+    }
+
+    #screen-home .home-bottom .pix-button,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      display: block;
+      width: 100% !important;
+      min-height: 56px;
+      white-space: nowrap;
+    }
+
+    /* Home: content uses the reserved space above the locked CTA. */
+    #screen-home {
+      padding-bottom: calc(var(--shared-cta-bottom) + 102px);
+    }
+    #screen-home .home-hero {
+      margin-top: 8px !important;
+      margin-bottom: 4px !important;
+      transform: translateY(-13px);
+    }
+    #screen-home .home-welcome {
+      margin-top: -2px !important;
+    }
+    #screen-home .home-notice-anchor {
+      top: calc(100% - 34px) !important;
+    }
+
+    /* Input: free the form from earlier page-level translation, then move only content fields upward.
+       The CTA itself is removed from flow and locked to the shared baseline. */
+    #screen-input {
+      overflow: hidden;
+      padding-top: 24px !important;
+      padding-bottom: calc(var(--shared-cta-bottom) + 100px) !important;
+    }
+    #screen-input .prof-row {
+      transform: translateY(-26px) !important;
+      margin-bottom: 14px !important;
+    }
+    #screen-input .speech {
+      transform: translateY(-26px) !important;
+    }
+    #screen-input .pix-form {
+      transform: none !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+      gap: 18px;
+    }
+    #screen-input .pix-form .pix-field,
+    #screen-input .pix-form #form-error {
+      transform: translateY(-26px);
+    }
+
+    /* Machine: machine body moves upward; report CTA is locked to same baseline. */
+    #screen-machine {
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 34px !important;
+      padding-bottom: calc(var(--shared-cta-bottom) + 100px) !important;
+      gap: 0 !important;
+      overflow: hidden;
+    }
+    #screen-machine .machine {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      transform: translateY(-26px);
+    }
+    #screen-machine #see-report.is-hidden {
+      visibility: hidden;
+    }
+
+    /* Remove older small-screen transforms that would break the shared baseline. */
+    @media (max-width: 380px) {
+      :root { --shared-cta-bottom: calc(78px + env(safe-area-inset-bottom)); }
+      #screen-home .home-bottom,
+      #screen-input #start-resonance,
+      #screen-machine #see-report {
+        bottom: var(--shared-cta-bottom) !important;
+        transform: translateX(-50%) !important;
+      }
+      #screen-input .pix-form { transform: none !important; }
+      #screen-input .pix-form .pix-field,
+      #screen-input .pix-form #form-error { transform: translateY(-22px); }
+      #screen-machine .machine { transform: translateY(-22px); }
+      #screen-home .home-hero { transform: translateY(-11px); }
+    }
+
+
+
+    /* ===== V9.2 CTA reference alignment override =====
+       Correction: the shared red CTA baseline must follow the reference screenshot position,
+       not hug the bottom of the viewport. The target is a fixed visual top line around 80svh,
+       matching the homepage reference where the 注意事项 tab remains visible below with spacing.
+       Applies only to non-result red primary CTAs: home / input / machine. */
+    :root {
+      --shared-cta-top: 80svh;
+      --shared-cta-width: min(calc(100% - 96px), 300px);
+    }
+
+    #screen-home .home-bottom,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      position: absolute !important;
+      left: 50% !important;
+      right: auto !important;
+      top: var(--shared-cta-top) !important;
+      bottom: auto !important;
+      width: var(--shared-cta-width) !important;
+      margin: 0 !important;
+      padding-bottom: 0 !important;
+      transform: translateX(-50%) !important;
+      z-index: 12 !important;
+    }
+
+    #screen-home .home-bottom .pix-button,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      display: block;
+      width: 100% !important;
+      min-height: 56px;
+      white-space: nowrap;
+    }
+
+    /* Reserve space for the visible 注意事项 tab below the fixed CTA without pushing the CTA down. */
+    #screen-home {
+      padding-bottom: calc(20svh + 132px) !important;
+    }
+    #screen-home .home-notice-anchor {
+      top: calc(var(--shared-cta-top) + 132px) !important;
+    }
+
+    /* Keep input and machine content above the locked CTA. If conflict occurs, content moves, not CTA. */
+    #screen-input {
+      padding-bottom: calc(20svh + 118px) !important;
+    }
+    #screen-machine {
+      padding-bottom: calc(20svh + 118px) !important;
+    }
+
+    @media (max-width: 380px) {
+      :root { --shared-cta-top: 80svh; }
+      #screen-home .home-bottom,
+      #screen-input #start-resonance,
+      #screen-machine #see-report {
+        top: var(--shared-cta-top) !important;
+        bottom: auto !important;
+        transform: translateX(-50%) !important;
+      }
+      #screen-home .home-notice-anchor { top: calc(var(--shared-cta-top) + 128px) !important; }
+    }
+
+
+
+    /* ===== V9.3 CTA TOP-LOCK CORRECTION =====
+       Correction: the three non-result red primary buttons must NOT be bottom-aligned.
+       They are hard-locked to the reference visual height with top-based positioning.
+       No bottom: positioning is used for these buttons.
+    */
+    :root {
+      --cta-reference-top: clamp(500px, 73svh, 596px);
+      --cta-reference-width: min(300px, calc(100vw - 84px));
+    }
+
+    #screen-home .home-bottom,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      position: fixed !important;
+      top: var(--cta-reference-top) !important;
+      bottom: auto !important;
+      left: 50% !important;
+      right: auto !important;
+      width: var(--cta-reference-width) !important;
+      margin: 0 !important;
+      transform: translateX(-50%) !important;
+      z-index: 24;
+    }
+
+    #screen-home .home-bottom .pix-button,
+    #screen-input #start-resonance,
+    #screen-machine #see-report {
+      min-height: 48px !important;
+    }
+
+    #screen-home .home-notice-anchor {
+      position: absolute !important;
+      top: calc(var(--cta-reference-top) + 98px) !important;
+      bottom: auto !important;
+      left: 16px !important;
+      right: 16px !important;
+      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+    }
+
+    #screen-input .pix-form {
+      padding-bottom: 138px !important;
+    }
+
+    #screen-machine {
+      padding-bottom: 138px !important;
+    }
+
+    #screen-result #restart-resonance {
+      position: static !important;
+      width: min(100%, 300px) !important;
+      transform: translateY(-38px) !important;
+    }
 </style>
 </head>
 <body>
@@ -681,6 +991,7 @@
   </main>
 
 
+<!-- V9.1 strict CTA aligned complete build: home/input/machine buttons share one absolute baseline; no algorithm changes. -->
 <!-- V8 sealed: v7.2 final UI/frontend + new-mapping v7.4.7 refit algorithm + v6.3 copywriter; dev-test UI removed. -->
 <script>
     (() => {
