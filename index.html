@@ -115,6 +115,28 @@
     .pix-button[disabled] { opacity: .45; cursor: default; }
     .pix-button.is-hidden { visibility: hidden; }
 
+    /* ===== shared fixed button band (home / input / machine) =====
+       These three primary red buttons share one fixed vertical position so their
+       DOMRect.top / DOMRect.bottom are identical across pages, and they never move
+       while the page scrolls. --btn-band-top is calibrated (by JS) to the home
+       button's natural position, so the home button keeps its current placement
+       and the notice bar still shows below it. */
+    :root { --btn-band-top: 470px; }
+    .fixed-cta {
+      position: fixed;
+      top: var(--btn-band-top);
+      bottom: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(100% - 32px, 300px);
+      margin: 0;
+      z-index: 25;
+    }
+    .fixed-cta:active { transform: translateX(-50%) translate(2px, 3px); filter: drop-shadow(1px 2px 0 var(--shadow)); }
+    .fixed-cta.is-hidden { visibility: hidden; }
+    /* only the button on the currently active screen participates in the band */
+    .screen:not(.is-active) .fixed-cta { display: none; }
+
     /* ===== home ===== */
     .home-screen { align-items: center; justify-content: space-between; text-align: center; }
     .home-crest { position: relative; margin: 3vh 0 0; height: 56px; width: 200px; }
@@ -480,32 +502,39 @@
       margin-top: 26px;
       padding-bottom: 0;
       flex: 0 0 auto;
+      /* reserves the vertical slot of the now-fixed home button so the notice
+         keeps its spacing below and the home button stays in its current place */
+      min-height: 76px;
     }
     .home-notice-anchor {
-      position: absolute;
-      top: calc(100% - 34px);
-      left: 16px;
-      right: 16px;
+      position: static;
+      width: 100%;
+      margin-top: 20px;
       padding-bottom: calc(28px + env(safe-area-inset-bottom));
       pointer-events: auto;
+      flex: 0 0 auto;
     }
     .input-screen {
       padding-top: 32px;
+      overflow-y: auto;
+      /* clear the fixed CTA band: enough room to scroll every field above it */
+      padding-bottom: calc(60vh + env(safe-area-inset-bottom));
     }
     .input-screen .pix-form {
       margin-top: 16px;
     }
-    .input-screen .pix-form .pix-button {
-      margin-top: 38px;
+    .input-screen .pix-form .pix-button.fixed-cta {
+      margin-top: 0;
     }
     .machine-screen {
       align-items: center;
       justify-content: flex-start;
       padding-top: 66px;
       gap: 22px;
+      padding-bottom: calc(40vh + env(safe-area-inset-bottom));
     }
-    .machine-screen .pix-button {
-      margin-top: 22px;
+    .machine-screen .pix-button.fixed-cta {
+      margin-top: 0;
     }
     .result-screen {
       padding-top: 30px;
@@ -517,7 +546,7 @@
       .home-hero { margin-top: 14px; margin-bottom: 10px; }
       .home-bottom { margin-top: 22px; }
       .input-screen { padding-top: 28px; }
-      .input-screen .pix-form .pix-button { margin-top: 32px; }
+      .input-screen .pix-form .pix-button.fixed-cta { margin-top: 0; }
       .machine-screen { padding-top: 56px; }
       .result-screen { padding-top: 26px; }
     }
@@ -537,7 +566,7 @@
         <p style="margin:0">欢迎来到宝可梦实验室，在这里你可以找到与你共鸣最深的宝可梦。</p>
       </div>
       <div class="home-bottom">
-        <button id="go-input" class="pix-button" type="button">开　始</button>
+        <button id="go-input" class="pix-button fixed-cta" type="button">开　始</button>
       </div>
       <div class="home-notice-anchor" aria-label="注意事项">
         <div class="home-notice">
@@ -597,7 +626,7 @@
           </select>
         </div>
         <p id="form-error" class="form-error" role="alert" aria-live="polite"></p>
-        <button id="start-resonance" class="pix-button" type="submit">开始测试</button>
+        <button id="start-resonance" class="pix-button fixed-cta" type="submit">开始测试</button>
       </form>
     </section>
 
@@ -635,7 +664,7 @@
         <div class="machine-vent"></div>
         <div class="machine-tray"></div>
       </div>
-      <button id="see-report" class="pix-button is-hidden" type="button">查看报告</button>
+      <button id="see-report" class="pix-button fixed-cta is-hidden" type="button">查看报告</button>
     </section>
 
     <!-- 第三页：报告 -->
@@ -2288,6 +2317,36 @@
           screen.setAttribute("aria-hidden", String(!active));
         });
         window.scrollTo(0, 0);
+        calibrateButtonBand();
+      }
+
+      /* ---------- shared fixed-button band ----------
+         Pin all three primary CTAs to one vertical position equal to where the
+         home button naturally sits, so their DOMRect.top/bottom match exactly and
+         they don't scroll. The home .home-bottom placeholder marks that spot. */
+      function calibrateButtonBand() {
+        const placeholder = document.querySelector(".home-bottom");
+        if (!placeholder) return;
+        const homeActive = screens.home.classList.contains("is-active");
+        // Measure the placeholder only when the home screen is laid out; cache it.
+        if (homeActive) {
+          const top = Math.round(placeholder.getBoundingClientRect().top);
+          // Guard against transient 0/!visible measurements.
+          if (top > 0) {
+            calibrateButtonBand._top = top;
+            document.documentElement.style.setProperty("--btn-band-top", top + "px");
+          }
+        } else if (calibrateButtonBand._top) {
+          document.documentElement.style.setProperty(
+            "--btn-band-top",
+            calibrateButtonBand._top + "px"
+          );
+        }
+      }
+      window.addEventListener("resize", calibrateButtonBand);
+      window.addEventListener("orientationchange", calibrateButtonBand);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(calibrateButtonBand);
       }
 
       /* ---------- reels ---------- */
@@ -2740,6 +2799,10 @@
 
       window.PokemonSoulFrontend = { showScreen, runFrontendSelfTests, lookupHeightWeight, signalLines, safeExplanation, buildConciseObservation };
       showScreen("home");
+      // Recalibrate once everything (images/fonts) has settled.
+      requestAnimationFrame(calibrateButtonBand);
+      window.addEventListener("load", calibrateButtonBand);
+      setTimeout(calibrateButtonBand, 300);
     })();
   </script>
 
