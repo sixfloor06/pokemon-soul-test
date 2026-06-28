@@ -522,6 +522,80 @@
       .result-screen { padding-top: 26px; }
     }
 
+
+
+    /* ===== V9 page-position calibration =====
+       User measurement basis: 750 x 1624 px mobile canvas.
+       This build uses the existing 480px app canvas, so offsets are scaled by 480/750 ≈ 0.64:
+       40px -> 26px, 60px -> 38px, 140px -> 90px, 20px -> 13px.
+       UI-only patch: no algorithm / data / sprite / interaction logic changes. */
+
+    /* 首页：开始按钮在现有基础上下移约 40px（scaled: 26px）。 */
+    #screen-home .home-bottom {
+      transform: translateY(26px);
+    }
+
+    /* 生日输入页：博士头像上移约 40px。 */
+    #screen-input .prof-row {
+      transform: translateY(-26px);
+    }
+
+    /* 生日输入页：博士对话框 + 三个输入栏作为同一组，保持相对关系，整体上移约 60px。 */
+    #screen-input .speech,
+    #screen-input .pix-form {
+      transform: translateY(-38px);
+    }
+
+    /* 生日输入页：按钮需要比信息栏组额外上移，使其最终约等于现有基础上移 140px。 */
+    #screen-input #start-resonance {
+      transform: translateY(-52px);
+    }
+
+    /* 拉回按钮上移后留下的视觉空白，不影响控件尺寸。 */
+    #screen-input .pix-form {
+      margin-bottom: -52px;
+    }
+
+    /* 生日页由于上方控件上移，底部不额外挤压。 */
+    #screen-input {
+      overflow: hidden;
+    }
+
+    /* 老虎虎机页：查看报告按钮与首页/生日页红色按钮高度趋同。 */
+    #screen-machine #see-report {
+      transform: translateY(26px);
+    }
+
+    /* 结果页：headline 下方宝可梦图、名字、当前阶段整体上移约 20px。 */
+    #screen-result #result-content > div:first-child {
+      transform: translateY(-13px);
+      margin-bottom: -13px;
+    }
+
+    /* 结果页：检测档案、博士观察、进化链与再次测试按钮整体上移约 60px。 */
+    #screen-result #result-content > .pix-box,
+    #screen-result #restart-resonance {
+      transform: translateY(-38px);
+    }
+
+    /* 减少结果页底部因整体上移产生的空白。 */
+    #screen-result #restart-resonance {
+      margin-bottom: -38px;
+    }
+
+    @media (max-width: 380px) {
+      /* 小屏保持同一比例，不重新定义尺寸，只略微降低极限位移以避免浏览器底栏遮挡。 */
+      #screen-home .home-bottom { transform: translateY(22px); }
+      #screen-input .prof-row { transform: translateY(-22px); }
+      #screen-input .speech,
+      #screen-input .pix-form { transform: translateY(-34px); }
+      #screen-input #start-resonance { transform: translateY(-48px); }
+      #screen-machine #see-report { transform: translateY(22px); }
+      #screen-result #result-content > div:first-child { transform: translateY(-11px); margin-bottom: -11px; }
+      #screen-result #result-content > .pix-box,
+      #screen-result #restart-resonance { transform: translateY(-34px); }
+      #screen-result #restart-resonance { margin-bottom: -34px; }
+    }
 </style>
 </head>
 <body>
@@ -681,6 +755,7 @@
   </main>
 
 
+<!-- V9 UI position adjusted complete build: headline/home/input/machine/result calibrated; no algorithm changes. -->
 <!-- V8 sealed: v7.2 final UI/frontend + new-mapping v7.4.7 refit algorithm + v6.3 copywriter; dev-test UI removed. -->
 <script>
     (() => {
